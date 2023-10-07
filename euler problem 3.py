@@ -1,7 +1,7 @@
 #euler problem 3
 factors = []
 num = 13195
-primefactors = [1, num]
+primefactors = []
 def listfactors(Y, flist):
     floor = num // Y
     div = num / Y
@@ -10,15 +10,19 @@ def listfactors(Y, flist):
 for x in range(1, num):
     listfactors(x, factors)
 factors.append(num)
-print(factors)
+print("found all factors")
 
-def checkprime(Y):
-    floor = num // Y
-    div = num / Y
-    for x in range(1, len(factors)):
-        if floor == [primefactors] and div == [primefactors]:
-            primefactors.append(x)
-        
-        
-print(primefactors)
+
+def isprime(n):
+  for i in range(2,n):
+    if (n%i) == 0:
+      return False
+  return True
+
+for x in range(0, len(factors)):
+    if isprime(factors[x]) == True:
+        primefactors.append(factors[x])
+print("all factors that are prime have been found")
+    
+print(primefactors[-1])
     
