@@ -1,9 +1,11 @@
 import turtle
 import random
+import time
 t = turtle
 t.speed(10)
 t.Screen().bgcolor('black')
 t.color('white')
+t.hideturtle()
 def point_on_triangle(pt1, pt2, pt3):
     """
     Random point on the triangle with vertices pt1, pt2 and pt3.
