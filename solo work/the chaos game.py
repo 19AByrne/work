@@ -1,6 +1,5 @@
 import turtle
 import random
-import time
 t = turtle
 t.speed(10)
 t.Screen().bgcolor('black')
@@ -32,15 +31,3 @@ while 1==1:
     t.goto(midpoint)
     t.dot(2)
     ranpos = midpoint
-
-
-t.goto(point_on_triangle(p1,p2,p3))
-points = [p1,p2,p3]
-selected = random.choice(points)
-ranpos = t.pos()
-midx = (selected[0]+ranpos[0])/2
-midy = (selected[1]+ranpos[1])/2
-midpoint = (midx,midy)
-time.sleep(2)
-t.goto(midpoint)
-t.dot(1)
