@@ -50,16 +50,32 @@ print(adj)
 print(adjkey)
       
 done = []
-weight = {}
-weightkey = []
+weight = []
 for x in range(len(adj)):
     selectededge = adjkey[x]
     inpweight = int(input(f"What is the weight of edge {selectededge}\n"))
-    weight.update({selectededge:inpweight})
-    weightkey.append(selectededge)
+    weight.append((inpweight,selectededge))
     done.append(alpha[x])
-print(weight)
-print(weightkey)
 
+weight.sort()
 
+def checkcycle(p, weightedge):
+    origin = t.pos()
+    for x in range(len(p)):
+        t.goto(p[x])
+    newpos = t.pos()
+    if origin == newpos:
+        return True
+    else:
+        return False
+
+path = []
+for x in range(len(weight)):
+    selectededge = weight[x]
+    edge = selectededge[1]
+    p1 = edge[0]
+    p2 = edge[1]
+    print(p1)
+    print(p2)
+    
 t.done()
