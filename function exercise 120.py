@@ -7,30 +7,24 @@ def add():
     n2 = r.randint(5,20)
     s = n1+n2
     g = int(input(f"What is {n1} + {n2}?\n"))
-    if s == g:
-        return True
-    else:
-        return False
+    return s,g
     
 def sub():
     n1 = r.randint(25,50)
     n2 = r.randint(1,25)
     d = n1 - n2
     g = int(input(f"What is {n1} - {n2}?\n"))
-    if d == g:
+    return d,g
+    
+def check(func):
+    nums = (func())
+    if nums[0] == nums[1]:
         return True
     else:
         return False
-    
-    
-    
-    
-    
+       
 if selection == 1:
-    if add() == True:
-        print("correct")
-    else:
-        print("incorrect")
+    print(check(add))
 elif selection == 2:
-    pass
+    print(check(sub))
     
