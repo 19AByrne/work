@@ -14,10 +14,11 @@ def think():
     
 def sub(guess):
     if guess == comp_num:
-        print("correct")
+        return ("correct")
     else:
-        pass
+        return ("incorrect")
 gg = think()    
 while gg != comp_num:
-    sub(gg)
+    print(sub(gg))
     gg = think()
+print(sub(gg))
