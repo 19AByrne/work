@@ -21,17 +21,19 @@ def checkspecial(a1,b1,c1):
 a=0
 b=0
 c=0
-while c != 1001:
-    while b < c:
-        while a < b:
-            a+=1
-            checktriplet(a,b,c)
-            print(a,b,c)
+SumOf = 1000
+while a+b+c != SumOf:
+    while c != 1001:
+        while b < c:
+            while a < b:
+                a+=1
+                checktriplet(a,b,c)
+                print(a,b,c)
+            a=0
+            b+=1
         a=0
-        b+=1
-    a=0
-    b=0
-    c+=1
+        b=0
+        c+=1
 print(triplets)
 
 
