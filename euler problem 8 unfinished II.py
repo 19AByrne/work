@@ -20,16 +20,12 @@ series = """73167176531330624919225119674426574742355349194934
 05886116467109405077541002256983155200055935729725
 71636269561882670428252483600823257530420752963450"""
 highest = 0
-for x in range(len(series)-3):
-    if series[x] == "\n" or series[x+1] == "\n" or series[x+2] == "\n" or series[x+3] == "\n":
+for x in range(len(series)-12):
+    if series[x] == "\n" or series[x+1] == "\n" or series[x+2] == "\n" or series[x+3] == "\n" or series[x+4] == "\n" or series[x+5] == "\n" or series[x+6] == "\n" or series[x+7] == "\n" or series[x+8] == "\n" or series[x+9] == "\n" or series[x+10] == "\n" or series[x+11] == "\n" or series[x+12] == "\n":
         pass
     else:
-        a = int(series[x])
-        b = int(series[x+1])
-        c = int(series[x+2])
-        d = int(series[x+3])
-        current = a*b*c*d
-        if current > highest:
-            highest = current
         
+        current= int(series[x])*int(series[x+1])*int(series[x+2])*int(series[x+3])*int(series[x+4])*int(series[x+5])*int(series[x+6])*int(series[x+7])*int(series[x+8])*int(series[x+9])*int(series[x+10])*int(series[x+11])*int(series[x+12])
+        if current > highest:
+            highest = current   
 print(highest)
