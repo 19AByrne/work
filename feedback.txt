@@ -1,0 +1,5 @@
+Positive: Bob improved grades, more confident now.
+Negative: John needs better time management for coursework.
+Negative: Jane should work on communication in group activities.
+Negative: Joe could benefit from asking more questions in class.
+Positive: Josh excels academically, a great team player.
