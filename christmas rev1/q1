@@ -1,0 +1,3 @@
+#christmas revision exercise 1 q1
+user_name = str(input("Enter your name: "))
+print(f"Hello {user_name}")
