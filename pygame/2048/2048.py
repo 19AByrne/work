@@ -97,12 +97,29 @@ squares = [s1,s2,s3,s4,
 
 number_2 = pygame.image.load('squares/2.png').convert_alpha()
 number_2_rect = number_2.get_rect(topleft = (65,65))
-number_4 = pygame.image.load('squares/4.png').convert_alpha()
-number_8 = pygame.image.load('squares/8.png').convert_alpha()
-number_16 = pygame.image.load('squares/16.png').convert_alpha()
-number_32 = pygame.image.load('squares/32.png').convert_alpha()
+# number_4 = pygame.image.load('squares/4.png').convert_alpha()
+# number_8 = pygame.image.load('squares/8.png').convert_alpha()
+# number_16 = pygame.image.load('squares/16.png').convert_alpha()
+# number_32 = pygame.image.load('squares/32.png').convert_alpha()
 
 live_squares = []
+
+debug = {pygame.K_5:s1,
+         pygame.K_6:s2,
+         pygame.K_7:s3,
+         pygame.K_8:s4,
+         pygame.K_t:s5,
+         pygame.K_y:s6,
+         pygame.K_u:s7,
+         pygame.K_i:s8,
+         pygame.K_g:s9,
+         pygame.K_h:s10,
+         pygame.K_j:s11,
+         pygame.K_k:s12,
+         pygame.K_b:s13,
+         pygame.K_n:s14,
+         pygame.K_m:s15,
+         pygame.K_COMMA:s16}
 
 screen.fill(bg_colour)
 
@@ -112,12 +129,20 @@ while running:
             pygame.quit()
             exit() 
         if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r:
+                for sq in squares:
+                    sq.value = 0
             if event.key == pygame.K_SPACE:
                 spawn()
             if event.key == pygame.K_UP:
                 move('up')
             if event.key == pygame.K_DOWN:
                 move('down')
+            #DEBUG#    
+            if event.key in debug:
+                debug[event.key].value = 1
+            #######
+                
     for key in xy.keys():
         bg_square = pygame.draw.rect(screen,bg_square_colour,(xy[key][0],xy[key][1],160,160))
     for square in squares:
