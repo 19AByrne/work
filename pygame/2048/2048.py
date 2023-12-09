@@ -15,17 +15,26 @@ def spawn():
     
 def move(direction):
     if direction == 'up':
-        
-#         for x in range(4):
-#             above_squares = [square
-        for square in squares:                                           
-            for othersquare in squares:
-                if othersquare.coords[1] == square.coords[1]:
-                    if othersquare.coords[0] == 0:
-                        if othersquare.value == 0:
-                            pass
-                            #decrease sq=uare value and increase this square value
-                    
+        for square in squares:
+            if square.value >= 1:
+                for othersquare in squares:
+                    if othersquare.value == 0 and othersquare.coords[0] == square.coords[0]:
+                        for x in range(0,int(square.coords[1])):
+                            if othersquare.value == 0:
+                                othersquare.value += 1
+                                square.value = 0            
+                        break
+    elif direction == 'down':
+        for square in squares:
+            if square.value >= 1:
+                for othersquare in squares:
+                    if othersquare.value == 0 and othersquare.coords[0] == square.coords[0]:
+                        for x in range(3,int(square.coords[1]), -1):
+                            if othersquare.value == 0:
+                                othersquare.value += 1
+                                square.value = 0            
+                        break
+                                                     
     
 pygame.init()
 scwidth = 800
@@ -42,44 +51,44 @@ bg_square_colour = (145, 145, 145)
 
 
 xy = {(0,0):(65,65),
-              (1,0):(235,65),
-              (2,0):(405,65),
-              (3,0):(575,65),
+    (1,0):(235,65),
+    (2,0):(405,65),
+    (3,0):(575,65),
               
-              (0,1):(65,235),
-              (1,1):(235,235),
-              (2,1):(405,235),
-              (3,1):(575,235),
+    (0,1):(65,235),
+    (1,1):(235,235),
+    (2,1):(405,235),
+    (3,1):(575,235),
               
-              (0,2):(65,405),
-              (1,2):(235,405),
-              (2,2):(405,405),
-              (3,2):(575,405),
+    (0,2):(65,405),
+    (1,2):(235,405),
+    (2,2):(405,405),
+    (3,2):(575,405),
               
-              (0,3):(65,575),
-              (1,3):(235,575),
-              (2,3):(405,575),
-              (3,3):(575,575),}
+    (0,3):(65,575),
+    (1,3):(235,575),
+    (2,3):(405,575),
+    (3,3):(575,575),}
 
-s1 = Square(xy[0,0],0)
-s2 = Square(xy[1,0],0)
-s3 = Square(xy[2,0],0)
-s4 = Square(xy[3,0],0)
+s1 = Square((0,0),0)
+s2 = Square((1,0),0)
+s3 = Square((2,0),0)
+s4 = Square((3,0),0)
 
-s5 = Square(xy[0,1],0)
-s6 = Square(xy[1,1],0)
-s7 = Square(xy[2,1],0)
-s8 = Square(xy[3,1],0)
+s5 = Square((0,1),0)
+s6 = Square((1,1),0)
+s7 = Square((2,1),0)
+s8 = Square((3,1),0)
 
-s9 = Square(xy[0,2],0)
-s10 = Square(xy[1,2],0)
-s11 = Square(xy[2,2],0)
-s12 = Square(xy[3,2],0)
+s9 = Square((0,2),0)
+s10 = Square((1,2),0)
+s11 = Square((2,2),0)
+s12 = Square((3,2),0)
 
-s13 = Square(xy[0,3],0)
-s14 = Square(xy[1,3],0)
-s15 = Square(xy[2,3],0)
-s16 = Square(xy[3,3],0)              
+s13 = Square((0,3),0)
+s14 = Square((1,3),0)
+s15 = Square((2,3),0)
+s16 = Square((3,3),0)              
 
 squares = [s1,s2,s3,s4,
            s5,s6,s7,s8,
@@ -107,11 +116,13 @@ while running:
                 spawn()
             if event.key == pygame.K_UP:
                 move('up')
+            if event.key == pygame.K_DOWN:
+                move('down')
     for key in xy.keys():
         bg_square = pygame.draw.rect(screen,bg_square_colour,(xy[key][0],xy[key][1],160,160))
     for square in squares:
         if square.value == 1:
-            screen.blit(number_2,square.coords)
+            screen.blit(number_2,xy[square.coords])
         
         
 
