@@ -24,18 +24,17 @@ def move(direction):
                                 othersquare.value += 1
                                 square.value = 0            
                         break
-    elif direction == 'down':
+    elif direction == 'left':
         for square in squares:
             if square.value >= 1:
                 for othersquare in squares:
-                    if othersquare.value == 0 and othersquare.coords[0] == square.coords[0]:
-                        for x in range(3,int(square.coords[1]), -1):
+                    if othersquare.value == 0 and othersquare.coords[1] == square.coords[1]:
+                        for x in range(0,int(square.coords[0])):
                             if othersquare.value == 0:
                                 othersquare.value += 1
-                                square.value = 0            
-                        break
-                                                     
-    
+                                square.value = 0  
+                        break                            
+
 pygame.init()
 scwidth = 800
 scheight = 800
@@ -95,6 +94,26 @@ squares = [s1,s2,s3,s4,
            s9,s10,s11,s12,
            s13,s14,s15,s16]
 
+# col0 = [s1,s5,s9,s13] 
+# col1 = [s2,s6,s10,s14]
+# col2 = [s3,s7,s11,s15]
+# col3 = [s4,s8,s12,s16]
+# row0 = [s1,s2,s3,s4]
+# row1 = [s5,s6,s7,s8]
+# row2 = [s9,s10,s11,s12]
+# row3 = [s13,s14,s15,s16]
+
+
+valuetablerow0 = [s1.value,s2.value,s3.value,s4.value]
+valuetablerow1 = [s5.value,s6.value,s7.value,s8.value]
+valuetablerow2 = [s9.value,s10.value,s11.value,s12.value]
+valuetablerow3 = [s13.value,s14.value,s15.value,s16.value]
+
+valuetablecol0 = [s1.value,s5.value,s9.value,s13.value]
+valuetablecol1= [s2.value,s6.value,s10.value,s14.value]
+valuetablecol2 = [s3.value,s7.value,s11.value,s15.value]
+valuetablecol3 = [s4.value,s8.value,s12.value,s16.value]
+
 number_2 = pygame.image.load('squares/2.png').convert_alpha()
 number_2_rect = number_2.get_rect(topleft = (65,65))
 # number_4 = pygame.image.load('squares/4.png').convert_alpha()
@@ -138,6 +157,8 @@ while running:
                 move('up')
             if event.key == pygame.K_DOWN:
                 move('down')
+            if event.key == pygame.K_LEFT:
+                move('left')
             #DEBUG#    
             if event.key in debug:
                 debug[event.key].value = 1
