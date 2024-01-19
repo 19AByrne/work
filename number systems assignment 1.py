@@ -39,3 +39,17 @@ while 1:
         num2 = str(input("Enter binary num2: "))
         print(f"Sum of these nums is {addingbinary(num1,num2)}")
     print()
+
+
+
+def addingbinary(b1,b2):
+    b1r = b1[::-1]
+    b2r = b2[::-1]
+    b3r = ''
+    lengths = [len(b1),len(b2)]
+    length = max(lengths)
+    for x in range(length):
+        if b1r[x] == b2r[x] and b1r == '1':
+            b3r = b3r+'0'
+        elif b1r[x] == b2r[x] and b1r == '0':
+            b3r = b3r+'0'
