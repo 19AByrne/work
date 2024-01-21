@@ -19,13 +19,37 @@ def decimaltobinary(decimal):
     return binary
 
 def addingbinary(b1,b2):
-    d1 = binarytodecimal(b1)
-    d2 = binarytodecimal(b2)
-    total = d1 + d2
-    total = str(total)
-    binarysum = decimaltobinary(total)
-    return binarysum
-
+    b3 = ''
+    if len(b1) != len(b2):
+        while len(b1) > len(b2):
+            b2 = '0' + b2
+        while len(b2) > len(b1):
+            b1 = '0' + b1
+    b1 = '0' + b1
+    b2 = '0' + b2
+    b1r = b1[::-1]
+    b2r = b2[::-1]
+    print(b1r)
+    print(b2r)
+    carrying = False
+    for i in range(len(b1)):
+        bsum = 0
+        if carrying:
+            bsum = 1
+        b1n = int(b1r[i])
+        b2n = int(b2r[i])
+        bsum += (b1n+b2n)
+        print(bsum)
+        if bsum == 2:
+            carrying = True
+            bsum = 0
+        elif bsum == 3:
+            carrying = True
+            bsum = 1
+        bsum = str(bsum)
+        b3 = bsum + b3
+    return b3
+        
 while 1:
     choice = input("binary to decimal(1), decimal to binary(2), or adding binary(3)\n")
     if choice == '1':
@@ -40,16 +64,4 @@ while 1:
         print(f"Sum of these nums is {addingbinary(num1,num2)}")
     print()
 
-
-
-def addingbinary(b1,b2):
-    b1r = b1[::-1]
-    b2r = b2[::-1]
-    b3r = ''
-    lengths = [len(b1),len(b2)]
-    length = max(lengths)
-    for x in range(length):
-        if b1r[x] == b2r[x] and b1r == '1':
-            b3r = b3r+'0'
-        elif b1r[x] == b2r[x] and b1r == '0':
-            b3r = b3r+'0'
+            
