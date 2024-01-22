@@ -29,17 +29,18 @@ def addingbinary(b1,b2):
     b2 = '0' + b2
     b1r = b1[::-1]
     b2r = b2[::-1]
-    print(b1r)
-    print(b2r)
+#     print(b1r)
+#     print(b2r)
     carrying = False
     for i in range(len(b1)):
-        bsum = 0
         if carrying:
             bsum = 1
+        else:
+            bsum = 0
         b1n = int(b1r[i])
         b2n = int(b2r[i])
         bsum += (b1n+b2n)
-        print(bsum)
+#         print(bsum)
         if bsum == 2:
             carrying = True
             bsum = 0
@@ -48,6 +49,8 @@ def addingbinary(b1,b2):
             bsum = 1
         bsum = str(bsum)
         b3 = bsum + b3
+    while b3[0] == '0':
+        b3 = b3[1:]
     return b3
         
 while 1:
