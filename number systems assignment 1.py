@@ -7,7 +7,6 @@ def binarytodecimal(binary):
             num = 1*(2**expo)
             total += num
     return total
-        
 def decimaltobinary(decimal):
     binary = ''
     decimal = int(decimal)
@@ -17,7 +16,7 @@ def decimaltobinary(decimal):
         binary = mod + binary
         decimal = decimal // 2
     return binary
-
+ 
 def addingbinary(b1,b2):
     b3 = ''
     if len(b1) != len(b2):
@@ -52,7 +51,6 @@ def addingbinary(b1,b2):
     while b3[0] == '0':
         b3 = b3[1:]
     return b3
-            
 def binarytohexa(binary):
     hexa = ''
     hexalist = {'10':'A', '11':'B', '12':'C', '13':'D', '14':'E', '15':'F'}
@@ -66,7 +64,7 @@ def binarytohexa(binary):
             hexanum = hexalist[hexanum]
         hexa = hexa + hexanum
     return hexa
-
+ 
 def hexatobinary(hexa):
     binary = ''
     hexalist = {'A':'10', 'B':'11', 'C':'12', 'D':'13', 'E':'14', 'F':'15'}
@@ -79,7 +77,7 @@ def hexatobinary(hexa):
             binarysection = '0' + binarysection
         binary = binary + binarysection
     return binary
-
+ 
 def hexatodecimal(hexa):
     total = 0
     hexalist = {'A':'10', 'B':'11', 'C':'12', 'D':'13', 'E':'14', 'F':'15'}
@@ -92,7 +90,7 @@ def hexatodecimal(hexa):
             num = num*(16**expo)
             total += num
     return total
-
+ 
 def decimaltohexa(decimal):
     hexa = ''
     hexalist = {'10':'A', '11':'B', '12':'C', '13':'D', '14':'E', '15':'F'}
@@ -105,7 +103,6 @@ def decimaltohexa(decimal):
         hexa = mod + hexa
         decimal = decimal // 16
     return hexa   
-          
 while 1:
     choice = input("binary to decimal(1), decimal to binary(2), adding binary(3), binary to hexadecimal(4), hexadecimal to binary(5), hexadecimal to decimal(6), decimal to hexadecimal(7)\n")
     if choice == '1':
@@ -131,5 +128,3 @@ while 1:
         num = str(input("Enter decimal: "))
         print(f"Hexadecimal is {decimaltohexa(num)}")
     print()
-
-            
