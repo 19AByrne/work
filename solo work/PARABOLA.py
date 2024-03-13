@@ -4,7 +4,7 @@ import sympy
 import math
 import time
 
-points = 1
+points = 100
 length = 200
 height = 350
 t.speed(10)
@@ -66,10 +66,10 @@ for x in range(points):
     ylines.append((ypoints[x],ypoints2[x]))
 xlines=xlines[::-1]
 
-
-for i in range(points):
-    drawline(xlines[i])
-    drawline(ylines[i])
+"""UNCOMMENT THIS FOR LOOP TO SEE CONSTRUCTION LINES"""
+# for i in range(points):
+#     drawline(xlines[i])
+#     drawline(ylines[i])
 
 intersections = []
 for x in range(points):
@@ -86,6 +86,7 @@ t.goto(vertex)
 
 for x in intersections2:
     t.goto(x)
+
 
 
 

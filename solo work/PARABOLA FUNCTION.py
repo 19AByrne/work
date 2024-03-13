@@ -4,6 +4,7 @@ import sympy
 import math
 import time
 
+
 points = 5
 length = 200
 height = 350
@@ -13,6 +14,7 @@ t.Screen().bgcolor('black')
 t.hideturtle()
 
 
+    
 def line_intersection(line1, line2):
     xdiff = (line1[0][0] - line1[1][0], line2[0][0] - line2[1][0])
     ydiff = (line1[0][1] - line1[1][1], line2[0][1] - line2[1][1])
@@ -38,6 +40,7 @@ def drawline(line):
     
 
 def parabola(p,h,l,dl,c):
+    t.penup()
     t.backward(l)
     for x in range(2):
         t.forward(l*2)
@@ -85,15 +88,23 @@ def parabola(p,h,l,dl,c):
     for x in intersections2:
         t.goto(x)
         
-    t.done()
-points = int(input("Enter amount of points: "))
+
+# points = int(input("Enter amount of points: "))
 length = 200
 height = 350
-colour = str(input("Enter Colour: "))
-drawlines = str(input("Do you want to see contruction lines? (y/n)\n"))
+# colour = str(input("Enter Colour: "))
+colour = 'red'
+# drawlines = str(input("Do you want to see contruction lines? (y/n)\n"))
+drawlines = 'y'
 if drawlines == 'y':
     drawlines == True
 else:
     drawlines == False
 
-parabola(points,height,length,drawlines,colour)
+points = 1
+for x in range(6):
+    parabola(points,height,length,drawlines,colour)
+    t.getscreen().getcanvas().postscript(file='parabola.ps')
+    points += 1
+    t.clear()
+    
