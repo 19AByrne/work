@@ -1,6 +1,4 @@
 import turtle as t
-import mpmath
-import sympy
 import math
 import time
 
