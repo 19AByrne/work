@@ -64,7 +64,7 @@ def UTFtoString(utf):
         splitchar = binarytodecimal(''.join(splitchar))
         chars.append(chr(splitchar))
         utf = utf[onecount*8:]
-    output = ' '.join(chars)
+    output = ''.join(chars)
     return output
         
 # print(UTFtoString('11110000100111111000111010110101'))
