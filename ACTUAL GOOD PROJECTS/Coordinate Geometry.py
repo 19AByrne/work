@@ -4,7 +4,7 @@ import re
 import random as r
 import sympy
 
-scale = 20
+scale = 10
 t.speed(0)
 t.bgcolor('black')
 t.color('white')
@@ -37,6 +37,13 @@ class Circle:
         self.f = (y/2)
         self.centre = (-(self.g),-(self.f))
         self.r = math.sqrt((self.g)**2+(self.f)**2-c)
+
+class Triangle:
+    def __init__(self,p1,p2,p3):
+        self.p1 = p1
+        self.p2 = p2
+        self.p3 = p3
+        self.g = (((p1[0]+p2[0]+p3[0])/3)*scale,((p1[1]+p2[1]+p3[1])/3)*scale)
         
 def CoefficientIntercept(equation):
     #turns string eqn into coefs. line or circle
@@ -94,6 +101,9 @@ def Coeftoeqn(coefs,c=False):
 def Angle(slope):
     return math.degrees(math.atan(slope))
 
+def Slopefromangle(angle):
+    return math.tan(angle)
+
 def slopefrompoints(p1,p2):
     return (p2[1]-p1[1])/(p2[0]-p1[0])
 
@@ -101,10 +111,16 @@ def midpoint(p1,p2):
     return ((p1[0]+p2[0])/2,(p1[1]+p2[1])/2)
 
 def perpslope(slope):
-    return (-(1/slope))
+    if slope == 0:
+        return 'Undefined'
+    else:
+        return (-(1/slope))
 
 def Distance2points(t,k):
     return math.sqrt((k[0]-t[0])**2+(k[1]-t[1])**2)
+
+def anglebetweenlines(m1,m2):
+    return math.degrees(math.atan(abs((m1-m2)/(1+m1*m2))))
 
 def drawline(l):
     #draws line, given string equation
@@ -154,16 +170,24 @@ def commonct(s1,s2):
     chord = Coeftoeqn(chord)
     drawline(chord)
     
-def linegeneral(p,m):
+def linegeneral(p,m,h=False):
     #draws line, given point, given slope
+    #can return string of line if hidden == True
     """
     y-y1=m(x-x1)
     mx-y-ma+b=0
     """
 #     print((m,-1,-(m*p[0])+p[1]))
-    line = (m,-1,-(m*p[0])+p[1])
-    line = Coeftoeqn(line)
-    drawline(line)
+    if m == 'Undefined':
+        line = f'1x+0y{sign(p[0])}'
+        print(line)
+    else:
+        line = (m,-1,-(m*p[0])+p[1])
+        line = Coeftoeqn(line)
+    if h == False:
+        drawline(line)
+    else:
+        return line
     
 def drawcircleptc(c,k):
     #draws tangent and circle. given circle string equation, given pt of cont
@@ -180,7 +204,7 @@ def tangentfrom(c,p):
     c = Circle(c[0],c[1],c[2])
     m = sympy.symbols('m', real = True)
     
-    #variables for perpdistance of point to line
+    #variables for perp distance of point to line
     r = c.r
     a = m
     x1 = c.centre[0]
@@ -193,12 +217,98 @@ def tangentfrom(c,p):
     tangent1 = linegeneral(p,slopes[0])
     tangent2 = linegeneral(p,slopes[1])
     
-def circleradiuscentre(r,c):
+def sign(num):
+    if num > 0:
+        return f'+{num}'
+    elif num < 0:
+        return f'{num}'
     
-               
+def circleradiuscentre(r,c):
+    #draws circle. given radius and centre
+    g = (-1*c[0])
+    f = (-1*c[1])
+    c = -r**2+g**2+f**2
+    circle = f'x^2+y^2{sign(2*g)}x{sign(2*f)}y{sign(c)}'
+    drawcircle(circle)
                    
-                   
-                   
+def triangle(ps):
+    #draws triangle. given 3 points
+    p1 = ps[0]
+    p2 = ps[1]
+    p3 = ps[2]
+    t.penup()
+    t.color('green')
+    t.goto(p1[0]*scale,p1[1]*scale)
+    t.pendown()
+    t.goto(p2[0]*scale,p2[1]*scale)
+    t.goto(p3[0]*scale,p3[1]*scale)
+    t.goto(p1[0]*scale,p1[1]*scale)
+
+def centroid(ps):
+    p1 = ps[0]
+    p2 = ps[1]
+    p3 = ps[2]
+    t.penup()
+    tri = Triangle(p1,p2,p3)
+    t.goto(tri.g)
+    t.color('light green')
+    t.dot(6)
+
+def bisector(p1,p2):
+    #returns string equation of bisector between 2 given points
+    M = midpoint(p1,p2)
+    m = slopefrompoints(p1,p2)
+    if m == 0:
+        bisector = f'1x+0y{sign(-(M[0]))}'
+        return bisector
+    else:
+        m = perpslope(m)
+        bisector = linegeneral(M,m,True)
+        return bisector
+    
+def circumcircle(ps):
+    #draws circumcentre/circumcircle,given 3 points
+    p1 = ps[0]
+    p2 = ps[1]
+    p3 = ps[2]
+    edges = [(p1,p2),(p1,p3),(p2,p3)]
+    Midpoints = [midpoint(x[0],x[1]) for x in edges]
+    Slopes = [slopefrompoints(x[0],x[1]) for x in edges]
+    Slopes = [perpslope(m) for m in Slopes]
+    bisectors = []
+    for i in edges:
+        bisectors.append(bisector(i[0],i[1]))
+    circumcentre = simultaneous(bisectors[0],bisectors[1])
+    t.goto(circumcentre)
+    t.color('red')
+    t.dot(5)
+    circumcentre = (circumcentre[0]/scale,circumcentre[1]/scale)
+    r = Distance2points((circumcentre),(p1[0],p1[1]))
+    circleradiuscentre(r,circumcentre)
+    
+def incircle(ps):
+    p1 = ps[0]
+    p2 = ps[1]
+    p3 = ps[2]
+    edges = [(p1,p2),(p1,p3),(p2,p3)]
+    Slopes = [slopefrompoints(x[0],x[1]) for x in edges]
+    Angles = [anglebetweenlines(Slopes[0],Slopes[1]),anglebetweenlines(Slopes[0],Slopes[2]),anglebetweenlines(Slopes[1],Slopes[2])]
+    
+    Bisectors = []
+    
+    t.goto(p1[0]*scale,p1[1]*scale)
+    t.setheading(t.towards(p3[0]*scale,p3[1]*scale))
+    t.left(Angles[0]/2)
+    m = Slopefromangle(t.heading())
+    t.pendown()
+    t.forward(100)
+    linegeneral((p1[0],p1[1]),m)
+#     Bisectors.append(linegeneral((p1[0],p1[1]),m))
+    
+
+    
+    print(Bisectors)
+    
 # circle1 = 'x^2+y^2+2x-4y-4'
 # circle2 = 'x^2+y^2-4x-12y+36'
 # circle3 = 'x^2+y^2-0.4x-7.2y-12.04'
@@ -210,10 +320,18 @@ def circleradiuscentre(r,c):
 
 # drawcircleptc('x^2+y^2-4x+2y-20',(5,-5))
 
-circle = 'x^2+y^2-2x-4y-5'
-outpoint = (6,11)
-tangentfrom(circle,outpoint)
-drawcircle(circle)
+# circle = 'x^2+y^2-2x-4y-5'
+# outpoint = (6,11)
+# tangentfrom(circle,outpoint)
+# drawcircle(circle)
+
+# circleradiuscentre(10,(-2,2))
+
+mytriangle = ((-23,-3),(-35,35),(12,3))
+triangle(mytriangle)
+centroid(mytriangle)
+circumcircle(mytriangle)
+incircle(mytriangle)
 
 t.done()
 
