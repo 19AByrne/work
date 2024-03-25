@@ -5,13 +5,13 @@ import math
 t.bgcolor('black')
 t.color('white')
 t.speed(10)
-t.hideturtle()
+# t.hideturtle()
 
 rg = 250
 
-# A = ((r.randint(-rg,rg)),(r.randint(-rg,rg)))
-# B = ((r.randint(-rg,rg)),(r.randint(-rg,rg)))
-# C = ((r.randint(-rg,rg)),(r.randint(-rg,rg)))
+A = ((r.randint(-rg,rg)),(r.randint(-rg,rg)))
+B = ((r.randint(-rg,rg)),(r.randint(-rg,rg)))
+C = ((r.randint(-rg,rg)),(r.randint(-rg,rg)))
 A = (100,-100)
 B = (-150,-150)
 C = (0,80)
@@ -135,23 +135,77 @@ def DrawCircum():
     t.dot(10)
 
     radius = Distance2points(circumcentre,A)
-    TheSlope = Slope(circumcentre,A)
-    t.goto(A)
-    TheSlope = PerpendicularSlope(TheSlope)
-    TheAngle = Angle(TheSlope)
-    t.setheading(TheAngle)
+    t.setheading(0)
+    t.forward(radius)
+    t.left(90)
     t.pendown()
     t.circle(radius)
 
-# DrawCentroid()
-# DrawCircum()
+
 
 def anglebetween(m1,m2):
     return math.degrees(math.atan((m1-m2)/1+(m1)*(m2)))
 """
-slope of CB = angle of a
-slope of AC = angle of 
+slope of AC,BA = angle of a
+slope of BC,BA = angle of b
+slope of CB,CA = angle of c
 # slopes = [Slope(C,B),Slope(A,C),Slope(A,B)]
 """
-# Angles = [anglebetween(
 
+slopes = [Slope(A,C),Slope(B,C),Slope(C,B)]
+slopes2 = [Slope(A,B),Slope(A,B),Slope(C,A)]
+Angles = [anglebetween(slopes[0],slopes2[0]),anglebetween(slopes2[1],slopes[1]),anglebetween(slopes[2],slopes[2])]
+Angles = [abs(x/2) for x in Angles]
+AngularBisectors = []
+
+t.goto(A)
+t.setheading(Angle(Slope(A,B)))
+t.left(180)
+t.right(Angles[0])
+t.pendown()
+t.fd(250)
+p = t.pos()
+AngularBisectors.append((A,p))
+t.penup()
+
+
+t.goto(B)
+t.setheading(Angle(Slope(A,B)))
+t.left(Angles[1])
+t.pendown()
+t.fd(250)
+p = t.pos()
+AngularBisectors.append((B,p))
+t.penup()
+
+t.goto(C)
+t.setheading(Angle(Slope(C,A)))
+t.right(Angles[2])
+t.pendown()
+t.fd(250)
+p = t.pos()
+AngularBisectors.append((C,p))
+t.penup()
+
+Incentre = line_intersection(AngularBisectors[0],AngularBisectors[1])
+t.goto(Incentre)
+t.color('dark violet')
+t.dot(7)
+
+islope = Slope(A,B)
+islope = PerpendicularSlope(islope)
+Angle = Angle(islope)
+t.setheading(Angle)
+t.forward(250)
+p = t.pos()
+lineA = (Incentre,p)
+lineB = (A,B)
+Point = line_intersection(lineA,lineB)
+t.goto(Point)
+radius = Distance2points(Point,Incentre)
+t.left(90)
+t.pendown()
+t.circle(radius)
+
+# DrawCentroid()
+DrawCircum()

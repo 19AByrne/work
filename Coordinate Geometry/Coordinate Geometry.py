@@ -38,12 +38,18 @@ class Circle:
         self.centre = (-(self.g),-(self.f))
         self.r = math.sqrt((self.g)**2+(self.f)**2-c)
 
+def Distance2points(t,k):
+    return math.sqrt((k[0]-t[0])**2+(k[1]-t[1])**2)
+
 class Triangle:
     def __init__(self,p1,p2,p3):
         self.p1 = p1
         self.p2 = p2
         self.p3 = p3
         self.g = (((p1[0]+p2[0]+p3[0])/3)*scale,((p1[1]+p2[1]+p3[1])/3)*scale)
+        self.a = ((1/2)*(abs((p1[0]*(p2[1]-p3[1]))+(p2[0]*(p3[1]-p1[1]))+(p3[0]*(p1[1]-p2[1])))))*scale*scale
+        self.p = (Distance2points(p1,p2)+Distance2points(p2,p3)+Distance2points(p3,p1))*scale
+        self.ic = (((Distance2points(p2*scale,p3*scale))*(p1[0]*scale)) + ((Distance2points(p1*scale,p3*scale))*(p2[0]*scale)) + ((Distance2points(p1*scale,p2*scale))*(p3[0]*scale)))/((Distance2points(p2*scale,p3*scale)) + (Distance2points(p1*scale,p3*scale)) + (Distance2points(p1*scale,p2*scale))), ((Distance2points(p2*scale,p3*scale))*(p1[1]*scale) + (Distance2points(p1*scale,p3*scale))*(p2[1]*scale) + (Distance2points(p1*scale,p2*scale))*(p3[1]*scale))/((Distance2points(p2*scale,p3*scale)) + (Distance2points(p1*scale,p3*scale)) + (Distance2points(p1*scale,p2*scale)))
         
 def CoefficientIntercept(equation):
     #turns string eqn into coefs. line or circle
@@ -102,7 +108,7 @@ def Angle(slope):
     return math.degrees(math.atan(slope))
 
 def Slopefromangle(angle):
-    return math.tan(angle)
+    return math.tan(math.radians(angle))
 
 def slopefrompoints(p1,p2):
     return (p2[1]-p1[1])/(p2[0]-p1[0])
@@ -110,14 +116,19 @@ def slopefrompoints(p1,p2):
 def midpoint(p1,p2):
     return ((p1[0]+p2[0])/2,(p1[1]+p2[1])/2)
 
+
+def perpdis(p,l):
+    #not sure how accurate
+    l = CoefficientIntercept(l)
+    return (abs((l[0]*p[0])+(l[1]*p[1])+(l[2])))/math.sqrt((l[0]**2)+(l[1]**2))
+
 def perpslope(slope):
     if slope == 0:
         return 'Undefined'
     else:
         return (-(1/slope))
 
-def Distance2points(t,k):
-    return math.sqrt((k[0]-t[0])**2+(k[1]-t[1])**2)
+
 
 def anglebetweenlines(m1,m2):
     return math.degrees(math.atan(abs((m1-m2)/(1+m1*m2))))
@@ -152,7 +163,7 @@ def simultaneous(l1,l2):
 def drawcircle(c):
     #draws circle, given string equation
     t.penup()
-    t.color('red')
+#     t.color('red')
     t.setheading(0)
     c = (CoefficientIntercept(c))
     c = Circle(c[0],c[1],c[2])
@@ -229,6 +240,7 @@ def circleradiuscentre(r,c):
     f = (-1*c[1])
     c = -r**2+g**2+f**2
     circle = f'x^2+y^2{sign(2*g)}x{sign(2*f)}y{sign(c)}'
+    t.pendown()
     drawcircle(circle)
                    
 def triangle(ps):
@@ -241,8 +253,11 @@ def triangle(ps):
     t.goto(p1[0]*scale,p1[1]*scale)
     t.pendown()
     t.goto(p2[0]*scale,p2[1]*scale)
+    t.write('p2')
     t.goto(p3[0]*scale,p3[1]*scale)
+    t.write('p3')
     t.goto(p1[0]*scale,p1[1]*scale)
+    t.write('p1')
 
 def centroid(ps):
     p1 = ps[0]
@@ -287,27 +302,17 @@ def circumcircle(ps):
     circleradiuscentre(r,circumcentre)
     
 def incircle(ps):
+    #draws incircle/incentre, given 3 points
     p1 = ps[0]
     p2 = ps[1]
     p3 = ps[2]
-    edges = [(p1,p2),(p1,p3),(p2,p3)]
-    Slopes = [slopefrompoints(x[0],x[1]) for x in edges]
-    Angles = [anglebetweenlines(Slopes[0],Slopes[1]),anglebetweenlines(Slopes[0],Slopes[2]),anglebetweenlines(Slopes[1],Slopes[2])]
-    
-    Bisectors = []
-    
-    t.goto(p1[0]*scale,p1[1]*scale)
-    t.setheading(t.towards(p3[0]*scale,p3[1]*scale))
-    t.left(Angles[0]/2)
-    m = Slopefromangle(t.heading())
-    t.pendown()
-    t.forward(100)
-    linegeneral((p1[0],p1[1]),m)
-#     Bisectors.append(linegeneral((p1[0],p1[1]),m))
-    
-
-    
-    print(Bisectors)
+    tri = Triangle(p1,p2,p3)
+    incentre = tri.ic
+    r = (2*tri.a)/tri.p
+    t.color('dark violet')
+    t.goto(incentre)
+    t.dot(5)
+    circleradiuscentre(r/scale,(incentre[0]/scale,incentre[1]/scale))
     
 # circle1 = 'x^2+y^2+2x-4y-4'
 # circle2 = 'x^2+y^2-4x-12y+36'
@@ -328,6 +333,11 @@ def incircle(ps):
 # circleradiuscentre(10,(-2,2))
 
 mytriangle = ((-23,-3),(-35,35),(12,3))
+p1 = (r.randint(-30,30), r.randint(-30,30))
+p2 = (r.randint(-30,30), r.randint(-30,30))
+p3 = (r.randint(-30,30), r.randint(-30,30))
+print(p1,p2,p3)
+mytriangle = (p1,p2,p3)
 triangle(mytriangle)
 centroid(mytriangle)
 circumcircle(mytriangle)
