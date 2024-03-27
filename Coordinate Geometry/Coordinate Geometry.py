@@ -50,22 +50,46 @@ class Triangle:
         self.a = ((1/2)*(abs((p1[0]*(p2[1]-p3[1]))+(p2[0]*(p3[1]-p1[1]))+(p3[0]*(p1[1]-p2[1])))))*scale*scale
         self.p = (Distance2points(p1,p2)+Distance2points(p2,p3)+Distance2points(p3,p1))*scale
         self.ic = (((Distance2points(p2*scale,p3*scale))*(p1[0]*scale)) + ((Distance2points(p1*scale,p3*scale))*(p2[0]*scale)) + ((Distance2points(p1*scale,p2*scale))*(p3[0]*scale)))/((Distance2points(p2*scale,p3*scale)) + (Distance2points(p1*scale,p3*scale)) + (Distance2points(p1*scale,p2*scale))), ((Distance2points(p2*scale,p3*scale))*(p1[1]*scale) + (Distance2points(p1*scale,p3*scale))*(p2[1]*scale) + (Distance2points(p1*scale,p2*scale))*(p3[1]*scale))/((Distance2points(p2*scale,p3*scale)) + (Distance2points(p1*scale,p3*scale)) + (Distance2points(p1*scale,p2*scale)))
-        
+
+class Quadratic:
+    def __init__(self,a,b,c):
+        # k = x^2
+        self.a = a
+        self.b = b
+        self.c = c
+        self.r1 = (-(b)+math.sqrt((b)**2-(4*a*c)))/(2*a)
+        self.r2 = (-(b)-math.sqrt((b)**2-(4*a*c)))/(2*a)
+        self.xvertex = (-b)/(2*a)
+        self.yvertex = (self.a*(self.xvertex**2)+(self.b*self.xvertex)+self.c)
+        self.tp = (self.xvertex*scale,self.yvertex*scale)
+        self.points = []
+        for x in range(-50,50,1):
+            y = ((self.a*x*x)+(self.b*x)+self.c)
+            self.points.append((x*scale,y*scale))
+            
 def CoefficientIntercept(equation):
     #turns string eqn into coefs. line or circle
-    if not '^' in equation:
+    if not '^' in equation and not 'k' in equation:
         coef_x = re.findall('-?[0-9.]*[Xx]', equation)[0][:-1]
         coef_y = re.findall('-?[0-9.]*[Yy]', equation)[0][:-1]
         intercept = re.sub("[+-]?\d+[XxYy]|[+-]?\d+\.\d+[XxYy]","", equation)
         
         return float(coef_x), float(coef_y), float(intercept)
-    elif '^' in equation:
+    
+    elif 'y^2' in equation:
         equation = equation[7:]
         coef_x = re.findall('-?[0-9.]*[Xx]', equation)[0][:-1]
         coef_y = re.findall('-?[0-9.]*[Yy]', equation)[0][:-1]
         intercept = re.sub("[+-]?\d+[XxYy]|[+-]?\d+\.\d+[XxYy]","", equation)
         
         return float(coef_x), float(coef_y), float(intercept)
+    
+    elif 'k' in equation:
+        coef_x2 = re.findall('-?[0-9.]*[Kk]', equation)[0][:-1]
+        coef_x = re.findall('-?[0-9.]*[Xx]', equation)[0][:-1]
+        const = re.sub("[+-]?\d+[XxKk]|[+-]?\d+\.\d+[XxKk]","", equation)
+        
+        return float(coef_x2), float(coef_x), float(const)
     
 def Coeftoeqn(coefs,c=False):
     #given coefficients in a tuple, turns it into string of eqn. line or circle
@@ -260,6 +284,7 @@ def triangle(ps):
     t.write('p1')
 
 def centroid(ps):
+    #draws centroid, given 3 points
     p1 = ps[0]
     p2 = ps[1]
     p3 = ps[2]
@@ -313,6 +338,26 @@ def incircle(ps):
     t.goto(incentre)
     t.dot(5)
     circleradiuscentre(r/scale,(incentre[0]/scale,incentre[1]/scale))
+
+def quadratic(eqn):
+    t.color('yellow')
+    t.penup()
+    eqn = CoefficientIntercept(eqn)
+    eqn = Quadratic(eqn[0],eqn[1],eqn[2])
+    t.goto(eqn.r1*scale,0)
+    t.dot(5)
+    t.goto(eqn.r2*scale,0)
+    t.dot(5)
+    t.goto(eqn.tp)
+    t.dot(5)
+    t.goto(eqn.points[0])
+    t.pendown()
+    for p in eqn.points:
+        t.goto(p)
+        
+def polynomial(eqn):
+    pass
+    
     
 # circle1 = 'x^2+y^2+2x-4y-4'
 # circle2 = 'x^2+y^2-4x-12y+36'
@@ -332,16 +377,27 @@ def incircle(ps):
 
 # circleradiuscentre(10,(-2,2))
 
-mytriangle = ((-23,-3),(-35,35),(12,3))
-p1 = (r.randint(-30,30), r.randint(-30,30))
-p2 = (r.randint(-30,30), r.randint(-30,30))
-p3 = (r.randint(-30,30), r.randint(-30,30))
-print(p1,p2,p3)
-mytriangle = (p1,p2,p3)
-triangle(mytriangle)
-centroid(mytriangle)
-circumcircle(mytriangle)
-incircle(mytriangle)
+# mytriangle = ((-23,-3),(-35,35),(12,3))
+# p1 = (r.randint(-30,30), r.randint(-30,30))
+# p2 = (r.randint(-30,30), r.randint(-30,30))
+# p3 = (r.randint(-30,30), r.randint(-30,30))
+# print(p1,p2,p3)
+# mytriangle = (p1,p2,p3)
+# triangle(mytriangle)
+# centroid(mytriangle)
+# circumcircle(mytriangle)
+# incircle(mytriangle)
+
+# qd = Quadratic(-2,-4,6)
+# print(qd.xvertex)
+# print(qd.yvertex)
+
+# quadratic('1k-1x-12')
+
+# polynomial(ply)
+
+
+
 
 t.done()
 
