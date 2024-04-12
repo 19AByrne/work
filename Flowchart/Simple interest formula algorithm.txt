@@ -1,0 +1,26 @@
+Algorithm for amount of money that would be in an account if it was calculate with simple interest
+
+P : Principle Amount
+T : Time in Years
+R : % Annual Rate of interest
+F : Final Amount
+
+F = P(1+RT)
+
+step 1:
+	Start
+
+step 2:
+	Input principle amount
+
+step 3:
+	Input Time in years 
+
+step 4:
+	Input Annual rate
+
+step 5:
+	Final amount = principle amount * (1+(annual rate * time in years))
+
+step 6:
+	print Final amount
