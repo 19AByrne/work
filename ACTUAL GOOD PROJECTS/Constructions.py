@@ -12,7 +12,17 @@ def distance(p1,p2):
     return math.sqrt((p2[0]-p1[0])**2+(p2[1]-p1[1])**2)
 
 def slope(p1,p2):
-    return (p2[1]-p1[1])/(p2[0]-p1[0])
+    if p2[0] == p1[0]:
+        return 999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999
+    else:
+        return (p2[1]-p1[1])/(p2[0]-p1[0])
+    
+def perpslope(p1,p2):
+    if p2[0] == p1[0]: return 1
+    else: return -1/slope(p1,p2)
+
+def Mid(p1,p2):
+    return ((p1[0]+p2[0])/2,(p1[1]+p2[1])/2)
 
 
 
@@ -25,6 +35,7 @@ HOVER = False
 HELD = False
 showtri = False
 showincircle = False
+showcircum = False
 
 while running:
     for event in pygame.event.get():
@@ -76,16 +87,36 @@ while running:
                  pygame.draw.line(screen, 'white', positions[2], positions[0], 4)]
         
     if len(points) == 3 and showincircle:
+        
         lengths = [(distance(positions[0],positions[1])),
                    (distance(positions[1],positions[2])),
                    (distance(positions[2],positions[0]))] 
-        T = abs(math.atan(((slope(positions[0],positions[1]))-(slope(positions[1],positions[2])))/(1+(slope(positions[0],positions[1])*(slope(positions[1],positions[2]))))))
-        Area = (1/2)*lengths[0]*lengths[1]*math.sin(T)
+        C = abs(math.atan(((slope(positions[0],positions[1]))-(slope(positions[1],positions[2])))/(1+(slope(positions[0],positions[1])*(slope(positions[1],positions[2]))))))
+        
+        
+        Area = (1/2)*lengths[0]*lengths[1]*math.sin(C)
         incentre = [(lengths[0]*positions[2][0]+lengths[1]*positions[0][0]+lengths[2]*positions[1][0])/sum(lengths),
                     (lengths[0]*positions[2][1]+lengths[1]*positions[0][1]+lengths[2]*positions[1][1])/sum(lengths)]
 #         pygame.draw.circle(screen,'pink', incentre, radius)
         inradius = (2*Area)/sum(lengths)
         pygame.draw.circle(screen, 'pink',incentre,inradius,3)
+        
+#         circumradius = distance(circumcentre, positions[0])
+    if len(points) == 3 and showcircum:
+        lengths = [(distance(positions[0],positions[1])),
+                   (distance(positions[1],positions[2])),
+                   (distance(positions[2],positions[0]))]
+        
+        midpoints = [Mid(positions[0],positions[1]),
+                     Mid(positions[1],positions[2]),
+                     Mid(positions[2],positions[0])]
+        
+        slopes = [slope(positions[0],positions[1]),
+                  slope(positions[1],positions[2]),
+                  slope(positions[2],positions[0])]
+        
+        
+        
         
     for i,p in enumerate(points):
         if i == hoveringi:
