@@ -176,7 +176,7 @@ while running:
 #             elif round((math.pi-A)+B+C,2) == 3.14:
 #                 angles = [(math.pi-A),B,C]
 #         print(sum(angles))
-#         
+        
         x1 = positions[0][0]
         y1 = positions[0][1]
         
