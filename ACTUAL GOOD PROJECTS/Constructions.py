@@ -191,15 +191,13 @@ while running:
         circumcentre=(circumx,circumy)
 #         pygame.draw.circle(screen, 'red', circumcentre, radius)
         circumradius = distance(positions[0],circumcentre)
-        pygame.draw.circle(screen, 'red', circumcentre, circumradius, 4)
-        
+        pygame.draw.circle(screen, 'red', circumcentre, circumradius, 4)   
         
     for i,p in enumerate(points):
         if i == hoveringi:
             p(screen, 'green', positions[i], radius)
         else:
-            p(screen, 'white', positions[i], radius)
-            
+            p(screen, 'white', positions[i], radius)       
     
     # flip() the display to put your work on screen
     pygame.display.flip()
