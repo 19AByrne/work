@@ -4,7 +4,9 @@ import math
 
 # pygame setup
 pygame.init()
-screen = pygame.display.set_mode((1280, 720))
+height = 720
+width = 1280
+screen = pygame.display.set_mode((width, height))
 clock = pygame.time.Clock()
 running = True
 
@@ -117,7 +119,9 @@ while running:
     screen.fill("black")
 
     # RENDER YOUR GAME HERE
-   
+    pygame.draw.line(screen,'#A9A9A9',(width/2,0),(width/2,height), 2)
+    pygame.draw.line(screen,'#A9A9A9',(0, height/2),(width,height/2), 2)
+    
     if len(positions) > 0:
         distances = [distance(pygame.mouse.get_pos(),x) for x in positions]
         closest = min(distances)
@@ -140,10 +144,10 @@ while running:
         lengths = [(distance(positions[0],positions[1])),
                    (distance(positions[1],positions[2])),
                    (distance(positions[2],positions[0]))] 
-        C = abs(math.atan(((slope(positions[0],positions[1]))-(slope(positions[1],positions[2])))/(1+(slope(positions[0],positions[1])*(slope(positions[1],positions[2]))))))
+        T = abs(math.atan(((slope(positions[0],positions[1]))-(slope(positions[1],positions[2])))/(1+(slope(positions[0],positions[1])*(slope(positions[1],positions[2]))))))
     
         
-        Area = (1/2)*lengths[0]*lengths[1]*math.sin(C)
+        Area = (1/2)*lengths[0]*lengths[1]*math.sin(T)
         incentre = [(lengths[0]*positions[2][0]+lengths[1]*positions[0][0]+lengths[2]*positions[1][0])/sum(lengths),
                     (lengths[0]*positions[2][1]+lengths[1]*positions[0][1]+lengths[2]*positions[1][1])/sum(lengths)]
 #         pygame.draw.circle(screen,'pink', incentre, radius)
@@ -156,13 +160,38 @@ while running:
 #         circumcentre = simultaneous(bisectors[0],bisectors[1])
 #         print(circumcentre)
 #         pygame.draw.circle(screen, 'red', circumcentre, radius)
-        angles = [abs(math.degrees(math.atan(((slope(positions[0],positions[1]))-(slope(positions[0],positions[2])))/(1+(slope(positions[0],positions[1])*(slope(positions[0],positions[2]))))))),
-                  abs(math.degrees(math.atan(((slope(positions[1],positions[0]))-(slope(positions[1],positions[2])))/(1+(slope(positions[1],positions[0])*(slope(positions[1],positions[2]))))))),
-                  abs(math.degrees(math.atan(((slope(positions[2],positions[0]))-(slope(positions[2],positions[1])))/(1+(slope(positions[2],positions[0])*(slope(positions[2],positions[1])))))))]
-        print(sum(angles))
+
+#         lengths = [(distance(positions[0],positions[1])),
+#                    (distance(positions[1],positions[2])),
+#                    (distance(positions[2],positions[0]))] 
+#         A = abs((math.atan(((slope(positions[0],positions[1]))-(slope(positions[0],positions[2])))/(1+(slope(positions[0],positions[1])*(slope(positions[0],positions[2])))))))
+#         B = abs((math.atan(((slope(positions[1],positions[0]))-(slope(positions[1],positions[2])))/(1+(slope(positions[1],positions[0])*(slope(positions[1],positions[2])))))))
+#         C = abs((math.atan(((slope(positions[2],positions[0]))-(slope(positions[2],positions[1])))/(1+(slope(positions[2],positions[0])*(slope(positions[2],positions[1])))))))
+#         angles = [A,B,C]
+#         while round(sum(angles), 2) != 3.14:
+#             if round(A+B+(math.pi-C),2) == 3.14:
+#                 angles = [A,B,(math.pi)-C]
+#             elif round(A+(math.pi-B)+C,2) == 3.14:
+#                 angles = [A,(math.pi-B),C]
+#             elif round((math.pi-A)+B+C,2) == 3.14:
+#                 angles = [(math.pi-A),B,C]
+#         print(sum(angles))
+#         
+        x1 = positions[0][0]
+        y1 = positions[0][1]
         
+        x2 = positions[1][0]
+        y2 = positions[1][1]
         
+        x3 = positions[2][0]
+        y3 = positions[2][1]
         
+        circumx = ((x1**2+y1**2-x2**2-y2**2)*(y1-y3)-(x1**2+y1**2-x3**2-y3**2)*(y1-y2)) / (2*(x1-x2)*(y1-y3)-2*(x1-x3)*(y1-y2))
+        circumy = ((x1-x2)*(x1**2+y1**2-x3**2-y3**2)-(x1-x3)*(x1**2+y1**2-x2**2-y2**2)) / (2*(x1-x2)*(y1-y3)-2*(x1-x3)*(y1-y2))
+        circumcentre=(circumx,circumy)
+#         pygame.draw.circle(screen, 'red', circumcentre, radius)
+        circumradius = distance(positions[0],circumcentre)
+        pygame.draw.circle(screen, 'red', circumcentre, circumradius, 4)
         
         
     for i,p in enumerate(points):
@@ -171,7 +200,6 @@ while running:
         else:
             p(screen, 'white', positions[i], radius)
             
-    
     
     # flip() the display to put your work on screen
     pygame.display.flip()
