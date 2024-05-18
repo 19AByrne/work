@@ -8,6 +8,36 @@ screen = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
 running = True
 
+class Line:
+    def __init__(self,x,y,c):
+        self.x = x
+        self.y = y
+        self.c = c
+        self.yint = -c/y
+        try:
+            self.m = (-x/y)
+            self.m2 = -(1/self.m)
+        except ZeroDivisionError:
+            self.m = 999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999
+            self.m2 = 0
+            
+class LineSegment:
+    def __init__(self,p1,p2,show):
+        self.p1 = p1
+        self.p2 = p2
+        self.length = distance(p1,p2)
+        self.M = ((p1[0]+p2[0])/2, (p1[1]+p2[1])/2)
+        try:
+            self.m = (p2[1]-p1[1])/(p2[0]-p1[0])
+            self.m2 = -1/((p2[1]-p1[1])/(p2[0]-p1[0]))
+        except ZeroDivisionError:
+            self.m = 999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999
+            self.m2 = 0
+        if show:
+            pygame.draw.line(screen,'white',p1,p2,4)
+        
+
+
 def distance(p1,p2):
     return math.sqrt((p2[0]-p1[0])**2+(p2[1]-p1[1])**2)
 
@@ -24,12 +54,30 @@ def perpslope(p1,p2):
 def Mid(p1,p2):
     return ((p1[0]+p2[0])/2,(p1[1]+p2[1])/2)
 
+def linegeneral(p,m):
+    return Line(m,-1,-(m*p[0]+p[1]))
 
+def simultaneous(l1,l2):
+    if l1.x == 0:
+        l1.x = 0.00000000000000000000000000000000000001
+    if l2.x == 0:
+        l2.x = 0.00000000000000000000000000000000000001
+    coef1 = [l1.x,l1.y,l1.c]
+    coef2 = [l2.x,l2.y,l2.c]
+    
+    p = -coef1[0]/coef2[0]
+    newcoef = [c*p for c in coef2]
+    b = coef1[1]+newcoef[1]
+    c = -(coef1[2]+newcoef[2])
+    y = c/b
+    x = (y*coef1[1]+coef1[2])/-(coef1[0])
+    return (x,y)
 
 radius = 7.5
 
 points = []
 positions = []
+
 
 HOVER = False
 HELD = False
@@ -60,6 +108,8 @@ while running:
                 showtri = not showtri
             if event.key == pygame.K_i:
                 showincircle = not showincircle
+            if event.key == pygame.K_c:
+                showcircum = not showcircum
         if event.type == pygame.QUIT:
             running = False
 
@@ -81,18 +131,17 @@ while running:
     if HELD:
         positions[hoveringi] = pygame.mouse.get_pos()
     
-    if len(points) == 3 and showtri == True:
-        lines = [pygame.draw.line(screen, 'white', positions[0], positions[1], 4),
-                 pygame.draw.line(screen, 'white', positions[1], positions[2], 4),
-                 pygame.draw.line(screen, 'white', positions[2], positions[0], 4)]
+    if len(points) == 3:
+        lines = [LineSegment(positions[0],positions[1], showtri),
+                 LineSegment(positions[1],positions[2], showtri),
+                 LineSegment(positions[2],positions[0], showtri)]
         
-    if len(points) == 3 and showincircle:
-        
+    if len(points) == 3 and showincircle: 
         lengths = [(distance(positions[0],positions[1])),
                    (distance(positions[1],positions[2])),
                    (distance(positions[2],positions[0]))] 
         C = abs(math.atan(((slope(positions[0],positions[1]))-(slope(positions[1],positions[2])))/(1+(slope(positions[0],positions[1])*(slope(positions[1],positions[2]))))))
-        
+    
         
         Area = (1/2)*lengths[0]*lengths[1]*math.sin(C)
         incentre = [(lengths[0]*positions[2][0]+lengths[1]*positions[0][0]+lengths[2]*positions[1][0])/sum(lengths),
@@ -101,19 +150,17 @@ while running:
         inradius = (2*Area)/sum(lengths)
         pygame.draw.circle(screen, 'pink',incentre,inradius,3)
         
-#         circumradius = distance(circumcentre, positions[0])
+
     if len(points) == 3 and showcircum:
-        lengths = [(distance(positions[0],positions[1])),
-                   (distance(positions[1],positions[2])),
-                   (distance(positions[2],positions[0]))]
+#         bisectors = [linegeneral(lines[x].M,lines[x].m2) for x in range(3)]
+#         circumcentre = simultaneous(bisectors[0],bisectors[1])
+#         print(circumcentre)
+#         pygame.draw.circle(screen, 'red', circumcentre, radius)
+        angles = [abs(math.degrees(math.atan(((slope(positions[0],positions[1]))-(slope(positions[0],positions[2])))/(1+(slope(positions[0],positions[1])*(slope(positions[0],positions[2]))))))),
+                  abs(math.degrees(math.atan(((slope(positions[1],positions[0]))-(slope(positions[1],positions[2])))/(1+(slope(positions[1],positions[0])*(slope(positions[1],positions[2]))))))),
+                  abs(math.degrees(math.atan(((slope(positions[2],positions[0]))-(slope(positions[2],positions[1])))/(1+(slope(positions[2],positions[0])*(slope(positions[2],positions[1])))))))]
+        print(sum(angles))
         
-        midpoints = [Mid(positions[0],positions[1]),
-                     Mid(positions[1],positions[2]),
-                     Mid(positions[2],positions[0])]
-        
-        slopes = [slope(positions[0],positions[1]),
-                  slope(positions[1],positions[2]),
-                  slope(positions[2],positions[0])]
         
         
         
