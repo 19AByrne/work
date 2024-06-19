@@ -1,0 +1,3 @@
+physics thing: pulleys
+	connected particles and newtons laws
+	
