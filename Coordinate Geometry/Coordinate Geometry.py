@@ -370,10 +370,10 @@ def polynomial(eqn):
 
 # drawcircleptc('x^2+y^2-4x+2y-20',(5,-5))
 
-# circle = 'x^2+y^2-2x-4y-5'
-# outpoint = (6,11)
-# tangentfrom(circle,outpoint)
-# drawcircle(circle)
+circle = 'x^2+y^2-2x-4y-5'
+outpoint = (6,11)
+tangentfrom(circle,outpoint)
+drawcircle(circle)
 
 # circleradiuscentre(10,(-2,2))
 
