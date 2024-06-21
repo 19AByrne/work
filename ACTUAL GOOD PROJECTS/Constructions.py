@@ -240,7 +240,7 @@ while running:
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("black")
 
-    # RENDER YOUR GAME HEREoutpos == 'N/A'
+    # RENDER YOUR GAME HERE
     
     #AXES
     pygame.draw.line(screen,'#A9A9A9',(width/2,0),(width/2,height), 2)
@@ -360,6 +360,6 @@ while running:
     
     # flip() the display to put your work on screen
     pygame.display.flip()
-    clock.tick(144)  # limits FPS to 60
+    clock.tick(144)  # fps limit
 
 pygame.quit()
