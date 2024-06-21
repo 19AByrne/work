@@ -204,7 +204,7 @@ while running:
                 showincircle = False
                 lockradius = False
                 showtan = False
-                outpos == 'N/A'
+                outpos = 'N/A'
                 outposindex = 'N/A'
             if event.key == pygame.K_t:
                 showtri = not showtri
@@ -351,7 +351,7 @@ while running:
         pygame.draw.line(screen,'white', raypoint1 ,raypoint2, 4)
         pygame.draw.line(screen,'white', raypoint3 ,raypoint4, 4)
 
-
+    print(outpos)
     for i,p in enumerate(points):
         if i == hoveringi:
             p(screen, 'green', positions[i], radius)
