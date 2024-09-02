@@ -1,3 +1,7 @@
+import colorama
+colorama.init(autoreset=True)
+clrb = colorama.Back
+clrf = colorama.Fore
 List = [4,3,2,1]
 def bubble(L):
     for p in range(len(L)-1):
@@ -7,4 +11,5 @@ def bubble(L):
                 L[b] = L[b+1]
                 L[b+1] = buffer
     return(L)      
-print(bubble(List))
+print(clrf.YELLOW + str(bubble(List)))
+
