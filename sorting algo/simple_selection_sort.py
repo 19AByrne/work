@@ -1,5 +1,4 @@
 def simple_selection(L):
-    
     for m in range(len(L)):
         smalli = m
         for i in range(m+1,len(L)):
