@@ -48,5 +48,6 @@ while 1:
 3) Mode
 4) Frequency
 5) Top 5
-6) Last 5
-2)
+6) Last 5''')
+    if int(input()) == 1:
+        Mean(user_list)
