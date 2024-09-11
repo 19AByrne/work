@@ -21,11 +21,17 @@ for k in d:
     k = k.strip('\n')
     durations.append(int(k))
 
-print('dddd')
 averages = []
 for t in durations:
+    total = 0
+    count = 0
     for line in listoflines:
         if t == line[0]:
-            
+           count += 1
+           total += line[3]
+    averages.append((total/count))
 
+print('Session duration(m) , Average calories burned')
+for i in range(len(durations)):
+    print(f'{durations[i]}                    {averages[i]}')             
 print('done')
