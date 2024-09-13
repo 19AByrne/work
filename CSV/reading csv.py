@@ -48,14 +48,23 @@ all45 = sorted(all45, key=last, reverse=1)
 top45 = all45[:20]
 bot45 = all45[-20:]
 
-print('\n\n')
-print('top 20 exercise of lenght 45 minutes')
+print('\n')
+print('average of top 20 exercise of length 45 minutes')
+total = 0
 for v in top45:
-    print(v[-1])
+    total += v[-1]
+#     print(v[-1])
+print(total/len(top45))
+
+total = 0
+for v in bot45:
+    total += v[-1]
+#     print(v[-1])
+print('average of bottom 20 exercise of length 45 minutes')
+print(total/len(bot45))
 
 
-
-print('\n\n')
+print('\n')
 all60 = []
 for line in listoflines:
     if line[0] == 60:
@@ -65,10 +74,19 @@ all60 = sorted(all60, key=last, reverse=1)
 top60 = all60[:20]
 bot60 = all60[-20:]
 
-print('top 20 exercise of lenght 60 minutes')
+print('average of top 20 exercise of length 60 minutes')
+total = 0
 for v in top60:
-    print(v[-1])
+    total += v[-1]
+#     print(v[-1])
+print(total/len(top60))
 
+print('average of bottom 20 exercise of length 60 minutes')
+total = 0
+for v in bot60:
+    total += v[-1]
+#     print(v[-1])
+print(total/len(bot60))
 
 print('\n')
 print('possible exercise duration types')
