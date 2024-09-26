@@ -1,4 +1,5 @@
 inp = str(input('Enter a sentence\n'))
+originalstr = inp.lower()
 inp = inp.split()
 inp = [x.lower() for x in inp]
 length = len(max(inp, key = len))
@@ -19,6 +20,13 @@ for x in table:
 print('''Enter character(s): ''')
 ustr = str(input())
 
-while ustr not in  
+while ustr.lower() not in originalstr:
+    print('not in sentence try again:')
+    print('''Enter character(s): ''')
+    ustr = str(input())
+    
+print(originalstr.count(ustr.lower()))
+count = originalstr.count(ustr.lower())
 
-
+print('\033[4mcharacter    count\033[0m')
+print(f'    {ustr.lower()}      |  {count}')
