@@ -9,4 +9,8 @@ for k, v in dic2d.items():
 user_name = str(input('Enter a name: '))
 user_region = str(input('Enter a region: '))
 
-print(dic2d[user_name][user_region])
+new = int(input(f'Enter new value for {dic2d[user_name][user_region]}: ' ))
+dic2d[user_name][user_region] = new
+
+for k, v in dic2d.items():
+    print(k, *v.items())
