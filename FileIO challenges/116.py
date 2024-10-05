@@ -1,0 +1,15 @@
+f = open('books.csv', 'r')
+header = f.readline()
+booklist = [line.strip('\n') for line in f]
+print(*booklist, sep='\n')
+choice = int(input('which line would you like to remove: '))
+booklist.remove(booklist[choice])
+print(*booklist, sep='\n')
+f.close()
+f = open('books.csv', 'w')
+f.write(header)
+f.close()
+f = open('books.csv', 'a')
+for item in booklist:
+    f.write(f'{item}\n')
+f.close()
