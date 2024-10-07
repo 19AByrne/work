@@ -1,3 +1,26 @@
+def checkpass(p):
+    passvalid = False
+    para = [False,False,False,False,False]
+    if len(p) >= 8:
+            para[0] = True
+    for c in p:
+        if para[1] == False:
+            para[1] = c.isupper()
+        if para[2] == False:
+            para[2] = c.islower()
+        if para[3] == False:
+            para[3] = c.isdigit()
+        if para[4] == False:
+            para[4] = c in special
+    for v in para:
+        if v == False:
+            passvalid = False
+            break
+    if passvalid == False:
+        return False
+    else:
+        return True
+    
 running = True
 while running:
     print('''1) Create a new User ID
@@ -28,26 +51,14 @@ while running:
  - include 1 special character (!, £, $, €, %, &, *, #)''')
         special = ['!', '£', '$', '€', '%', '&', '*', '#']
         newpass = str(input('Enter Password:\n'))
+        while not checkpass(newpass):
+            print('invalid')
+            newpass = str(input('Enter Password:\n'))
         
-        para = [False,False,False,False,False]
-        if len(newpass) >= 8:
-            para[0] = True
-        for c in newpass:
-            if para[1] == False:
-                para[1] = c.isupper()
-            if para[2] == False:
-                para[2] = c.islower()
-            if para[3] == False:
-                para[3] = c.isdigit()
-            if para[4] == False:
-                para[4] = c in special
-        print(para)
-        for v in para:
-            if v == False:
-                print('FALSE IN LIST')
-        fa.write(f'\n{new}, {newpass}')
+        
         fa.close()
         fr.close()
+        
     elif choice == 4:
         running = False
         
