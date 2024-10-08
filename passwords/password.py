@@ -11,16 +11,19 @@ def checkpass(p):
         if para[3] == False:
             para[3] = c.isdigit()
         if para[4] == False:
-            para[4] = c in special
-    for v in para:
-        if v == False:
-            passvalid = False
-            break
-    if passvalid == False:
-        return False
-    else:
-        return True
-    
+            para[4] = c in ['!', '£', '$', '€', '%', '&', '*', '#']
+    return all(para)
+
+def get_data(filename):
+    file = open(filename, 'r')
+    title = file.readline()
+    list2d = []
+    for line in file:
+        line = line.strip('\n')
+        list2d.append(line)
+    return list2d # function does not make 2d list yet
+
+print(get_data('passwords.csv'))
 running = True
 while running:
     print('''1) Create a new User ID
@@ -54,7 +57,7 @@ while running:
         while not checkpass(newpass):
             print('invalid')
             newpass = str(input('Enter Password:\n'))
-        
+        fa.write(f'\n{new}, {newpass}')
         
         fa.close()
         fr.close()
