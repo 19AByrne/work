@@ -1,4 +1,21 @@
-def checkpass(p):
+
+
+def get_data(filename):
+    file = open(filename, 'r')
+    list2d = []
+    for line in file:
+        line = line.strip('\n')
+        line = line.split(', ')
+        list2d.append(line)
+    return list2d
+
+def create_userID(newID, list2d):
+    for line in list2d:
+        if newID == line[0]:
+            return False
+    return True
+
+def create_password(p):
     passvalid = False
     para = [False,False,False,False,False]
     if len(p) >= 8:
@@ -14,18 +31,19 @@ def checkpass(p):
             para[4] = c in ['!', '£', '$', '€', '%', '&', '*', '#']
     return all(para)
 
-def get_data(filename):
-    file = open(filename, 'r')
-    title = file.readline()
-    list2d = []
-    for line in file:
-        line = line.strip('\n')
-        list2d.append(line)
-    return list2d # function does not make 2d list yet
+def change_password(userID, newpassword, list2d):
+    for line in list2d:
+        for x in line:
+            if x == userID:
+                line[1] = newpassword
+            
+def display_all_userID(list2d):
+    for line in list2d:
+        print(*line, sep=', ')
 
-print(get_data('passwords.csv'))
 running = True
 while running:
+    csv = get_data('passwords.csv')
     print('''1) Create a new User ID
 2) Change a password
 3) Display all user IDs
@@ -61,7 +79,20 @@ while running:
         
         fa.close()
         fr.close()
+    elif choice == 1:
+        newuserID = str(input('Enter new User ID:\n'))
+        if create_userID(newuserID,csv):
+            newuserpassword = str(input('Enter Password:\n'))
+            while not create_password(newuserpassword):
+                
+                                  
         
+    elif choice == 2:
+        
+    elif choice == 3:
+        print()
+        display_all_userID(csv)
+        print()
     elif choice == 4:
         running = False
         
