@@ -1,12 +1,26 @@
 <!DOCTYPE html>
+
+
+
+
 <html>
     <head>
+        <!-- External Style Sheet -->
+        <link rel="stylesheet" href="SSS.css">
+
+        <!-- Internal Style sheet -->
+        <style> 
+            ul {
+                color:rgb(12, 212, 5); 
+            }
+        </style>
+
         <title>
             Salad Recipe
         </title>
     </head>
-
-    <body>
+<!-- In line style sheet -->
+    <body style="background-color:blanchedalmond;">
         <p> 
             Recipe book
         </p>
@@ -28,12 +42,14 @@
     </body>
 
     <body>
-        <img src="salad.jpg" alt="">
+        <marquee width="100%" direction="left" height="100%">
+            <img src="salad.jpg" alt="">
+        </marquee>
         <p>
             This salad is a great spicy treat to go along with any meal. I like to add extra Sriracha to the salad for
 added spice. This recipe is gluten free. Sriracha contains anchovies, so it's not quite vegetarian or vegan.
         </p>
-        <h3>
+        <h3 id="ingredients">
             Ingredients
         </h3>
         <ul>
@@ -48,7 +64,7 @@ added spice. This recipe is gluten free. Sriracha contains anchovies, so it's no
             <li>.5 tablespoon maple syrup</li>
             <li>.5 teaspoon freshly grated ginger</li>
             <li>pinch of salt</li>
-            <li>sesame seeds for garnish</li>
+            <li id="mohammed">sesame seeds for garnish</li>
         </ul>
     </body>
 
