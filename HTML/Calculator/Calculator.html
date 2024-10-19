@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <script type="text/javascript" src="function.js">  </script>
+    <head>
+        <title>Calc</title>
+    </head>
+    <style>
+        #frame {visibility:hidden; border: 1px red;}
+    </style>
+    <body>
+        <form>
+        <h1>CALCULATOR</h1>
+        <label for="no1">Number 1</label>
+        <input type="number" id="no1" name="no1" value="0"><br>
+        <label for="no2">Number 2</label>
+        <input type="number" id="no2" name="no2" value="0"><br><br>
+        <input type="submit" id="button" value="ADD">
+
+        </form>
+    <div id ='frame'>
+        <p id="text">Hello World!</p>
+    </div>
+	<script>
+        document.getElementById('button').addEventListener('click',toggle);
+	function toggle(){
+        frm=document.getElementById('frame');
+        if(frm.style.visibility != 'visible'){
+            frm.style.visibility = 'visible'
+        }
+        event.preventDefault();}
+	</script>
+    </body>
+</html>
