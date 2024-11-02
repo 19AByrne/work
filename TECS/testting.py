@@ -24,7 +24,7 @@ running = True
 scale = width/50
 g = 9.8
 
-initial = (3,4)
+initial = (14,14)
 
 xshift = 0
 yshift = 0
@@ -47,25 +47,14 @@ def maxheight(init):
 # print(xrange(initial))
 print(maxheight(initial))
 
-def parabola(init, xrange, maxheight):
-    interval = 1000
-    xpoints = []
-    ypoints = []
-    points = []
-    for x in range(interval+1):
-        xpoints.append(xrange/interval * x)
-    for y in range(int(interval/2)+1):
-        ypoints.append(maxheight/(interval) * 2*y)
-    ypoints = ypoints[:int(interval/2)] + ypoints[int(interval/2)::-1]
-#     print(len(xpoints))
-#     print(len(ypoints))
-    for i in range(len(xpoints)):
-        points.append( (xpoints[i],ypoints[i]) )
-    return points
-
+print(time(initial))
 def parabola(init, t):
-    interval = 5
-
+    interval = 9999
+    times = [(t*x)/interval for x in range(interval+1)]
+    ypoints = [(initial[1]*time) - ((g/2)*(time**2)) for time in times]
+    xpoints = [(initial[0]*time) for time in times]
+    points = [ (xpoints[i],ypoints[i]) for i in range(len(xpoints))]
+    return points
 
 while running:
     for event in pygame.event.get():
@@ -111,9 +100,10 @@ while running:
     for x in range(100):
         pygame.draw.circle(screen, 'blue', (width/8 + x*(scale)-xshift, (height*7/8) - yshift), 3)
     
-    curvepoints = parabola(initial, xrange(initial), maxheight(initial))
+    curvepoints = parabola(initial, time(initial))
     for p in curvepoints:
-        pygame.draw.circle(screen, 'white', (width/8 + p[0]*scale -xshift, (height*7/8) - p[1]*scale - yshift), 3)
+        pygame.draw.circle(screen, 'white', (width/8 + p[0]*scale -xshift, (height*7/8) - p[1]*scale - yshift), 1)
 
     pygame.display.flip()
     clock.tick(144)  # fps limit
+    
