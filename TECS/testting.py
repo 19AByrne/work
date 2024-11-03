@@ -106,4 +106,3 @@ while running:
 
     pygame.display.flip()
     clock.tick(144)  # fps limit
-    
