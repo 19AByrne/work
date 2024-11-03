@@ -14,7 +14,6 @@ import math
 '''commercial use''' #pygame.display.get_desktop_sizes <<<<use that like
 pygame.init()
 wh = pygame.display.get_desktop_sizes()[0]
-print(wh)
 height = wh[1]
 width = wh[0]
 screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
@@ -32,6 +31,23 @@ yshift = 0
 theta = math.degrees(math.atan(initial[1]/initial[0]))
 mag = math.sqrt((initial[0])**2+(initial[1])**2)
 
+class Timer:
+    def __init__(self,duration):
+        self.duration = duration
+        self.start_time = 0
+        self.active = True
+    
+    def deactivate(self):
+        self.active = False
+    
+    def update(self):
+        if self.active:
+            current_time = pygame.time.get_ticks()
+            if current_time - self.start_time >= self.duration:
+                self.deactivate()
+
+
+
 def time(init):
     return (-(init[1])) / (-4.9)
 
@@ -45,9 +61,9 @@ def maxheight(init):
     return ( (mag**2) * (math.sin(math.radians(theta)))*(math.sin(math.radians(theta))) ) / (2*g)
 
 # print(xrange(initial))
-print(maxheight(initial))
+# print(maxheight(initial))
 
-print(time(initial))
+# print(time(initial))
 def parabola(init, t):
     interval = 9999
     times = [(t*x)/interval for x in range(interval+1)]
@@ -56,6 +72,12 @@ def parabola(init, t):
     points = [ (xpoints[i],ypoints[i]) for i in range(len(xpoints))]
     return points
 
+def fire():
+    timer = pygame.time.Clock()
+    print(timer.get_time())
+
+
+current_time = 0
 while running:
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
@@ -83,7 +105,8 @@ while running:
                 scale = width/50
                 
             if event.key == pygame.K_SPACE:
-                pass
+                firetime = Timer(time(initial))
+                fire()
                 
     screen.fill("black")
     
@@ -103,6 +126,7 @@ while running:
     curvepoints = parabola(initial, time(initial))
     for p in curvepoints:
         pygame.draw.circle(screen, 'white', (width/8 + p[0]*scale -xshift, (height*7/8) - p[1]*scale - yshift), 1)
-
+    
+    current_time = pygame.time.get_ticks()
     pygame.display.flip()
     clock.tick(144)  # fps limit
