@@ -23,7 +23,7 @@ running = True
 scale = width/50
 g = 9.8
 
-initial = (14,14)
+initial = (12,23)
 
 xshift = 0
 yshift = 0
