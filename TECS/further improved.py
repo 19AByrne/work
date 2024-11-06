@@ -1,4 +1,3 @@
-# Example file showing a basic pygame "game loop"
 import pygame
 import math
 # import sympy
@@ -6,7 +5,7 @@ import math
 
 
 
-'''commercial use''' #pygame.display.get_desktop_sizes <<<<use that like
+'''main use''' 
 # pygame.init()
 # wh = pygame.display.get_desktop_sizes()[0]
 # height = wh[1]
@@ -28,7 +27,7 @@ running = True
 scale = width/50
 g = 9.8
 
-initial = (12,23)
+initial = (14,14)
 
 xshift = 0
 yshift = 0
@@ -62,10 +61,22 @@ def parabola(init, t):
     return points
 
 def fire(init, t):
+    print(t)
     time = round(t*1000) #need to round because timer cannot contain float
-    pygame.time.set_timer(pygame.USEREVENT, time) #not sure what the first parameter means
+    pygame.time.set_timer(landing, time, 1) #not sure what the first parameter means , 1 = loop parameter
+    times = [(t*x)/time for x in range(time)]
+    #if i dont use (time+1) the lengths of intervals and ms wll be equal but the final position(landing coord) will not be included, not sure if creates issues
+    
+    xpoints = [(init[0]*time) for time in times]
+    ypoints = [(init[1]*time) - ((g/2)*(time**2)) for time in times]
+    points = [ (xpoints[i],ypoints[i]) for i in range(len(xpoints)) ]
+    return points
+    
+    
+landing = pygame.event.custom_type()
+perms = pygame.event.custom_type()
 
-current_time = 0
+curvepoints = []
 while running:
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
@@ -93,9 +104,16 @@ while running:
                 scale = width/50
                 
             if event.key == pygame.K_SPACE:
-                fire(initial, time(initial))
-        if event.type == pygame.USEREVENT:
-            print('ddddd')
+#                 fire(initial, time(initial))
+                buffercurvepoints = fire(initial, time(initial))
+                pygame.time.set_timer(perms, 1, round(time(initial)*1000))
+                
+        if event.type == perms:
+            curvepoints.append(buffercurvepoints.pop(0))
+        
+        if event.type == landing:
+            print(f'{time(initial)} elapsed')
+            
                 
     screen.fill("black")
     
@@ -112,10 +130,11 @@ while running:
     for x in range(100):
         pygame.draw.circle(screen, 'blue', (width/8 + x*(scale)-xshift, (height*7/8) - yshift), 3)
     
-    curvepoints = parabola(initial, time(initial))
+    
     for p in curvepoints:
         pygame.draw.circle(screen, 'white', (width/8 + p[0]*scale -xshift, (height*7/8) - p[1]*scale - yshift), 1)
     
     current_time = pygame.time.get_ticks()
     pygame.display.flip()
     clock.tick(144)  # fps limit
+
