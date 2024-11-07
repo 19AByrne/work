@@ -6,28 +6,28 @@ import math
 
 
 '''main use''' 
-# pygame.init()
-# wh = pygame.display.get_desktop_sizes()[0]
-# height = wh[1]
-# width = wh[0]
-# screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
-# clock = pygame.time.Clock()
-# running = True
-
-'''debugging mode'''
 pygame.init()
-height = 1026
-width = 1824
-screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN, depth=0, display=1)
+wh = pygame.display.get_desktop_sizes()[0]
+height = wh[1]
+width = wh[0]
+screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
 clock = pygame.time.Clock()
 running = True
+
+'''debugging mode'''
+# pygame.init()
+# height = 1026
+# width = 1824
+# screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN, depth=0, display=1)
+# clock = pygame.time.Clock()
+# running = True
 
 
 
 scale = width/50
 g = 9.8
 
-initial = (14,14)
+initial = (3,4)
 
 xshift = 0
 yshift = 0
