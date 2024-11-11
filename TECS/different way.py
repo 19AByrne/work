@@ -67,15 +67,16 @@ def fire(init, t):
     pygame.time.set_timer(landing, time, 1) #not sure what the first parameter means , 1 = loop parameter
     times = [(t*x)/time for x in range(time)]
     #if i dont use (time+1) the lengths of intervals and ms wll be equal but the final position(landing coord) will not be included, not sure if creates issues
-    
-    xpoints = [(init[0]*time) for time in times]
-    ypoints = [(init[1]*time) - ((g/2)*(time**2)) for time in times]
-    points = [ (xpoints[i],ypoints[i]) for i in range(len(xpoints)) ]
-    return points
-    
+    for time in times:
+        pygame.draw.circle(screen, 'white', (width/8 + (init[0]*time)*scale -xshift, (height*7/8) - ((init[1]*time) - ((g/2)*(time**2)))*scale - yshift), 1)
+
+def calculate_pos(t, ux, uy, g, scale):
+    x = (width/8 +(ux*t)*scale - xshift)
+    y = (height*7/8 - (uy*t - (g/2)*(t**2))*scale - yshift)
+    return (x,y)
     
 landing = pygame.event.custom_type()
-perms = pygame.event.custom_type()
+per_ms = pygame.event.custom_type()
 
 curvepoints = []
 while running:
@@ -105,12 +106,12 @@ while running:
                 scale = width/50
                 
             if event.key == pygame.K_SPACE:
-#                 fire(initial, time(initial))
-                buffercurvepoints = fire(initial, time(initial))
-                pygame.time.set_timer(perms, 1, round(time(initial)*1000))
-                
-        if event.type == perms:
-            curvepoints.append(buffercurvepoints.pop(0))
+                airtime = time(initial)
+                current_time = pygame.time.get_ticks() / 1000
+                if current_time < airtime:
+                    pos = calculate_pos(current_time, initial[0], initial[1], g, scale)
+                    curvepoints.append(pos)
+            
         
         if event.type == landing:
             print(f'{time(initial)} elapsed')
@@ -119,23 +120,20 @@ while running:
     screen.fill("black")
     
     ground = pygame.Rect(0 , (height*7/8) - yshift ,width,height/8)
-    pygame.draw.rect(screen, 'dark green', ground)
+    pygame.draw.rect(screen, 'dark green', ground) #ground
     
     pygame.draw.circle(screen, 'red', (width/8 -xshift,height*7/8 - yshift), 5) # origin
     pygame.draw.circle(screen, 'red', (width/8 + (xrange(initial)*scale) - xshift, height*7/8 - yshift), 5) #final pos
     maxpoint = (width/8 + (xrange(initial)*scale)/2 , (height*7/8) + (maxheight(initial)*scale)) #max height
-#     print(maxpoint)
+
 
     pygame.draw.circle(screen, 'purple', (width/8 + (xrange(initial)*scale)/2 -xshift,  (height*7/8) - (maxheight(initial)*scale)-yshift), 5)
     
     for x in range(100):
         pygame.draw.circle(screen, 'blue', (width/8 + x*(scale)-xshift, (height*7/8) - yshift), 3)
-    
-    
-    for p in curvepoints:
-        pygame.draw.circle(screen, 'white', (width/8 + p[0]*scale -xshift, (height*7/8) - p[1]*scale - yshift), 1)
-    
+        
+    for point in curvepoints:
+        pygame.draw.circle(screen, 'white', point, 3)
 
     pygame.display.flip()
     clock.tick(144)  # fps limit
-
