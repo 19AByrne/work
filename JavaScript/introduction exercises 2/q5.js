@@ -1,4 +1,6 @@
-let num = 5;
-if(i > 0){
-    console.log()
+let num = -6;
+if(num > 0){
+    console.log(`${num} is positive`);
+} else if(num < 0){
+    console.log(`${num} is negative`);
 }

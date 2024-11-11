@@ -2,7 +2,7 @@ import turtle
 import random
 import time
 t = turtle
-t.speed(10)
+t.speed(0)
 t.Screen().bgcolor('black')
 t.color('white')
 t.hideturtle()
