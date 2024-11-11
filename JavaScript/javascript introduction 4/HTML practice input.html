@@ -1,0 +1,31 @@
+<!Doctype html>
+<html lang="en">
+<head>
+  <title>
+    HTML Practice
+  </title>
+  <meta charset="utf-8">
+</head>
+<body>
+<form id="practice_form">
+        <textarea id="generalInput" name="generalInput" rows="4" cols="50"></textarea>
+    
+        <br>
+        <button id="btn" type="submit">OK</button>
+        <button id="bob" type="reset">reset form</button>
+</form>
+<script>
+  // part 1
+  let formSubmission = document.getElementById("practice_form");
+  function preventDefaultSubmission(event){
+    event.preventDefault();
+    console.log("form submitted");
+    let textInput = document.getElementById("generalInput");
+  let userData = textInput.value;
+  console.log(userData.split(" "));
+  }
+  formSubmission.addEventListener('submit', preventDefaultSubmission);
+
+</script>
+</body>
+</html>
