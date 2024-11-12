@@ -46,8 +46,8 @@ def maxheight(init):
     return ( (mag**2) * (math.sin(math.radians(theta)))*(math.sin(math.radians(theta))) ) / (2*g)
 
 def calculate_pos(t, ux, uy, g, scale):
-    x = (width/8 +(ux*t)*scale - xshift)
-    y = (height*7/8 - (uy*t - (g/2)*(t**2))*scale - yshift)
+    x = (ux*t)
+    y = (uy*t - (g/2)*(t**2))
     return (x,y)
 
     
@@ -133,11 +133,11 @@ while running:
         path.append(pos)
         if showtrail:
             for p in path:
-                pygame.draw.circle(screen, 'white', p, 3)
+                pygame.draw.circle(screen, 'white', ( (width/8 + p[0]*scale - xshift),  (height*7/8 - p[1]*scale - yshift))  , 3)
             if totalT > (time(initial)*1000)/2:
                 pygame.draw.circle(screen, 'purple', (width/8 + (xrange(initial)*scale)/2 -xshift,  (height*7/8) - (maxheight(initial)*scale)-yshift), 5)
         else:
-            pygame.draw.circle(screen, 'white', pos, 3)
+            pygame.draw.circle(screen, 'white', ( (width/8 + pos[0]*scale - xshift),  (height*7/8 - pos[1]*scale - yshift)), 3)
 
     if originstate:
         FireButton = FireButtonStates[0]
@@ -148,7 +148,6 @@ while running:
     pygame.draw.circle(screen, 'red', (width/8 + (xrange(initial)*scale) - xshift, height*7/8 - yshift), 5) #final pos
 # maxpoint = (width/8 + (xrange(initial)*scale)/2 , (height*7/8) + (maxheight(initial)*scale))
 
-    
     for x in range(100):
         pygame.draw.circle(screen, 'blue', (width/8 + x*(scale)-xshift, (height*7/8) - yshift), 3)
     
@@ -156,4 +155,5 @@ while running:
 
     pygame.display.flip()
     clock.tick(60)  # fps limit
+
 
