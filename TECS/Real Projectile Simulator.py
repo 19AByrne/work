@@ -56,8 +56,16 @@ FireButtonStates = [pygame.image.load('Images/Fire!.png').convert_alpha(),
                     pygame.image.load('Images/Fire! strike.png').convert_alpha()]
 FireButton = FireButtonStates[0]
 FireButton_rect = FireButton.get_rect(center=(width/12,height/4))
-    
-showtrail = False    
+
+ResetButton = pygame.image.load('Images/reset.png').convert_alpha()
+ResetButton_rect = ResetButton.get_rect(center=(width/12, height/3))
+
+ShowTrailButton_States = [pygame.image.load('Images/ShowTrail.png').convert_alpha(),
+                          pygame.image.load('Images/XShowTrail.png').convert_alpha()]
+showtrail = False
+ShowTrailButton = ShowTrailButton_States[showtrail]
+ShowTrailButton_rect = ShowTrailButton.get_rect(center=(width/12,height*7.69/19))
+
 landing = pygame.event.custom_type()
 per_ms = pygame.event.custom_type()
 simulating = False
@@ -76,6 +84,16 @@ while running:
                     simulating = True
                     originstate = False
                     path = []
+            if ResetButton_rect.collidepoint(event.pos):
+                simulating = False
+                landed = False
+                originstate = True
+                curvepoints = []
+                totalT = 0
+                path = []
+            if ShowTrailButton_rect.collidepoint(event.pos):
+                showtrail = not showtrail
+                ShowTrailButton = ShowTrailButton_States[showtrail]
                     
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
@@ -101,16 +119,7 @@ while running:
                 xshift, yshift = 0,0
                 scale = width/50
                 
-                
             ####keys to be turned into buttons                
-            if event.key == pygame.K_m:  
-                simulating = False
-                landed = False
-                originstate = True
-                curvepoints = []
-                totalT = 0
-                path = []
-            
             if event.key == pygame.K_n:
                 showtrail = not showtrail
              
@@ -152,7 +161,8 @@ while running:
         pygame.draw.circle(screen, 'blue', (width/8 + x*(scale)-xshift, (height*7/8) - yshift), 3)
     
     screen.blit(FireButton,FireButton_rect)
-
+    screen.blit(ResetButton, ResetButton_rect)
+    screen.blit(ShowTrailButton, ShowTrailButton_rect)
     pygame.display.flip()
     clock.tick(60)  # fps limit
 
