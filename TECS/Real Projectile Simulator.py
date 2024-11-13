@@ -25,13 +25,12 @@ running = True
 scale = width/50
 g = 9.8
 
-initial = (3,4)
+initial = (14,14)
 
 xshift = 0
 yshift = 0
 
-theta = math.degrees(math.atan(initial[1]/initial[0]))
-mag = math.sqrt((initial[0])**2+(initial[1])**2)
+
 
 def time(init):
     return ((init[1])) / (4.9)
@@ -49,6 +48,7 @@ def calculate_pos(t, ux, uy, g, scale):
     x = (ux*t)
     y = (uy*t - (g/2)*(t**2))
     return (x,y)
+
 
     
 FireButtonStates = [pygame.image.load('Images/Fire!.png').convert_alpha(),
@@ -73,9 +73,14 @@ landed = False
 originstate = True
 curvepoints = []
 totalT = 0
+inputting = False
+showmax = False
+showfinal = False
 
 while running:
     dT = clock.get_time()
+    theta = math.degrees(math.atan(initial[1]/initial[0]))
+    mag = math.sqrt((initial[0])**2+(initial[1])**2)
     for event in pygame.event.get():
         if event.type == pygame.MOUSEBUTTONDOWN:
             if FireButton_rect.collidepoint(event.pos):
@@ -96,6 +101,17 @@ while running:
                 ShowTrailButton = ShowTrailButton_States[showtrail]
                     
         if event.type == pygame.KEYDOWN:
+            if inputting:
+                if event.key >= 48 and event.key <= 57:
+                    emptyvalue = emptyvalue + str(pygame.key.name(event.key))
+                if event.key == pygame.K_PERIOD:
+                    emptyvalue = emptyvalue + str(pygame.key.name(event.key))
+                if event.key == pygame.K_RETURN:
+                    if selected == 'i':
+                        initial = ( float(emptyvalue), initial[1] )
+                    if selected == 'j':
+                        initial = ( initial[0], float(emptyvalue) )
+#                 print(event.key,pygame.key.name(event.key))
             if event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 running = False
@@ -120,8 +136,16 @@ while running:
                 scale = width/50
                 
             ####keys to be turned into buttons                
-            if event.key == pygame.K_n:
-                showtrail = not showtrail
+            if event.key == pygame.K_z:
+                if originstate:
+                    inputting = True
+                    selected = 'i'
+                    emptyvalue = ''
+            if event.key == pygame.K_x:
+                if originstate:
+                    inputting = True
+                    selected = 'j'
+                    emptyvalue = ''
              
         if event.type == landing:
             simulating = False
@@ -130,7 +154,13 @@ while running:
             
     screen.fill("black")
     
-    if simulating or not originstate:
+    ground = pygame.Rect(0 , (height*7/8) - yshift ,width,height/8)
+    pygame.draw.rect(screen, 'dark green', ground) #ground
+    
+    for x in range(100):
+        pygame.draw.circle(screen, 'blue', (width/8 + x*(scale)-xshift, (height*7/8) - yshift), 3)
+        
+    if simulating:
         mousepos = pygame.mouse.get_pos()
         if FireButton_rect.collidepoint(mousepos):
             FireButton = FireButtonStates[2]
@@ -140,30 +170,32 @@ while running:
 #         print(totalT/1000)
         pos = calculate_pos(totalT/1000, initial[0], initial[1], g, scale)
         path.append(pos)
+
+
+    if originstate:
+        FireButton = FireButtonStates[0]
+    else:
         if showtrail:
             for p in path:
                 pygame.draw.circle(screen, 'white', ( (width/8 + p[0]*scale - xshift),  (height*7/8 - p[1]*scale - yshift))  , 3)
             if totalT > (time(initial)*1000)/2:
-                pygame.draw.circle(screen, 'purple', (width/8 + (xrange(initial)*scale)/2 -xshift,  (height*7/8) - (maxheight(initial)*scale)-yshift), 5)
+                showmax = True
+                pygame.draw.circle(screen, 'purple', (width/8 + ((( (mag**2) * (math.sin(2*math.radians(theta))) ) / g)*scale)/2 -xshift,  (height*7/8) - ((( (mag**2) * (math.sin(math.radians(theta)))*(math.sin(math.radians(theta))) ) / (2*g))*scale)-yshift), 5)
+            if totalT >= (time(initial)*1000):
+                simulating = False
+                pygame.draw.circle(screen, 'red', (width/8 + ((( (mag**2) * (math.sin(2*math.radians(theta))) ) / g)*scale) - xshift, height*7/8 - yshift), 5)
         else:
             pygame.draw.circle(screen, 'white', ( (width/8 + pos[0]*scale - xshift),  (height*7/8 - pos[1]*scale - yshift)), 3)
-
-    if originstate:
-        FireButton = FireButtonStates[0]
-    ground = pygame.Rect(0 , (height*7/8) - yshift ,width,height/8)
-    pygame.draw.rect(screen, 'dark green', ground) #ground
-    
+            
     pygame.draw.circle(screen, 'red', (width/8 -xshift,height*7/8 - yshift), 5) # origin
-    pygame.draw.circle(screen, 'red', (width/8 + (xrange(initial)*scale) - xshift, height*7/8 - yshift), 5) #final pos
+#     pygame.draw.circle(screen, 'red', (width/8 + ((( (mag**2) * (math.sin(2*math.radians(theta))) ) / g)*scale) - xshift, height*7/8 - yshift), 5) #final pos
 # maxpoint = (width/8 + (xrange(initial)*scale)/2 , (height*7/8) + (maxheight(initial)*scale))
 
-    for x in range(100):
-        pygame.draw.circle(screen, 'blue', (width/8 + x*(scale)-xshift, (height*7/8) - yshift), 3)
     
     screen.blit(FireButton,FireButton_rect)
     screen.blit(ResetButton, ResetButton_rect)
     screen.blit(ShowTrailButton, ShowTrailButton_rect)
     pygame.display.flip()
-    clock.tick(60)  # fps limit
+    clock.tick(144)  # fps limit
 
 
