@@ -30,8 +30,10 @@ initial = (1,1)
 xshift = 0
 yshift = 0
 
-fontsize = 50
-font = pygame.freetype.Font('Font/sylfaen.ttf', fontsize)
+fontsize = 32
+font = pygame.font.Font('freesansbold.ttf', fontsize)
+
+restitution = 1/2
 
 def time(init):
     return ((init[1])) / (4.9)
@@ -75,6 +77,13 @@ Inputter_rect = Inputter.get_rect(center=(width/12,height/7))
 I_rect = pygame.Rect(Inputter_rect.left+12,Inputter_rect.top+25, 50, 50)
 J_rect = pygame.Rect(Inputter_rect.left+120,Inputter_rect.top+25, 50, 50)
 
+text1 = font.render(str(initial[0]), True, (255,255,255))
+text1_rect = text1.get_rect()
+text1_rect.center = I_rect.center
+
+text2 = font.render(str(initial[1]), True, (255,255,255))
+text2_rect = text2.get_rect()
+text2_rect.center = J_rect.center
 
 landing = pygame.event.custom_type()
 per_ms = pygame.event.custom_type()
@@ -86,8 +95,16 @@ totalT = 0
 inputting = False
 showmax = False
 showfinal = False
+Bounce = False
 
 while running:
+    font = pygame.font.Font('freesansbold.ttf', fontsize)
+    text1 = font.render(str(initial[0]), True, (255,255,255))
+    text1_rect = text1.get_rect()
+    text1_rect.center = I_rect.center
+    text2 = font.render(str(initial[1]), True, (255,255,255))
+    text2_rect = text2.get_rect()
+    text2_rect.center = J_rect.center
     dT = clock.get_time()
     theta = math.degrees(math.atan(initial[1]/initial[0]))
     mag = math.sqrt((initial[0])**2+(initial[1])**2)
@@ -125,15 +142,29 @@ while running:
                 
         if event.type == pygame.KEYDOWN:
             if inputting and originstate:
+                
                 if event.key >= 48 and event.key <= 57:
                     emptyvalue = emptyvalue + str(pygame.key.name(event.key))
                 if event.key == pygame.K_PERIOD:
                     emptyvalue = emptyvalue + str(pygame.key.name(event.key))
+                if event.key == pygame.K_BACKSPACE:
+                    emptyvalue = emptyvalue[:-1]
                 if event.key == pygame.K_RETURN:
+                    if emptyvalue == '':
+                        emptyvalue ='0.000000000000000001'
                     if selected == 'i':
-                        initial = ( float(emptyvalue), initial[1] )
+                        if float(emptyvalue) == int(emptyvalue):
+                            initial = ( int(emptyvalue), initial[1] )
+                        else:
+                            initial = ( float(emptyvalue), initial[1] )
                     if selected == 'j':
-                        initial = ( initial[0], float(emptyvalue) )
+                        if float(emptyvalue) == int(emptyvalue):
+                            initial = ( initial[0], int(emptyvalue) )
+                        else:
+                            initial = ( initial[0], float(emptyvalue) )
+                    inputting = False
+                    print(len(emptyvalue))
+                    print(emptyvalue)
 #                 print(event.key,pygame.key.name(event.key))
             
             
@@ -161,7 +192,8 @@ while running:
                 scale = width/50
                 
             ####keys to be turned into buttons                
-
+            if event.key == pygame.K_z:
+                Bounce = True
 
 
 
@@ -214,7 +246,10 @@ while running:
     screen.blit(ResetButton, ResetButton_rect)
     screen.blit(ShowTrailButton, ShowTrailButton_rect)
     screen.blit(Inputter,Inputter_rect)
-    font.render_to(screen, (I_rect[0]+18,I_rect[1]+9), str(initial[0]), 'white')
+    if not inputting:
+        Inputter = InputterStates[0]
+        screen.blit(text1, text1_rect)
+        screen.blit(text2, text2_rect)
     pygame.display.flip()
     clock.tick(144)  # fps limit
 
