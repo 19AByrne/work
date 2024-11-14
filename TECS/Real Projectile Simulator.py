@@ -25,12 +25,13 @@ running = True
 scale = width/50
 g = 9.8
 
-initial = (14,14)
+initial = (1,1)
 
 xshift = 0
 yshift = 0
 
-
+fontsize = 50
+font = pygame.font.Font('Font/sylfaen.ttf', fontsize)
 
 def time(init):
     return ((init[1])) / (4.9)
@@ -66,6 +67,19 @@ showtrail = False
 ShowTrailButton = ShowTrailButton_States[showtrail]
 ShowTrailButton_rect = ShowTrailButton.get_rect(center=(width/12,height*7.69/19))
 
+InputterStates = [pygame.image.load('Images/IJ.png').convert_alpha(),
+                    pygame.image.load('Images/IJselectedI.png').convert_alpha(),
+                    pygame.image.load('Images/IJselectedJ.png').convert_alpha()]
+Inputter = InputterStates[0]
+Inputter_rect = Inputter.get_rect(center=(width/12,height/7))
+I_rect = pygame.Rect(Inputter_rect.left+12,Inputter_rect.top+25, 50, 50)
+J_rect = pygame.Rect(Inputter_rect.left+120,Inputter_rect.top+25, 50, 50)
+Ivalue = font.render(str(initial[0]), False, (64,64,64))
+Jvalue = font.render(str(initial[1]), False, (64,64,64))
+Ivalue_rect = pygame.Rect(I_rect.left,I_rect.top,fontsize,fontsize)
+Jvalue_rect = pygame.Rect(J_rect.left+(fontsize/2),J_rect.top+(fontsize/2),fontsize,fontsize)
+Ivalue_rect.center = I_rect.center 
+
 landing = pygame.event.custom_type()
 per_ms = pygame.event.custom_type()
 simulating = False
@@ -99,9 +113,22 @@ while running:
             if ShowTrailButton_rect.collidepoint(event.pos):
                 showtrail = not showtrail
                 ShowTrailButton = ShowTrailButton_States[showtrail]
-                    
+            
+            if I_rect.collidepoint(event.pos):
+                if originstate:
+                    Inputter = InputterStates[1]
+                    inputting = True
+                    selected = 'i'
+                    emptyvalue = ''
+            if J_rect.collidepoint(event.pos):
+                if originstate:
+                    Inputter = InputterStates[2]
+                    inputting = True
+                    selected = 'j'
+                    emptyvalue = ''                
+                
         if event.type == pygame.KEYDOWN:
-            if inputting:
+            if inputting and originstate:
                 if event.key >= 48 and event.key <= 57:
                     emptyvalue = emptyvalue + str(pygame.key.name(event.key))
                 if event.key == pygame.K_PERIOD:
@@ -112,6 +139,8 @@ while running:
                     if selected == 'j':
                         initial = ( initial[0], float(emptyvalue) )
 #                 print(event.key,pygame.key.name(event.key))
+            
+            
             if event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 running = False
@@ -136,17 +165,10 @@ while running:
                 scale = width/50
                 
             ####keys to be turned into buttons                
-            if event.key == pygame.K_z:
-                if originstate:
-                    inputting = True
-                    selected = 'i'
-                    emptyvalue = ''
-            if event.key == pygame.K_x:
-                if originstate:
-                    inputting = True
-                    selected = 'j'
-                    emptyvalue = ''
-             
+
+
+
+
         if event.type == landing:
             simulating = False
             landed = True
@@ -180,7 +202,7 @@ while running:
                 pygame.draw.circle(screen, 'white', ( (width/8 + p[0]*scale - xshift),  (height*7/8 - p[1]*scale - yshift))  , 3)
             if totalT > (time(initial)*1000)/2:
                 showmax = True
-                pygame.draw.circle(screen, 'purple', (width/8 + ((( (mag**2) * (math.sin(2*math.radians(theta))) ) / g)*scale)/2 -xshift,  (height*7/8) - ((( (mag**2) * (math.sin(math.radians(theta)))*(math.sin(math.radians(theta))) ) / (2*g))*scale)-yshift), 5)
+                pygame.draw.circle(screen, 'red', (width/8 + ((( (mag**2) * (math.sin(2*math.radians(theta))) ) / g)*scale)/2 -xshift,  (height*7/8) - ((( (mag**2) * (math.sin(math.radians(theta)))*(math.sin(math.radians(theta))) ) / (2*g))*scale)-yshift), 5)
             if totalT >= (time(initial)*1000):
                 simulating = False
                 pygame.draw.circle(screen, 'red', (width/8 + ((( (mag**2) * (math.sin(2*math.radians(theta))) ) / g)*scale) - xshift, height*7/8 - yshift), 5)
@@ -195,6 +217,9 @@ while running:
     screen.blit(FireButton,FireButton_rect)
     screen.blit(ResetButton, ResetButton_rect)
     screen.blit(ShowTrailButton, ShowTrailButton_rect)
+    screen.blit(Inputter,Inputter_rect)
+    screen.blit(Ivalue, Ivalue_rect)
+    screen.blit(Jvalue, Jvalue_rect)
     pygame.display.flip()
     clock.tick(144)  # fps limit
 
