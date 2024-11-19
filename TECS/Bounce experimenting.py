@@ -99,7 +99,7 @@ showmax = False
 showfinal = False
 Bounce = False
 
-Bounce = True
+Bounce = False
 
 
 def fire(initial, deltaTime, gravity,origin,scale, bounce=False):
@@ -113,9 +113,8 @@ def finaltoOrigin(xrange, origin, scale):
     return newOrigin
 
 
-origin = (width/8 - xshift, height*7/8 + yshift)
+origin = (width/8, height*7/8)
 while running:
-    
     
     font = pygame.font.Font('freesansbold.ttf', fontsize)
     text1 = font.render(str(initial[0]), True, (255,255,255))
@@ -188,7 +187,6 @@ while running:
                     inputting = False
 #                 print(event.key,pygame.key.name(event.key))
             
-            
             if event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 running = False
@@ -215,8 +213,6 @@ while running:
             ####keys to be turned into buttons                
             if event.key == pygame.K_z:
                 Bounce = not Bounce
-                
-
 
         if event.type == landing:
             if not Bounce:
@@ -246,26 +242,23 @@ while running:
         pos = fire(initial, totalT, g, origin,scale, False)
         path.append(pos)
     
-
     if originstate:
         FireButton = FireButtonStates[0]
     else:
         if showtrail:
             for p in path:
-                pygame.draw.circle(screen, 'white', p  , 3)
+                pygame.draw.circle(screen, 'white', (p[0]-xshift,p[1]-yshift)  , 3)
             if totalT > (time(initial)*1000)/2:
                 showmax = True
-                pygame.draw.circle(screen, 'red', (width/8 + ((( (mag**2) * (math.sin(2*math.radians(theta))) ) / g)*scale)/2 -xshift,  (height*7/8) - ((( (mag**2) * (math.sin(math.radians(theta)))*(math.sin(math.radians(theta))) ) / (2*g))*scale)-yshift), 5)
+                pygame.draw.circle(screen, 'red', (width/8 + ((( (mag**2) * (math.sin(2*math.radians(theta))) ) / g)*scale)/2 - xshift,  (height*7/8) - ((( (mag**2) * (math.sin(math.radians(theta)))*(math.sin(math.radians(theta))) ) / (2*g))*scale)-yshift), 5)
             if totalT >= (time(initial)*1000):
                 simulating = False
                 pygame.draw.circle(screen, 'red', (width/8 + ((( (mag**2) * (math.sin(2*math.radians(theta))) ) / g)*scale) - xshift, height*7/8 - yshift), 5)
         else:
-            pygame.draw.circle(screen, 'white', ( (width/8 + pos[0]*scale - xshift),  (height*7/8 - pos[1]*scale - yshift)), 3)
+            pygame.draw.circle(screen, 'white', (p[0]-xshift,p[1]-yshift), 3)
             
-    pygame.draw.circle(screen, 'red', origin, 5) # origin
+    pygame.draw.circle(screen, 'red', (origin[0]-xshift,origin[1]-yshift), 5) # origin
 
-    
-    
     screen.blit(FireButton,FireButton_rect)
     screen.blit(ResetButton, ResetButton_rect)
     screen.blit(ShowTrailButton, ShowTrailButton_rect)
@@ -277,7 +270,12 @@ while running:
     pygame.display.flip()
     clock.tick(144)  # fps limit
 
+##errors
+'''
+when show trail is off the current time of projectile is not shown
 
+
+'''
 
 
 
