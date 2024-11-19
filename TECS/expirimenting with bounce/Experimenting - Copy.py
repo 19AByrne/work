@@ -3,6 +3,12 @@ import math
 # import sympy
 
 
+##errors
+'''
+
+
+
+'''
 
 
 '''main use''' 
@@ -25,7 +31,7 @@ running = True
 scale = width/50
 g = 9.8
 
-initial = (1,1)
+initial = (5,5)
 
 xshift = 0
 yshift = 0
@@ -33,7 +39,7 @@ yshift = 0
 fontsize = 32
 font = pygame.font.Font('freesansbold.ttf', fontsize)
 
-restitution = 1/2
+e = 1/2
 
 
 
@@ -48,13 +54,6 @@ def xrange(init):
 
 def maxheight(init):
     return ( (mag**2) * (math.sin(math.radians(theta)))*(math.sin(math.radians(theta))) ) / (2*g)
-
-def calculate_pos(t, ux, uy, g, scale):
-    x = (ux*t)
-    y = (uy*t - (g/2)*(t**2))
-    return (x,y)
-
-
     
 FireButtonStates = [pygame.image.load('Images/Fire!.png').convert_alpha(),
                     pygame.image.load('Images/Fire! italic.png').convert_alpha(),
@@ -92,25 +91,18 @@ per_ms = pygame.event.custom_type()
 simulating = False
 landed = False
 originstate = True
-curvepoints = []
+path = []
 totalT = 0
 inputting = False
-showmax = False
-showfinal = False
 Bounce = False
 
-Bounce = False
-
+Bounce = True
 
 def fire(initial, deltaTime, gravity,origin,scale, bounce=False):
     t = deltaTime/1000
-    x = (initial[0]*t) * scale + origin[0]
+    x = origin[0] + (initial[0]*t) * scale 
     y = origin[1] - ( (initial[1]*t) - (gravity/2)*(t**2) )*scale
     return (x,y)
-
-def finaltoOrigin(xrange, origin, scale):
-    newOrigin = (origin[0] + xrange*scale , origin[1])
-    return newOrigin
 
 
 origin = (width/8, height*7/8)
@@ -136,15 +128,15 @@ while running:
                     pygame.time.set_timer(landing, round(time(initial)*1000), 1)
                     simulating = True
                     originstate = False
-                    path = []
                     
             if ResetButton_rect.collidepoint(event.pos):
                 simulating = False
                 landed = False
                 originstate = True
-                curvepoints = []
                 totalT = 0
                 path = []
+                origin = (width/8, height*7/8)
+                
             if ShowTrailButton_rect.collidepoint(event.pos):
                 showtrail = not showtrail
                 ShowTrailButton = ShowTrailButton_States[showtrail]
@@ -219,10 +211,14 @@ while running:
                 simulating = False
                 landed = True
             else:
-                origin = finaltoOrigin(xrange(initial), origin, scale)
-                initial = (initial[0], restitution*initial[1])
-                totaldT = 0
-                pygame.time.set_timer(landing, round(time(initial)*1000), 1)
+                totalT = 0
+                origin = ( origin[0] + (xrange(initial)*scale) - xshift   , height*7/8 - yshift)
+                initial = (initial[0], (e*1)*initial[1])
+                if initial[1] < 1:
+                    simulating = False
+                    landed = True
+                else:
+                    pygame.time.set_timer(landing, round(time(initial)*1000), 1)
             
     screen.fill("black")
     
@@ -241,6 +237,9 @@ while running:
         totalT += dT
         pos = fire(initial, totalT, g, origin,scale, False)
         path.append(pos)
+        if totalT >= time(initial)*1000 and not Bounce:
+            simulating = False
+        
     
     if originstate:
         FireButton = FireButtonStates[0]
@@ -249,14 +248,18 @@ while running:
             for p in path:
                 pygame.draw.circle(screen, 'white', (p[0]-xshift,p[1]-yshift)  , 3)
             if totalT > (time(initial)*1000)/2:
-                showmax = True
-                pygame.draw.circle(screen, 'red', (width/8 + ((( (mag**2) * (math.sin(2*math.radians(theta))) ) / g)*scale)/2 - xshift,  (height*7/8) - ((( (mag**2) * (math.sin(math.radians(theta)))*(math.sin(math.radians(theta))) ) / (2*g))*scale)-yshift), 5)
+                pygame.draw.circle(screen, 'red', (origin[0] + (xrange(initial)*scale)/2 - xshift,  origin[1] - maxheight(initial)*scale - yshift), 5)
             if totalT >= (time(initial)*1000):
                 simulating = False
-                pygame.draw.circle(screen, 'red', (width/8 + ((( (mag**2) * (math.sin(2*math.radians(theta))) ) / g)*scale) - xshift, height*7/8 - yshift), 5)
-        else:
-            pygame.draw.circle(screen, 'white', (p[0]-xshift,p[1]-yshift), 3)
+                pygame.draw.circle(screen, 'orange', (origin[0] + xrange(initial)*scale - xshift, origin[1] - yshift), 5)
+        if not showtrail and totalT < (time(initial)*1000):
+            currentpos = fire(initial, totalT, g, origin, scale, False)
+            pygame.draw.circle(screen, 'purple',(currentpos[0]-xshift,currentpos[1]-yshift) , 3)
             
+
+                    
+                    
+                    
     pygame.draw.circle(screen, 'red', (origin[0]-xshift,origin[1]-yshift), 5) # origin
 
     screen.blit(FireButton,FireButton_rect)
@@ -270,12 +273,9 @@ while running:
     pygame.display.flip()
     clock.tick(144)  # fps limit
 
-##errors
-'''
-when show trail is off the current time of projectile is not shown
 
 
-'''
+
 
 
 

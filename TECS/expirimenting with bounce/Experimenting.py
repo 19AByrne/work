@@ -3,6 +3,12 @@ import math
 # import sympy
 
 
+##errors / todo
+'''
+
+
+
+'''
 
 
 '''main use''' 
@@ -25,7 +31,8 @@ running = True
 scale = width/50
 g = 9.8
 
-initial = (1,1)
+initial = (5,5)
+savedinitial = initial
 
 xshift = 0
 yshift = 0
@@ -33,7 +40,7 @@ yshift = 0
 fontsize = 32
 font = pygame.font.Font('freesansbold.ttf', fontsize)
 
-restitution = 1/2
+e = 1/3
 
 def time(init):
     return ((init[1])) / (4.9)
@@ -46,13 +53,6 @@ def xrange(init):
 
 def maxheight(init):
     return ( (mag**2) * (math.sin(math.radians(theta)))*(math.sin(math.radians(theta))) ) / (2*g)
-
-def calculate_pos(t, ux, uy, g, scale):
-    x = (ux*t)
-    y = (uy*t - (g/2)*(t**2))
-    return (x,y)
-
-
     
 FireButtonStates = [pygame.image.load('Images/Fire!.png').convert_alpha(),
                     pygame.image.load('Images/Fire! italic.png').convert_alpha(),
@@ -85,29 +85,54 @@ text2 = font.render(str(initial[1]), True, (255,255,255))
 text2_rect = text2.get_rect()
 text2_rect.center = J_rect.center
 
+RestitutionButtonStates = [pygame.image.load('Images/restitution.png').convert_alpha(),
+                           pygame.image.load('Images/restitutionSelected.png').convert_alpha()]
+inputtingE = False
+RestitutionButton = RestitutionButtonStates[inputtingE]
+RestitutionButton_rect = RestitutionButton.get_rect(center = (width/12,height*8.09/17))
+
 landing = pygame.event.custom_type()
 per_ms = pygame.event.custom_type()
 simulating = False
 landed = False
 originstate = True
-curvepoints = []
+path = []
 totalT = 0
 inputting = False
-showmax = False
-showfinal = False
 Bounce = False
+bounceCount = 0
+maxBounce = 1
 
+inputtinga = False
+inputtingb = False
+inputReady = False
+displayRestitution = ('1/2')
+
+Bounce = True
+
+def fire(initial, deltaTime, gravity,origin,scale, bounce=False):
+    t = deltaTime/1000
+    x = origin[0] + (initial[0]*t) * scale 
+    y = origin[1] - ( (initial[1]*t) - (gravity/2)*(t**2) ) * scale
+    return (x,y)
+
+
+origin = (width/8, height*7/8)
 while running:
+    
     font = pygame.font.Font('freesansbold.ttf', fontsize)
-    text1 = font.render(str(initial[0]), True, (255,255,255))
+    text1 = font.render(str(savedinitial[0]), True, (255,255,255))
     text1_rect = text1.get_rect()
     text1_rect.center = I_rect.center
-    text2 = font.render(str(initial[1]), True, (255,255,255))
+    text2 = font.render(str(savedinitial[1]), True, (255,255,255))
     text2_rect = text2.get_rect()
     text2_rect.center = J_rect.center
+    
     dT = clock.get_time()
+    
     theta = math.degrees(math.atan(initial[1]/initial[0]))
     mag = math.sqrt((initial[0])**2+(initial[1])**2)
+    
     for event in pygame.event.get():
         if event.type == pygame.MOUSEBUTTONDOWN:
             if FireButton_rect.collidepoint(event.pos):
@@ -115,14 +140,17 @@ while running:
                     pygame.time.set_timer(landing, round(time(initial)*1000), 1)
                     simulating = True
                     originstate = False
-                    path = []
+                    
             if ResetButton_rect.collidepoint(event.pos):
                 simulating = False
                 landed = False
                 originstate = True
-                curvepoints = []
                 totalT = 0
                 path = []
+                origin = (width/8, height*7/8)
+                bounceCount = 0
+                initial = savedinitial
+                
             if ShowTrailButton_rect.collidepoint(event.pos):
                 showtrail = not showtrail
                 ShowTrailButton = ShowTrailButton_States[showtrail]
@@ -162,12 +190,33 @@ while running:
                             initial = ( initial[0], int(emptyvalue) )
                         else:
                             initial = ( initial[0], float(emptyvalue) )
+                    savedinitial = initial
                     inputting = False
-                    print(len(emptyvalue))
-                    print(emptyvalue)
-#                 print(event.key,pygame.key.name(event.key))
-            
-            
+
+            if inputtingE and originstate:
+                print('X pressed')
+               
+                
+                if event.key >= 48 and event.key <= 57:
+                    if inputtinga:
+                        a = a + str(pygame.key.name(event.key))
+                    if inputtingb:
+                        b = b + str(pygame.key.name(event.key))
+                print(a)
+                if event.key == pygame.K_SLASH:
+                    if a != '':
+                        inputtinga = False
+                        inputtingb = True
+                if b != '':
+                    inputReady = True
+                if event.key == pygame.K_RETURN and inputReady:
+                    restitution = int(a)/int(b)
+                    print(a)
+                    print(b)
+                    displayRestitution = (f'{a}/{b}')
+                    inputtingE = False
+                    
+                    
             if event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 running = False
@@ -185,8 +234,7 @@ while running:
             if event.key == pygame.K_i:
                 scale += 1
             if event.key == pygame.K_o:
-                if not scale-1 < 0:
-                    scale -= 1
+                scale -= 1
                 
             if event.key == pygame.K_r:
                 xshift, yshift = 0,0
@@ -194,14 +242,29 @@ while running:
                 
             ####keys to be turned into buttons                
             if event.key == pygame.K_z:
-                Bounce = True
+                Bounce = not Bounce
+            
+            if event.key == pygame.K_x:
+                inputtingE = True
+                inputtinga = True
+                a = ''
+                b = ''
+                
 
-
-
-        if event.type == landing:
-            simulating = False
-            landed = True
-            print(f'{time(initial)} elapsed') #not necessary
+        if event.type == landing and simulating:
+            if not Bounce:
+                simulating = False
+                landed = True
+            else:
+                bounceCount += 1
+                totalT = 0
+                origin = ( origin[0] + (xrange(initial)*scale) - xshift   , height*7/8 - yshift)
+                initial = (initial[0], (e*1)*initial[1])
+                if initial[1] < 0.5:
+                    simulating = False
+                    landed = True
+                else:
+                    pygame.time.set_timer(landing, round(time(initial)*1000), 1)
             
     screen.fill("black")
     
@@ -218,41 +281,47 @@ while running:
         else:
             FireButton = FireButtonStates[1]
         totalT += dT
-#         print(totalT/1000)
-        pos = calculate_pos(totalT/1000, initial[0], initial[1], g, scale)
+        pos = fire(initial, totalT, g, origin,scale, False)
         path.append(pos)
-
-
+        if totalT >= time(initial)*1000 and not Bounce:
+            simulating = False
+        
+    
     if originstate:
         FireButton = FireButtonStates[0]
     else:
         if showtrail:
             for p in path:
-                pygame.draw.circle(screen, 'white', ( (width/8 + p[0]*scale - xshift),  (height*7/8 - p[1]*scale - yshift))  , 3)
+                pygame.draw.circle(screen, 'white', (p[0]-xshift,p[1]-yshift)  , 3)
             if totalT > (time(initial)*1000)/2:
-                showmax = True
-                pygame.draw.circle(screen, 'red', (width/8 + ((( (mag**2) * (math.sin(2*math.radians(theta))) ) / g)*scale)/2 -xshift,  (height*7/8) - ((( (mag**2) * (math.sin(math.radians(theta)))*(math.sin(math.radians(theta))) ) / (2*g))*scale)-yshift), 5)
+                pygame.draw.circle(screen, 'red', (origin[0] + (xrange(initial)*scale)/2 - xshift,  origin[1] - maxheight(initial)*scale - yshift), 5)
             if totalT >= (time(initial)*1000):
-                simulating = False
-                pygame.draw.circle(screen, 'red', (width/8 + ((( (mag**2) * (math.sin(2*math.radians(theta))) ) / g)*scale) - xshift, height*7/8 - yshift), 5)
-        else:
-            pygame.draw.circle(screen, 'purple', ( (width/8 + pos[0]*scale - xshift),  (height*7/8 - pos[1]*scale - yshift)), 3)
+                pygame.draw.circle(screen, 'orange', (origin[0] + xrange(initial)*scale - xshift, origin[1] - yshift), 5)
+        if not showtrail and totalT < (time(initial)*1000):
+            currentpos = fire(initial, totalT, g, origin, scale, False)
+            pygame.draw.circle(screen, 'purple',(currentpos[0]-xshift,currentpos[1]-yshift) , 3)
             
-    pygame.draw.circle(screen, 'red', (width/8 -xshift,height*7/8 - yshift), 5) # origin
-#     pygame.draw.circle(screen, 'red', (width/8 + ((( (mag**2) * (math.sin(2*math.radians(theta))) ) / g)*scale) - xshift, height*7/8 - yshift), 5) #final pos
-# maxpoint = (width/8 + (xrange(initial)*scale)/2 , (height*7/8) + (maxheight(initial)*scale))
-    print(scale)
-    
+
+                    
+                    
+                    
+    pygame.draw.circle(screen, 'red', (origin[0]-xshift,origin[1]-yshift), 5) # origin
+
     screen.blit(FireButton,FireButton_rect)
     screen.blit(ResetButton, ResetButton_rect)
     screen.blit(ShowTrailButton, ShowTrailButton_rect)
     screen.blit(Inputter,Inputter_rect)
+    screen.blit(RestitutionButtonStates[inputtingE], RestitutionButton_rect)
     if not inputting:
         Inputter = InputterStates[0]
         screen.blit(text1, text1_rect)
         screen.blit(text2, text2_rect)
+    print(displayRestitution)
     pygame.display.flip()
     clock.tick(144)  # fps limit
+
+
+
 
 
 
