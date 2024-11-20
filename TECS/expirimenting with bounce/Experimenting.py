@@ -40,7 +40,7 @@ yshift = 0
 fontsize = 32
 font = pygame.font.Font('freesansbold.ttf', fontsize)
 
-e = 1/3
+e = 3/5
 
 def time(init):
     return ((init[1])) / (4.9)

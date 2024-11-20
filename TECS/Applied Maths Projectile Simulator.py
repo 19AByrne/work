@@ -5,9 +5,9 @@ import math
 
 ##errors / todo
 '''
-display variable DisplayRestitution in the restitution button
-
-
+scale works and shift works when showtrail is False
+if showtrail is True, scale does not work
+rn it do nthn
 '''
 
 
@@ -40,7 +40,8 @@ yshift = 0
 fontsize = 32
 font = pygame.font.Font('freesansbold.ttf', fontsize)
 
-e = 1/3
+e = 1
+displayRestitution = ('1/2')
 
 def time(init):
     return ((init[1])) / (4.9)
@@ -103,6 +104,7 @@ simulating = False
 landed = False
 originstate = True
 path = []
+pastorigin = []
 totalT = 0
 inputting = False
 
@@ -112,13 +114,16 @@ maxBounce = 1
 inputtinga = False
 inputtingb = False
 inputReady = False
-displayRestitution = ('1/2')
+
 
 
 def fire(initial, deltaTime, gravity,origin,scale, bounce=False):
     t = deltaTime/1000
-    x = origin[0] + (initial[0]*t) * scale 
+    x = origin[0] + (initial[0]*t) * scale
     y = origin[1] - ( (initial[1]*t) - (gravity/2)*(t**2) ) * scale
+    
+    x = (initial[0]*t) 
+    y = ( (initial[1]*t) - (gravity/2)*(t**2) ) 
     return (x,y)
 
 
@@ -132,6 +137,10 @@ while running:
     text2 = font.render(str(savedinitial[1]), True, (255,255,255))
     text2_rect = text2.get_rect()
     text2_rect.center = J_rect.center
+    
+    Restitution_text = font.render(displayRestitution, True, (255,255,255))
+    Restitution_text_rect = Restitution_text.get_rect()
+    Restitution_text_rect.center = (RestitutionButton_rect.center[0]+55,RestitutionButton_rect.center[1]+2)
     
     dT = clock.get_time()
     
@@ -152,6 +161,7 @@ while running:
                 originstate = True
                 totalT = 0
                 path = []
+                pastorigin = []
                 origin = (width/8, height*7/8)
                 bounceCount = 0
                 initial = savedinitial
@@ -182,7 +192,6 @@ while running:
                 
         if event.type == pygame.KEYDOWN:
             if inputting and originstate:
-                
                 if event.key >= 48 and event.key <= 57:
                     emptyvalue = emptyvalue + str(pygame.key.name(event.key))
                 if event.key == pygame.K_PERIOD:
@@ -205,10 +214,7 @@ while running:
                     savedinitial = initial
                     inputting = False
 
-            if inputtingE and originstate:
-                print('X pressed')
-               
-                
+            if inputtingE and originstate:                
                 if event.key >= 48 and event.key <= 57:
                     if inputtinga:
                         a = a + str(pygame.key.name(event.key))
@@ -263,14 +269,14 @@ while running:
             else:
                 bounceCount += 1
                 totalT = 0
-                origin = ( origin[0] + (xrange(initial)*scale) - xshift   , height*7/8 - yshift)
+                origin = ( origin[0] + (xrange(initial)*scale) , origin[1])
                 initial = (initial[0], (e*1)*initial[1])
                 if initial[1] < 0.5:
                     simulating = False
                     landed = True
                 else:
                     pygame.time.set_timer(landing, round(time(initial)*1000), 1)
-            
+
     screen.fill("black")
     
     ground = pygame.Rect(0 , (height*7/8) - yshift ,width,height/8)
@@ -287,6 +293,7 @@ while running:
             FireButton = FireButtonStates[1]
         totalT += dT
         pos = fire(initial, totalT, g, origin,scale, False)
+        pastorigin.append(origin)
         path.append(pos)
         if totalT >= time(initial)*1000 and not Bounce:
             simulating = False
@@ -296,20 +303,18 @@ while running:
         FireButton = FireButtonStates[0]
     else:
         if showtrail:
-            for p in path:
-                pygame.draw.circle(screen, 'white', (p[0]-xshift,p[1]-yshift)  , 3)
+            for i,p in enumerate(path):
+                pygame.draw.circle(screen, 'white', ( (p[0] - pastorigin[i][0])*scale + pastorigin[i][0] -xshift, pastorigin[i][1] - (p[1]+ pastorigin[i][1])*scale  - yshift), 3)
             if totalT > (time(initial)*1000)/2:
                 pygame.draw.circle(screen, 'red', (origin[0] + (xrange(initial)*scale)/2 - xshift,  origin[1] - maxheight(initial)*scale - yshift), 5)
             if totalT >= (time(initial)*1000):
                 pygame.draw.circle(screen, 'orange', (origin[0] + xrange(initial)*scale - xshift, origin[1] - yshift), 5)
         if not showtrail and totalT < (time(initial)*1000):
             currentpos = fire(initial, totalT, g, origin, scale, False)
-            pygame.draw.circle(screen, 'purple',(currentpos[0]-xshift,currentpos[1]-yshift) , 3)
-            
+            pygame.draw.circle(screen, 'purple',(origin[0] + scale*currentpos[0] - xshift,origin[1] - scale*currentpos[1] - yshift) , 3)
 
-                    
-                    
-                    
+
+
     pygame.draw.circle(screen, 'red', (origin[0]-xshift,origin[1]-yshift), 5) # origin
 
     screen.blit(FireButton,FireButton_rect)
@@ -317,6 +322,7 @@ while running:
     screen.blit(ShowTrailButton, ShowTrailButton_rect)
     screen.blit(Inputter,Inputter_rect)
     screen.blit(RestitutionButtonStates[inputtingE], RestitutionButton_rect)
+    screen.blit(Restitution_text,Restitution_text_rect)
     if not inputting:
         Inputter = InputterStates[0]
         screen.blit(text1, text1_rect)
