@@ -7,9 +7,9 @@ import math
 '''
 scale works and shift works when showtrail is False
 if showtrail is True, scale does not work
-rn it do nthn
 
-sometimes inputting the retitution causes weird shit
+
+
 '''
 
 
@@ -128,7 +128,27 @@ def fire(initial, deltaTime, gravity,origin,scale, bc):
     y = ( (initial[1]*t) - (gravity/2)*(t**2) )
     return [origin, (x,y), xrange(initial)*bc]
 
+class Motion:
+    def __init__(self, initial, origin, range, totaltime, gravity):
+        self.initial = initial
+        self.initialx = self.initial[0]
+        self.initialy = self.initial[1]
+        self.range = range
+        self.origin = origin
+        self.originx = self.origin[0]
+        self.totalT = totaltime
+        self.gravity = gravity
+    
+    def getpoint(self, deltaTime):
+        deltaTime = deltaTime/1000
+        x = (self.initialx*deltaTime)
+        y = (self.initialy*deltaTime) - (self.gravity/2)*(deltaTime**2)
+        return [(x,y), self.origin]
+    
+    
+    
 
+motions = []
 origin = (width/8, height*7/8)
 originlist = [origin]
 while running:
@@ -140,7 +160,7 @@ while running:
     text2_rect = text2.get_rect()
     text2_rect.center = J_rect.center
     
-    #############
+    ############# for debugging
     BOUNCECOUNT = font.render(str(bounceCount), True, (255,255,255))
 
     
@@ -158,6 +178,7 @@ while running:
             if FireButton_rect.collidepoint(event.pos):
                 if not simulating and originstate:
                     pygame.time.set_timer(landing, round(time(initial)*1000), 1)
+                    motions.append(Motion(initial, origin, xrange(initial), time(initial), g))
                     simulating = True
                     originstate = False
                     
@@ -171,6 +192,7 @@ while running:
                 origin = (width/8, height*7/8)
                 bounceCount = 0
                 initial = savedinitial
+                motions = []
                 
             if ShowTrailButton_rect.collidepoint(event.pos):
                 showtrail = not showtrail
@@ -273,17 +295,20 @@ while running:
                 landed = True
             else:
                 bounceCount += 1
-                if bounceCount > 1:
-                    originlist.append(origin)
-                totalT = 0
-                path.append('N') # for new motion
                 origin = ( origin[0] + (xrange(initial)*scale) , origin[1])
-                initial = (initial[0], (e*1)*initial[1])
-                if initial[1] < 5:
+                initial = (initial[0], (e)*initial[1])
+                if bounceCount >= 1:
+                    originlist.append(origin)
+                    motions.append(Motion(initial, origin, xrange(initial), time(initial), g))
+                
+                totalT = 0
+                if initial[1] < 5:  #THIS VALUE SHOULD BE MUCH LOWER I HAVE BEEN USING 'initial[1] < 0.05' AS WHEN IT GTS BELOW THAT SPEED IT IS JUST AN UNNECESARY PROCESS. THE LARGER VALUE IS PURELY FOR DEBUGGING
                     simulating = False
                     landed = True
                 else:
                     pygame.time.set_timer(landing, round(time(initial)*1000), 1)
+
+                
 
     screen.fill("black")
     
@@ -300,8 +325,7 @@ while running:
         else:
             FireButton = FireButtonStates[1]
         totalT += dT
-        pos = fire(initial, totalT, g, origin,scale, bounceCount)
-        path.append(pos)
+        path.append(motions[bounceCount].getpoint(totalT))
         if totalT >= time(initial)*1000 and not Bounce:
             simulating = False
         
@@ -310,11 +334,13 @@ while running:
         FireButton = FireButtonStates[0]
     else:
         if showtrail:
-            for p in path:
-                if p == 'N':
+            for i,p in enumerate(path):
+                if bounceCount >= 1:
                     pass
+                    pygame.draw.circle(screen, 'white', (p[1][0] + p[0][0]*scale - xshift ,p[1][1] - p[0][1]*scale - yshift), 3)
                 else:
-                    pygame.draw.circle(screen, 'white', (p[1][0]*scale -xshift, origin[1] - p[1][1]*scale  - yshift), 3)
+                    pass
+                    pygame.draw.circle(screen, 'white', (p[1][0] + p[0][0]*scale - xshift ,p[1][1] - p[0][1]*scale - yshift), 3)
             if totalT > (time(initial)*1000)/2:
                 pygame.draw.circle(screen, 'red', (origin[0] + (xrange(initial)*scale)/2 - xshift,  origin[1] - maxheight(initial)*scale - yshift), 5)
             if totalT >= (time(initial)*1000):
@@ -342,9 +368,11 @@ while running:
 
     ###
     screen.blit(BOUNCECOUNT,(width/2,height/2))
-    print((originlist))
+
     pygame.display.flip()
     clock.tick(144)  # fps limit
+
+
 
 
 
