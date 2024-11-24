@@ -7,6 +7,7 @@ import math
 '''
 fix reset button - when ran it works but when reset button is clcied and ran again. theorigin of the second motion is at the 240,945 point
 
+current theory is the bouncecount is not ading correctly but i cant see why it wouldnt
 
 '''
 
