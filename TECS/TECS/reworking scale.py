@@ -65,6 +65,7 @@ FireButtonStates = [pygame.image.load('Images/Fire!.png').convert_alpha(),
 FireButton = FireButtonStates[0]
 FireButton_rect = FireButton.get_rect(center=(width/12,height/4))
 
+
 ResetButton = pygame.image.load('Images/reset.png').convert_alpha()
 ResetButton_rect = ResetButton.get_rect(center=(width/12, height/3))
 
@@ -81,6 +82,12 @@ Inputter = InputterStates[0]
 Inputter_rect = Inputter.get_rect(center=(width/12,height/7))
 I_rect = pygame.Rect(Inputter_rect.left+12,Inputter_rect.top+25, 50, 50)
 J_rect = pygame.Rect(Inputter_rect.left+120,Inputter_rect.top+25, 50, 50)
+
+SwitchButton = pygame.image.load('Images/Switch.png').convert_alpha()
+SwitchButton_rect = SwitchButton.get_rect()
+SwitchButton_rect.center = (Inputter_rect.center[0]+110,Inputter_rect.center[1])
+
+
 
 text1 = font.render(str(initial[0]), True, (255,255,255))
 text1_rect = text1.get_rect()
@@ -101,6 +108,9 @@ BounceButtonStates = [pygame.image.load('Images/Bounce.png').convert_alpha(),
                       pygame.image.load('Images/XBounce.png').convert_alpha()]
 BounceButton = BounceButtonStates[Bounce]
 BounceButton_rect = BounceButton.get_rect(center=(width/12, height*8.09/17 + 77))
+
+BlankBox = pygame.image.load('images/BlankBox.png').convert_alpha()
+baseBlankBox_rect = BlankBox.get_rect(center=(width-105,45))
 
 landing = pygame.event.custom_type()
 scaleshift = pygame.event.custom_type()
@@ -160,6 +170,18 @@ motions = []
 origin = (width/8, height*7/8)
 originlist = [origin]
 
+displayTime = font.render(f'{round(displayTimeValue/1000,1)}s', True, (255,255,255)) #here twice to be initialised
+displayTime_rect = displayTime.get_rect()
+displayTime_rect.center = baseBlankBox_rect.center
+
+displayXrange = font.render(f'{round((displayTimeValue/1000)*savedinitial[0],1)}m', True, (255,255,255))
+displayXrange_rect = displayXrange.get_rect()
+displayXrange_rect.center = (baseBlankBox_rect.center[0],baseBlankBox_rect.center[1]+77)
+
+displayBounceCount = font.render(f'Bounces: {bounceCount}' , True, (255,255,255))
+displayBounceCount_rect = displayBounceCount.get_rect()
+displayBounceCount_rect.center = (baseBlankBox_rect.center[0],baseBlankBox_rect.center[1]+154)
+
 while running:
     dT = clock.get_time()
     
@@ -171,19 +193,17 @@ while running:
     text2_rect.center = J_rect.center
     
     displayBounceCount = font.render(f'Bounces: {bounceCount}' , True, (255,255,255))
-    displayBounceCount_rect = displayBounceCount.get_rect(center=(width*9/10,height/2)) #reposition
     
     displayTime = font.render(f'{round(displayTimeValue/1000,1)}s', True, (255,255,255))
-    displayTime_rect = displayTime.get_rect(center=(width/2,height/2))
 
+    displayXrange = font.render(f'{round((displayTimeValue/1000)*savedinitial[0],1)}m', True, (255,255,255))
     
     Restitution_text = font.render(displayRestitution, True, (255,255,255))
     Restitution_text_rect = Restitution_text.get_rect()
     Restitution_text_rect.center = (RestitutionButton_rect.center[0]+55,RestitutionButton_rect.center[1]+2)
     
     
-    
-    
+
     for event in pygame.event.get():
         if event.type == pygame.MOUSEBUTTONDOWN:
             if FireButton_rect.collidepoint(event.pos):
@@ -390,11 +410,22 @@ while running:
 
 
     pygame.draw.circle(screen, 'red', (origin[0]-xshift,origin[1]-yshift), 5) # origin
-
+    screen.blit(BlankBox,baseBlankBox_rect)
+    screen.blit(BlankBox,(baseBlankBox_rect[0],baseBlankBox_rect[1]+77))
+    screen.blit(BlankBox,(baseBlankBox_rect[0],baseBlankBox_rect[1]+154))
+    
+    
+    screen.blit(displayTime,displayTime_rect) 
+    screen.blit(displayXrange,displayXrange_rect)
+    screen.blit(displayBounceCount,displayBounceCount_rect)
+    
     screen.blit(FireButton,FireButton_rect)
     screen.blit(ResetButton, ResetButton_rect)
     screen.blit(ShowTrailButton, ShowTrailButton_rect)
+    
     screen.blit(Inputter,Inputter_rect)
+    screen.blit(SwitchButton,SwitchButton_rect)
+    
     screen.blit(RestitutionButtonStates[inputtingE], RestitutionButton_rect)
     screen.blit(Restitution_text,Restitution_text_rect)
     if not inputting:
@@ -402,11 +433,9 @@ while running:
         screen.blit(text1, text1_rect)
         screen.blit(text2, text2_rect)
     screen.blit(BounceButtonStates[Bounce],BounceButton_rect)
-    screen.blit(displayBounceCount,displayBounceCount_rect)
-    screen.blit(displayTime,displayTime_rect)
-    
-    ###
 
+    ###
+#     print(displayTimeValue)
     pygame.display.flip()
     clock.tick(144)  # fps limit
 
