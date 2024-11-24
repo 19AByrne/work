@@ -5,9 +5,7 @@ import math
 
 ##errors / todo
 '''
-fix reset button - when ran it works but when reset button is clcied and ran again. theorigin of the second motion is at the 240,945 point
 
-current theory is the bouncecount is not ading correctly but i cant see why it wouldnt
 
 '''
 
@@ -43,6 +41,7 @@ yshift = 0
 fontsize = 32
 font = pygame.font.Font('freesansbold.ttf', fontsize)
 
+
 e = 1/2
 displayRestitution = ('1/2')
 
@@ -71,7 +70,7 @@ ResetButton_rect = ResetButton.get_rect(center=(width/12, height/3))
 
 ShowTrailButton_States = [pygame.image.load('Images/ShowTrail.png').convert_alpha(),
                           pygame.image.load('Images/XShowTrail.png').convert_alpha()]
-showtrail = True
+showtrail = False
 ShowTrailButton = ShowTrailButton_States[showtrail]
 ShowTrailButton_rect = ShowTrailButton.get_rect(center=(width/12,height*7.69/19))
 
@@ -115,6 +114,7 @@ initials = [initial]
 ranges = []
 
 totalT = 0
+displayTimeValue = 0
 inputting = False
 
 bounceCount = 0
@@ -126,14 +126,14 @@ inputReady = False
 
 
 
-def fire(initial, deltaTime, gravity,origin,scale, bc):
+def currentpoint(initial, deltaTime, gravity):
     t = deltaTime/1000
 #     x = origin[0] + (initial[0]*t) * scale
 #     y = origin[1] - ( (initial[1]*t) - (gravity/2)*(t**2) ) * scale
     
     x = (initial[0]*t)
     y = ( (initial[1]*t) - (gravity/2)*(t**2) )
-    return [origin, (x,y), xrange(initial)*bc]
+    return (x,y)
 
 class Motion:
     def __init__(self, initial, origin, range, totaltime, gravity, motionNo):
@@ -161,7 +161,8 @@ origin = (width/8, height*7/8)
 originlist = [origin]
 
 while running:
-
+    dT = clock.get_time()
+    
     text1 = font.render(str(savedinitial[0]), True, (255,255,255))
     text1_rect = text1.get_rect()
     text1_rect.center = I_rect.center
@@ -169,15 +170,18 @@ while running:
     text2_rect = text2.get_rect()
     text2_rect.center = J_rect.center
     
-    ############# for debugging
-    BOUNCECOUNT = font.render(str(bounceCount), True, (255,255,255))
+    displayBounceCount = font.render(f'Bounces: {bounceCount}' , True, (255,255,255))
+    displayBounceCount_rect = displayBounceCount.get_rect(center=(width*9/10,height/2)) #reposition
+    
+    displayTime = font.render(f'{round(displayTimeValue/1000,1)}s', True, (255,255,255))
+    displayTime_rect = displayTime.get_rect(center=(width/2,height/2))
 
     
     Restitution_text = font.render(displayRestitution, True, (255,255,255))
     Restitution_text_rect = Restitution_text.get_rect()
     Restitution_text_rect.center = (RestitutionButton_rect.center[0]+55,RestitutionButton_rect.center[1]+2)
     
-    dT = clock.get_time()
+    
     
     
     for event in pygame.event.get():
@@ -194,9 +198,10 @@ while running:
                 landed = False
                 originstate = True
                 totalT = 0
+                displayTimeValue = 0
                 path = []
                 rawpath = []
-                initials = [initial]
+                initials = [savedinitial]
                 ranges = []
                 origins = []
                 originlist = [origin]
@@ -251,6 +256,7 @@ while running:
                         else:
                             initial = ( initial[0], float(emptyvalue) )
                     savedinitial = initial
+                    initials = [savedinitial]
                     inputting = False
 
             if inputtingE and originstate:                
@@ -321,15 +327,12 @@ while running:
                 landed = True
             else:
                 bounceCount += 1
-
                 initial = (initial[0], (e)*initial[1])
                 initials.append(initial)
                 if bounceCount >= 1:
-                    originlist.append(origin)
                     motions.append(Motion(initial, (0,0), xrange(initial), time(initial), g, bounceCount))
-                
                 totalT = 0
-                if initial[1] < 0.05:  #THIS VALUE SHOULD BE MUCH LOWER I HAVE BEEN USING 'initial[1] < 0.05' AS WHEN IT GTS BELOW THAT SPEED IT IS JUST AN UNNECESARY PROCESS. THE LARGER VALUE IS PURELY FOR DEBUGGING
+                if initial[1] < 0.05:  
                     simulating = False
                     landed = True
                 else:
@@ -352,6 +355,7 @@ while running:
         else:
             FireButton = FireButtonStates[1]
         totalT += dT
+        displayTimeValue += dT
         path.append(motions[bounceCount].getpoint(totalT))
         rawpath.append(motions[bounceCount].getpoint(totalT))
         if totalT >= time(initial)*1000 and not Bounce:
@@ -363,17 +367,11 @@ while running:
     else:
         if showtrail:
             for p in path[:-1]:
-                if bounceCount == 0:
-                    pygame.draw.circle(screen, 'white', (240 + p[0][0] - xshift,origin[1] - p[0][1] - yshift), 3)
-                else:
-                    pygame.draw.circle(screen, 'white', (origins[p[2]] + p[0][0] - xshift,origin[1] - p[0][1] - yshift), 3)
-            
-            
-            
-            
-            
-            
-            
+                pygame.draw.circle(screen, 'white', (origins[p[2]] + p[0][0] - xshift,origin[1] - p[0][1] - yshift), 3)
+                
+        if not showtrail and totalT < (time(initial)*1000):
+            currentpos = currentpoint(initial, totalT, g)
+            pygame.draw.circle(screen, 'white', (origins[bounceCount] +  currentpos[0]*scale - xshift,origin[1] - currentpos[1]*scale - yshift), 3)
 #             for i,p in enumerate(path[:-1]): #FILTERING OUT LATEST POINT AS IT CANT BE SCALED CORRECTLY IN TIME FOR DISPLAY.FLIP
 #                 if bounceCount >= 1:
 #                     pass
@@ -404,11 +402,11 @@ while running:
         screen.blit(text1, text1_rect)
         screen.blit(text2, text2_rect)
     screen.blit(BounceButtonStates[Bounce],BounceButton_rect)
+    screen.blit(displayBounceCount,displayBounceCount_rect)
+    screen.blit(displayTime,displayTime_rect)
     
-
     ###
-    screen.blit(BOUNCECOUNT,(width/2,height/2))
-#     pygame.draw.circle(screen, 'brown', (240 + scale*xrange(initial),945), 10)
+
     pygame.display.flip()
     clock.tick(144)  # fps limit
 
