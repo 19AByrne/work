@@ -5,7 +5,7 @@ import math
 
 ##errors / todo
 '''
-
+fix decimal input for i j
 
 '''
 
@@ -246,6 +246,8 @@ while running:
                     inputting = True
                     selected = 'j'
                     emptyvalue = ''
+            if SwitchButton_rect.collidepoint(event.pos):
+                pass
             if BounceButton_rect.collidepoint(event.pos):
                 Bounce = not Bounce
             if RestitutionButton_rect.collidepoint(event.pos):
@@ -312,7 +314,6 @@ while running:
             if event.key == pygame.K_LEFT:
                 if xshift != 0:
                     xshift -= 10
-#             if event.key == pygame.K_i or event.key == pygame.K_o:
                 
             if event.key == pygame.K_i:
                 scale += 0.25
@@ -434,8 +435,6 @@ while running:
         screen.blit(text2, text2_rect)
     screen.blit(BounceButtonStates[Bounce],BounceButton_rect)
 
-    ###
-#     print(displayTimeValue)
     pygame.display.flip()
     clock.tick(144)  # fps limit
 
