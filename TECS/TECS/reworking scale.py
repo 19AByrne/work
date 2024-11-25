@@ -1,8 +1,5 @@
 import pygame
 import math
-# import sympy
-
-
 ##errors / todo
 '''
 fix decimal input for i j
@@ -30,41 +27,37 @@ running = True
 scale = 20
 g = 9.8
 
-initial = (5,10)
+initial = (5,10) #default initial value
 savedinitial = initial
 
-
-
-xshift = 0
-yshift = 0
+xshift = 0 # offset in the x-axis used with left and arrow keys
+yshift = 0 # offset in the y-axis used with up and down arrow keys
+#both offsets are applied to all coordinates
 
 fontsize = 32
 font = pygame.font.Font('freesansbold.ttf', fontsize)
 
 
-e = 1/2
-displayRestitution = ('1/2')
+e = 1/2 #value for restitution, denoted with e in applied maths
+displayRestitution = ('1/2') #string of value for e for 
 
 def time(init):
     return ((init[1])) / (4.9)
 
-# def xrange2(init):                  not using this function because it relies on another function
-#     return (init[0]) * (time(init))
-
-def xrange(init):
+def xrange(init): #horizontal distance covered in a motion
     mag = math.sqrt((init[0])**2+(init[1])**2)
     theta = math.degrees(math.atan(init[1]/init[0]))
     return ( (mag**2) * (math.sin(2*math.radians(theta))) ) / g
 
-def maxheight(init):
+def maxheight(init): 
     return ( (mag**2) * (math.sin(math.radians(theta)))*(math.sin(math.radians(theta))) ) / (2*g)
-    
+
+#list of different states for ready to fire, in motion, or Cross through it while hovering to say you can't press
 FireButtonStates = [pygame.image.load('Images/Fire!.png').convert_alpha(),
                     pygame.image.load('Images/Fire! italic.png').convert_alpha(),
                     pygame.image.load('Images/Fire! strike.png').convert_alpha()]
 FireButton = FireButtonStates[0]
 FireButton_rect = FireButton.get_rect(center=(width/12,height/4))
-
 
 ResetButton = pygame.image.load('Images/reset.png').convert_alpha()
 ResetButton_rect = ResetButton.get_rect(center=(width/12, height/3))
@@ -112,23 +105,22 @@ BounceButton_rect = BounceButton.get_rect(center=(width/12, height*8.09/17 + 77)
 BlankBox = pygame.image.load('images/BlankBox.png').convert_alpha()
 baseBlankBox_rect = BlankBox.get_rect(center=(width-105,45))
 
-landing = pygame.event.custom_type()
+landing = pygame.event.custom_type() 
 scaleshift = pygame.event.custom_type()
-scaleshiftevent = pygame.event.Event(scaleshift)
+scaleshiftevent = pygame.event.Event(scaleshift) #custom event for when zoomed in or out, to multiply coordinates by the variable scale
 simulating = False
 landed = False
-originstate = True
-path = []
-rawpath = []
-initials = [initial]
-ranges = []
+originstate = True #origin state is basically a ready to fire state, its to differentiate if the projectile is not in motion but its still active and not ready to fire to the projectile not being in motion and being in a ready to fire state
+path = [] #list for points of the motion with scale applied
+rawpath = [] #raw list of the points without scale applied so the points can be changed upon the scaleshiftevent
+initials = [initial] #list of initials
+ranges = [] #list of each range of seperate motion
 
 totalT = 0
-displayTimeValue = 0
+displayTimeValue = 0 #true total time value of entire motion to be displayed to user
 inputting = False
 
 bounceCount = 0
-maxBounce = 1
 
 inputtinga = False
 inputtingb = False
@@ -136,11 +128,8 @@ inputReady = False
 
 
 
-def currentpoint(initial, deltaTime, gravity):
-    t = deltaTime/1000
-#     x = origin[0] + (initial[0]*t) * scale
-#     y = origin[1] - ( (initial[1]*t) - (gravity/2)*(t**2) ) * scale
-    
+def currentpoint(initial, deltaTime, gravity): #function to give any coordinate of a motion at any time.
+    t = deltaTime/1000    
     x = (initial[0]*t)
     y = ( (initial[1]*t) - (gravity/2)*(t**2) )
     return (x,y)
@@ -183,7 +172,7 @@ displayBounceCount_rect = displayBounceCount.get_rect()
 displayBounceCount_rect.center = (baseBlankBox_rect.center[0],baseBlankBox_rect.center[1]+154)
 
 while running:
-    dT = clock.get_time()
+    dT = clock.get_time() #deltaTime
     
     text1 = font.render(str(savedinitial[0]), True, (255,255,255))
     text1_rect = text1.get_rect()
@@ -192,10 +181,10 @@ while running:
     text2_rect = text2.get_rect()
     text2_rect.center = J_rect.center
     
-    displayBounceCount = font.render(f'Bounces: {bounceCount}' , True, (255,255,255))
     
+    #Information boxes of the motion in the top right, inside game loop so text can update
+    displayBounceCount = font.render(f'Bounces: {bounceCount}' , True, (255,255,255)) 
     displayTime = font.render(f'{round(displayTimeValue/1000,1)}s', True, (255,255,255))
-
     displayXrange = font.render(f'{round((displayTimeValue/1000)*savedinitial[0],1)}m', True, (255,255,255))
     
     Restitution_text = font.render(displayRestitution, True, (255,255,255))
@@ -207,13 +196,14 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.MOUSEBUTTONDOWN:
             if FireButton_rect.collidepoint(event.pos):
-                if not simulating and originstate:
+                if not simulating and originstate: #only fires when in a ready to fire state
                     pygame.time.set_timer(landing, round(time(initial)*1000), 1)
                     motions.append(Motion(initial, origin, xrange(initial), time(initial), g, 0))
                     simulating = True
                     originstate = False
                     
             if ResetButton_rect.collidepoint(event.pos):
+                #resets all values to default value
                 simulating = False
                 landed = False
                 originstate = True
@@ -295,8 +285,6 @@ while running:
                     inputReady = True
                 if event.key == pygame.K_RETURN and inputReady:
                     e = int(a)/int(b)
-                    print(a)
-                    print(b)
                     displayRestitution = (f'{a}/{b}')
                     inputtingE = False
                     
@@ -335,8 +323,8 @@ while running:
                     origins.append(r)
                 else:
                     origins.append(origins[i-1]+r)
-            origins = [o+240 for o in origins]
-            origins.insert(0,240)
+            origins = [o+(width/8) for o in origins] #accounting for offset of the True origin point
+            origins.insert(0,(width/8))
             path = [[(scale*p[0][0],scale*p[0][1]),(p[1]), p[2]] for i,p in enumerate(rawpath)]
 
 
