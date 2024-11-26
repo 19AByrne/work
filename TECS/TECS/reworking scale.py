@@ -104,6 +104,7 @@ Inputter = InputterStates[0]
 Inputter_rect = Inputter.get_rect(center=(width/12,height/7))
 I_rect = pygame.Rect(Inputter_rect.left+12,Inputter_rect.top+25, 50, 50)
 J_rect = pygame.Rect(Inputter_rect.left+120,Inputter_rect.top+25, 50, 50)
+IJmode = True
 
 SwitchButton = pygame.image.load('Images/Switch.png').convert_alpha()
 SwitchButton_rect = SwitchButton.get_rect()
@@ -160,6 +161,7 @@ inputReady = False
 
 
 
+
 def currentpoint(initial, deltaTime, gravity): #function to give any coordinate of a motion at any time.
     t = deltaTime/1000    
     x = (initial[0]*t)
@@ -203,6 +205,8 @@ displayBounceCount_rect = displayBounceCount.get_rect()
 displayBounceCount_rect.center = (baseBlankBox_rect.center[0],baseBlankBox_rect.center[1]+154)
 
 while running:
+#     if not IJmode:
+#         initial = [
     dT = clock.get_time() #deltaTime
     
     displayI_Value = font.render(str(savedinitial[0]), True, (255,255,255))
@@ -266,7 +270,7 @@ while running:
                     emptyvalue = ''
                     
             if SwitchButton_rect.collidepoint(event.pos):
-                pass
+                IJmode = not IJmode #reverses bool value
             
             if BounceButton_rect.collidepoint(event.pos):
                 Bounce = not Bounce #reverses bool value
