@@ -1,9 +1,33 @@
 import pygame
 import math
-##errors / todo
+#what to know
 '''
-fix decimal input for i j
+All images were created by me
+All code was written by me, concept of deltaTime was introduced to me by mentor but applied to codewith my own interpretation of its use
+Formulas such as max height,time, and range are formulas derived in the applied maths LC course
 
+Keyboard inputs are:
+    i - zoom in
+    o - zoom out
+    [arrow keys] - move screen in respective direction
+    r - resets any changes to the screen view (offset or zoom)
+    Escape - Closes the window
+
+    inputting restitionis single digit number followed by '/' and single digit number
+    return key is then pressed to confirm the value
+
+    I J values can be any positive number followed by return key to confirm the value
+
+'''
+
+
+
+##errors / to-do
+'''
+create input for mag and angle
+
+the firebutton cross state can only change during the motion and cannot be changed when landed and not in originstate
+perhaps move the lines of code
 '''
 
 
@@ -28,11 +52,11 @@ scale = 20
 g = 9.8
 
 initial = (5,10) #default initial value
-savedinitial = initial
+savedinitial = initial #saving the initial so as it changes due to impact it reverts back to the user selected input when reset put is clicked
 
 xshift = 0 # offset in the x-axis used with left and arrow keys
 yshift = 0 # offset in the y-axis used with up and down arrow keys
-#both offsets are applied to all coordinates
+#both offsets are applied to all coordinates of points
 
 fontsize = 32
 font = pygame.font.Font('freesansbold.ttf', fontsize)
@@ -45,17 +69,22 @@ def time(init):
     return ((init[1])) / (4.9)
 
 def xrange(init): #horizontal distance covered in a motion
-    mag = math.sqrt((init[0])**2+(init[1])**2)
-    theta = math.degrees(math.atan(init[1]/init[0]))
+    mag = math.sqrt((init[0])**2+(init[1])**2) #magnitude of velocity
+    theta = math.degrees(math.atan(init[1]/init[0])) #angle particle is projected at
     return ( (mag**2) * (math.sin(2*math.radians(theta))) ) / g
 
-def maxheight(init): 
+def maxheight(init):
+    
     return ( (mag**2) * (math.sin(math.radians(theta)))*(math.sin(math.radians(theta))) ) / (2*g)
 
-#list of different states for ready to fire, in motion, or Cross through it while hovering to say you can't press
+
+
+
+
+###declaring all the images and their required states/rects
 FireButtonStates = [pygame.image.load('Images/Fire!.png').convert_alpha(),
                     pygame.image.load('Images/Fire! italic.png').convert_alpha(),
-                    pygame.image.load('Images/Fire! strike.png').convert_alpha()]
+                    pygame.image.load('Images/Fire! strike.png').convert_alpha()]#list of different states for ready to fire, in motion, or Cross through it while hovering to say you can't press
 FireButton = FireButtonStates[0]
 FireButton_rect = FireButton.get_rect(center=(width/12,height/4))
 
@@ -82,13 +111,13 @@ SwitchButton_rect.center = (Inputter_rect.center[0]+110,Inputter_rect.center[1])
 
 
 
-text1 = font.render(str(initial[0]), True, (255,255,255))
-text1_rect = text1.get_rect()
-text1_rect.center = I_rect.center
+displayI_Value = font.render(str(initial[0]), True, (255,255,255))
+displayI_Value_rect = displayI_Value.get_rect()
+displayI_Value_rect.center = I_rect.center
 
-text2 = font.render(str(initial[1]), True, (255,255,255))
-text2_rect = text2.get_rect()
-text2_rect.center = J_rect.center
+displayJ_Value = font.render(str(initial[1]), True, (255,255,255))
+displayJ_Value_rect = displayJ_Value.get_rect()
+displayJ_Value_rect.center = J_rect.center
 
 RestitutionButtonStates = [pygame.image.load('Images/restitution.png').convert_alpha(),
                            pygame.image.load('Images/restitutionSelected.png').convert_alpha()]
@@ -174,13 +203,12 @@ displayBounceCount_rect.center = (baseBlankBox_rect.center[0],baseBlankBox_rect.
 while running:
     dT = clock.get_time() #deltaTime
     
-    text1 = font.render(str(savedinitial[0]), True, (255,255,255))
-    text1_rect = text1.get_rect()
-    text1_rect.center = I_rect.center
-    text2 = font.render(str(savedinitial[1]), True, (255,255,255))
-    text2_rect = text2.get_rect()
-    text2_rect.center = J_rect.center
-    
+    displayI_Value = font.render(str(savedinitial[0]), True, (255,255,255))
+    displayI_Value_rect = displayI_Value.get_rect()
+    displayI_Value_rect.center = I_rect.center
+    displayJ_Value = font.render(str(savedinitial[1]), True, (255,255,255))
+    displayJ_Value_rect = displayJ_Value.get_rect()
+    displayJ_Value_rect.center = J_rect.center
     
     #Information boxes of the motion in the top right, inside game loop so text can update
     displayBounceCount = font.render(f'Bounces: {bounceCount}' , True, (255,255,255)) 
@@ -191,8 +219,6 @@ while running:
     Restitution_text_rect = Restitution_text.get_rect()
     Restitution_text_rect.center = (RestitutionButton_rect.center[0]+55,RestitutionButton_rect.center[1]+2)
     
-    
-
     for event in pygame.event.get():
         if event.type == pygame.MOUSEBUTTONDOWN:
             if FireButton_rect.collidepoint(event.pos):
@@ -236,10 +262,13 @@ while running:
                     inputting = True
                     selected = 'j'
                     emptyvalue = ''
+                    
             if SwitchButton_rect.collidepoint(event.pos):
                 pass
+            
             if BounceButton_rect.collidepoint(event.pos):
-                Bounce = not Bounce
+                Bounce = not Bounce #reverses bool value
+                
             if RestitutionButton_rect.collidepoint(event.pos):
                 inputtingE = True
                 inputtinga = True
@@ -248,58 +277,66 @@ while running:
                 
         if event.type == pygame.KEYDOWN:
             if inputting and originstate:
-                if event.key >= 48 and event.key <= 57:
+                if event.key >= 48 and event.key <= 57: #48-57 is the relative key for 0-9 
                     emptyvalue = emptyvalue + str(pygame.key.name(event.key))
                 if event.key == pygame.K_PERIOD:
                     emptyvalue = emptyvalue + str(pygame.key.name(event.key))
                 if event.key == pygame.K_BACKSPACE:
                     emptyvalue = emptyvalue[:-1]
                 if event.key == pygame.K_RETURN:
-                    if emptyvalue == '':
-                        emptyvalue ='0.000000000000000001'
-                    if selected == 'i':
-                        if float(emptyvalue) == int(emptyvalue):
-                            initial = ( int(emptyvalue), initial[1] )
-                        else:
-                            initial = ( float(emptyvalue), initial[1] )
-                    if selected == 'j':
-                        if float(emptyvalue) == int(emptyvalue):
-                            initial = ( initial[0], int(emptyvalue) )
-                        else:
-                            initial = ( initial[0], float(emptyvalue) )
-                    savedinitial = initial
-                    initials = [savedinitial]
+                    if not emptyvalue == '': #therefore if return is pressed when no input has been entered no change will take place and inputting will be cancelled
+                        if selected == 'i':
+                            try:
+                                initial = ( int(emptyvalue), initial[1] ) # //if value can be displayed as integer it will//
+                            except:
+                                initial = ( float(emptyvalue), initial[1] )# //if it must be displayed as float it will//
+
+                        if selected == 'j':
+                            try:
+                                initial = ( initial[0], int(emptyvalue) )# //^^^//
+                            except:
+                                initial = ( initial[0], float(emptyvalue) )# //^^^//
+                                
+                        if initial[0] == 0: #  ~~if 0 negates the input and reverts to value before~~
+                            initial = (savedinitial[0], initial[1])
+                        if initial[1] == 0: # ~~^^^~~
+                            initial = (initial[0], savedinitial[1])
+                            
+                        savedinitial = initial #saving the confirmed initial for displaying when the initial may be affected by restitution
+                        initials = [savedinitial] 
                     inputting = False
 
+
             if inputtingE and originstate:                
-                if event.key >= 48 and event.key <= 57:
+                if event.key >= 48 and event.key <= 57: #48-57 is the relative key for 0-9 
                     if inputtinga:
-                        a = str(pygame.key.name(event.key))
+                        a = str(pygame.key.name(event.key)) # only takes single digit
                     if inputtingb:
-                        b = str(pygame.key.name(event.key))
-                if event.key == pygame.K_SLASH:
-                    if a != '':
+                        b = str(pygame.key.name(event.key)) # ^
+                if event.key == pygame.K_SLASH: #slash for typing the fraction as restitution is usually in the range, 0 < e < 1
+                    if a != '': #only continues if input for a is entered, #then changes to take input for b
                         inputtinga = False
                         inputtingb = True
                 if b != '':
                     inputReady = True
-                if event.key == pygame.K_RETURN and inputReady:
-                    e = int(a)/int(b)
-                    displayRestitution = (f'{a}/{b}')
+                    
+                if event.key == pygame.K_RETURN and inputReady: 
+                    e = int(a)/int(b) #assigning value for e from user input
+                    displayRestitution = (f'{a}/{b}') #assigning value to a string with a pleasing way to visually show in the form a/b
                     inputtingE = False
                     
                     
             if event.key == pygame.K_ESCAPE:
-                pygame.quit()
                 running = False
+                
             if event.key == pygame.K_UP:
                 yshift -= 10
-            if event.key == pygame.K_DOWN:
+            if event.key == pygame.K_DOWN: #limits the yshift so it cannot go more down then needed
                 if yshift != 0:
                     yshift += 10
             if event.key == pygame.K_RIGHT:
                 xshift += 10
-            if event.key == pygame.K_LEFT:
+            if event.key == pygame.K_LEFT:#limits the xshift so it cannot go more left then needed
                 if xshift != 0:
                     xshift -= 10
                 
@@ -308,24 +345,24 @@ while running:
             if event.key == pygame.K_o:
                 scale -= 0.25
                 
-            if event.key == pygame.K_r:
+            if event.key == pygame.K_r: #resets offset and scale
                 xshift, yshift = 0,0
-                scale = 20
-                
-            ####keys to be turned into buttons               
-    
-        if event.type == scaleshift:
+                scale = 20            
+
+
+
+        if event.type == scaleshift: #event called to adjust the coordinate points to the requried scale
             ranges = [scale*xrange(init) for init in initials]
             
-            origins = []
+            origins = [] #resets the origin list as it needs to be updated according to the range of each motion to adjust for scale
             for i,r in enumerate(ranges):
-                if i == 0:
-                    origins.append(r)
+                if i == 0: 
+                    origins.append(r) #____________________
                 else:
-                    origins.append(origins[i-1]+r)
+                    origins.append(origins[i-1]+r) #____________________
             origins = [o+(width/8) for o in origins] #accounting for offset of the True origin point
-            origins.insert(0,(width/8))
-            path = [[(scale*p[0][0],scale*p[0][1]),(p[1]), p[2]] for i,p in enumerate(rawpath)]
+            origins.insert(0,(width/8)) #inserts the True origin point in the list
+            path = [[(scale*p[0][0],scale*p[0][1]),(p[1]), p[2]] for i,p in enumerate(rawpath)] #____________________
 
 
             
@@ -336,18 +373,29 @@ while running:
                 landed = True
             else:
                 bounceCount += 1
-                initial = (initial[0], (e)*initial[1])
+                initial = (initial[0], (e)*initial[1]) 
+                '''
+                applies restituion to the velocity when particle hits the floor,
+                it can be applied to the initial as the motion is on a horizontal plane,
+                so the final velocity is always (initial[0], -initial[1]) because its a perfectly mirrored motion,
+                knowing this lets me not use the formula '-e = v/u' and the need to go through the trouble of solving for final velocity
+                allowing me to simply multiply the (initial[1] * e)
+                '''
                 initials.append(initial)
-                if bounceCount >= 1:
-                    motions.append(Motion(initial, (0,0), xrange(initial), time(initial), g, bounceCount))
-                totalT = 0
-                if initial[1] < 0.05:  
+#                 if bounceCount >= 1:
+#                     motions.append(Motion(initial, (0,0), xrange(initial), time(initial), g, bounceCount))
+                motions.append(Motion(initial, (0,0), xrange(initial), time(initial), g, bounceCount)) #for myself, the if statement seemed unnecasary, if any issues may arise investigate if its needed
+                totalT = 0 #resets the time to be used for new motion
+                if initial[1] < 0.05:
+                    #caps the y-value. When the Y-velocity is uncapped because its being reduced by a fraction it can never reach 0. therefor infinite bounce.
+                    #this only happens in this simulation as it cannot truly account for eveyr acting force on the particle
                     simulating = False
                     landed = True
                 else:
-                    pygame.time.set_timer(landing, round(time(initial)*1000), 1)
+                    pygame.time.set_timer(landing, round(time(initial)*1000), 1) #starts a new timer of the time of the new motion with its new velocity
 
                 
+
 
     screen.fill("black")
     
@@ -355,14 +403,14 @@ while running:
     pygame.draw.rect(screen, 'dark green', ground) #ground
     
     for x in range(100):
-        pygame.draw.circle(screen, 'blue', (width/8 + x*scale -xshift, (height*7/8) - yshift), 3)
+        pygame.draw.circle(screen, 'blue', (width/8 + x*scale -xshift, (height*7/8) - yshift), 3)#Blue points, (places exactly 10m apart)
         
     if simulating:
         mousepos = pygame.mouse.get_pos()
-        if FireButton_rect.collidepoint(mousepos):
-            FireButton = FireButtonStates[2]
+        if FireButton_rect.collidepoint(mousepos): #Checking if hovering over the button,
+            FireButton = FireButtonStates[2] #changes the state of the button to visually diplay to user it cannot currently be pressed
         else:
-            FireButton = FireButtonStates[1]
+            FireButton = FireButtonStates[1] 
         totalT += dT
         displayTimeValue += dT
         path.append(motions[bounceCount].getpoint(totalT))
@@ -399,35 +447,35 @@ while running:
 
 
     pygame.draw.circle(screen, 'red', (origin[0]-xshift,origin[1]-yshift), 5) # origin
+    
+    #information boxes in top right
     screen.blit(BlankBox,baseBlankBox_rect)
     screen.blit(BlankBox,(baseBlankBox_rect[0],baseBlankBox_rect[1]+77))
     screen.blit(BlankBox,(baseBlankBox_rect[0],baseBlankBox_rect[1]+154))
     
-    
+    #information values in top right
     screen.blit(displayTime,displayTime_rect) 
     screen.blit(displayXrange,displayXrange_rect)
     screen.blit(displayBounceCount,displayBounceCount_rect)
     
+    #buttons for user and their values
     screen.blit(FireButton,FireButton_rect)
     screen.blit(ResetButton, ResetButton_rect)
     screen.blit(ShowTrailButton, ShowTrailButton_rect)
-    
     screen.blit(Inputter,Inputter_rect)
     screen.blit(SwitchButton,SwitchButton_rect)
-    
     screen.blit(RestitutionButtonStates[inputtingE], RestitutionButton_rect)
     screen.blit(Restitution_text,Restitution_text_rect)
     if not inputting:
         Inputter = InputterStates[0]
-        screen.blit(text1, text1_rect)
-        screen.blit(text2, text2_rect)
+        screen.blit(displayI_Value, displayI_Value_rect)
+        screen.blit(displayJ_Value, displayJ_Value_rect)
     screen.blit(BounceButtonStates[Bounce],BounceButton_rect)
 
     pygame.display.flip()
     clock.tick(144)  # fps limit
 
-
-
+pygame.quit()
 
 
 
