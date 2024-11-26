@@ -1,0 +1,26 @@
+Help menu
+Keys:
+	up - shifts view upwards
+	down - shifts view downwards
+	left - shifts view left
+	right - shifts view right
+	i - zoom in
+	o - zoom out
+	r - resets view changes
+	
+To inputting new values for projectile (I & J, or magnitude and angle):
+	Click On either box and begin typing your preferred value,
+	press Enter and the value will be confirmed. Do so for other box if needed.
+	
+To switch between I & J vectors and magnitude and angle:
+	Click the Switch button next to the box with the values for projectile
+	
+To Enter values for restitution (only matters if Bounce is enabled):
+	The value for restitution (e) is the restoration of the projectiles speed after a collision, 
+	for example if e = 1/2, the projectiles vertical speed will half on impact.
+	
+	Click on the value already entered.
+	Type a 1 digit integer
+	Press the slash key
+	Type another 1 digit integer
+	Press Enter to confirm your value

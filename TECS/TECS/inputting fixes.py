@@ -22,7 +22,7 @@ Keyboard inputs are:
 
 ##errors / to-do
 '''
-create input for mag and angle
+i kinda did mag angle switching but its buggy with number 13 so probably a lot more. honestly i could just make the value clear when switching if neccasary
 
 the firebutton cross state can only change during the motion and cannot be changed when landed and not in originstate
 perhaps move the lines of code
@@ -112,12 +112,12 @@ SwitchButton = pygame.image.load('Images/Switch.png').convert_alpha()
 SwitchButton_rect = SwitchButton.get_rect()
 SwitchButton_rect.center = (Inputter_rect.center[0]+110,Inputter_rect.center[1])
 
-displayValueBox1 = str(initial[0])
+displayValueBox1 = ''
 displayI_Value = font.render(displayValueBox1, True, (255,255,255))
 displayI_Value_rect = displayI_Value.get_rect()
 displayI_Value_rect.center = I_rect.center
 
-displayValueBox2 = str(initial[1])
+displayValueBox2 = ''
 displayJ_Value = font.render(displayValueBox2, True, (255,255,255))
 displayJ_Value_rect = displayJ_Value.get_rect()
 displayJ_Value_rect.center = J_rect.center
@@ -134,8 +134,13 @@ BounceButtonStates = [pygame.image.load('Images/Bounce.png').convert_alpha(),
 BounceButton = BounceButtonStates[Bounce]
 BounceButton_rect = BounceButton.get_rect(center=(width/12, height*8.09/17 + 77))
 
-BlankBox = pygame.image.load('images/BlankBox.png').convert_alpha()
+BlankBox = pygame.image.load('Images/BlankBox.png').convert_alpha()
 baseBlankBox_rect = BlankBox.get_rect(center=(width-105,45))
+
+NeedHelp = False
+HelpButton = pygame.image.load('Images/Help.png').convert_alpha()
+HelpButton_rect = HelpButton.get_rect(center=(width-60,height-60))
+HelpMenu = pygame.image.load('Images/HelpMenu.png').convert_alpha()
 
 landing = pygame.event.custom_type()
 
@@ -145,7 +150,8 @@ scaleshiftevent = pygame.event.Event(scaleshift)
 
 simulating = False
 landed = False
-originstate = True #origin state is basically a ready to fire state, its to differentiate if the projectile is not in motion but its still active and not ready to fire to the projectile not being in motion and being in a ready to fire state
+originstate = False #origin state is basically a ready to fire state, its to differentiate if the projectile is not in motion but its still active and not ready to fire to the projectile not being in motion and being in a ready to fire state
+boolListValues = [0,0]
 path = [] #list for points of the motion with scale applied
 rawpath = [] #raw list of the points without scale applied so the points can be changed upon the scaleshiftevent
 initials = [initial] #list of initials
@@ -162,7 +168,8 @@ inputtingb = False
 inputReady = False
 
 
-
+########################################################################################
+fakeinitial = initial
 
 def currentpoint(initial, deltaTime, gravity): #function to give any coordinate of a motion at any time.
     t = deltaTime/1000    
@@ -188,6 +195,8 @@ class Motion:
         y = (self.initialy*deltaTime) - (self.gravity/2)*(deltaTime**2)
         return [(x,y), self.range, self.motionNo]
     
+# class Point:
+#     def __init__(self, displayCoordinate, realCoordinate):
     
 origins = []
 motions = []
@@ -207,13 +216,26 @@ displayBounceCount_rect = displayBounceCount.get_rect()
 displayBounceCount_rect.center = (baseBlankBox_rect.center[0],baseBlankBox_rect.center[1]+154)
 
 while running:
-    if IJmode:
-        displayValueBox1 = str(savedinitial[0])
-        displayValueBox2 = str(savedinitial[1])
-    else:
-        displayValueBox1 = str(round(math.sqrt((savedinitial[0]**2)+(savedinitial[1]**2)),2))
-        displayValueBox2 = str(round(math.degrees(math.atan(savedinitial[1]/savedinitial[0])),1))
-        
+#     if not inputting 
+#         if IJmode:
+#             displayValueBox1 = str(savedinitial[0])
+#             displayValueBox2 = str(savedinitial[1])
+#         else:
+#             displayValueBox1 = str(round(math.sqrt((savedinitial[0]**2)+(savedinitial[1]**2)),2))
+#             displayValueBox2 = str(round(math.degrees(math.atan(savedinitial[1]/savedinitial[0])),1))
+ 
+    if not inputting:
+        if IJmode:
+            if boolListValues[0] == 1:
+                displayValueBox1 = str(savedinitial[0])
+            if boolListValues[1] == 1:
+                displayValueBox2 = str(savedinitial[1])
+        else:
+            if boolListValues[0] == 1:
+                ddisplayValueBox1 = str(round(math.sqrt((savedinitial[0]**2)+(savedinitial[1]**2)),2))
+            if boolListValues[1] == 1:
+                displayValueBox2 = str(round(math.degrees(math.atan(savedinitial[1]/savedinitial[0])),1))
+    
     dT = clock.get_time() #deltaTime
     displayI_Value = font.render(displayValueBox1, True, (255,255,255))
     displayI_Value_rect = displayI_Value.get_rect()
@@ -244,7 +266,8 @@ while running:
                 #resets all values to default value
                 simulating = False
                 landed = False
-                originstate = True
+                if all(boolListValues):
+                    originstate = True
                 totalT = 0
                 displayTimeValue = 0
                 path = []
@@ -263,88 +286,88 @@ while running:
                 ShowTrailButton = ShowTrailButton_States[showtrail]
             
             if I_rect.collidepoint(event.pos):
-                if originstate:
+                if originstate or not all(boolListValues):
                     Inputter = InputterStates[1]
                     inputting = True
                     selected = 0
                     displayWorkingValue = ''
             if J_rect.collidepoint(event.pos):
-                if originstate:
+                if originstate or not all(boolListValues):
                     Inputter = InputterStates[2]
                     inputting = True
                     selected = 1
                     displayWorkingValue = ''
                     
             if SwitchButton_rect.collidepoint(event.pos):
-                IJmode = not IJmode #reverses bool value
-                Overlay = OverlayStates[IJmode] 
+                if originstate or not all(boolListValues):
+                    IJmode = not IJmode #reverses bool value
+                    Overlay = OverlayStates[IJmode]
+                    boolListValues = [0,0]
+                    originstate = False
+                    displayValueBox1 = ''
+                    displayValueBox2 = ''
+                
+                
             if BounceButton_rect.collidepoint(event.pos):
                 Bounce = not Bounce #reverses bool value
                 
             if RestitutionButton_rect.collidepoint(event.pos):
-                inputtingE = True
-                inputtinga = True #sets inputtinga to true as its the first value to be required to input
-                a = ''
-                b = ''                
+                if originstate or not all(boolListValues):
+                    inputtingE = True
+                    workingRestitution = ''
                 
         if event.type == pygame.KEYDOWN:
-            if inputting and originstate:
+            if inputting:
                 if event.key >= 48 and event.key <= 57: #48-57 is the relative key for 0-9 
                     displayWorkingValue = displayWorkingValue + str(pygame.key.name(event.key))
                 if event.key == pygame.K_PERIOD:
                     displayWorkingValue = displayWorkingValue + str(pygame.key.name(event.key))
                 if event.key == pygame.K_BACKSPACE:
                     displayWorkingValue = displayWorkingValue[:-1] #deletes last value of str
-                if event.key == pygame.K_RETURN:
-                    if not displayWorkingValue == '': #therefore if return is pressed when no input has been entered no change will take place and inputting will be cancelled
+                if event.key == pygame.K_RETURN and not not displayWorkingValue: #(not str) returns True if the str is empty therefore (not not str) returns False if the str is empty
+                    if IJmode:
                         if selected == 0:
                             try:
-#                                 initial = ( int(displayWorkingValue), initial[1] ) # //if value can be displayed as integer it will//
-                                displayWorkingValue = int(displayWorkingValue)
+                                initial = ( int(displayWorkingValue), initial[1] ) 
                             except:
-                                initial = ( float(displayWorkingValue), initial[1] )# //if it must be displayed as float it will//
-
+                                initial = ( float(displayWorkingValue), initial[1] )
                         if selected == 1:
                             try:
-                                initial = ( initial[0], int(displayWorkingValue) )# //^^^//
+                                initial = ( initial[0], int(displayWorkingValue) ) 
                             except:
-                                initial = ( initial[0], float(displayWorkingValue) )# //^^^//
+                                initial = ( initial[0], float(displayWorkingValue) )
                                 
-                        if initial[0] == 0: #  ~~if 0 negates the input and reverts to value before~~
-                            initial = (savedinitial[0], initial[1])
-                        if initial[1] == 0: # ~~^^^~~
-                            initial = (initial[0], savedinitial[1])
-                        
-                        
-                        if IJmode:
-                            savedinitial = initial #saving the confirmed initial for displaying when the initial may be affected by restitution
-                            initials = [savedinitial]
-                        else:
-                            savedinitial = (initial[0]*math.degrees(math.sin(initial[1])),initial[0]*math.degrees(math.cos(initial[1])))
-                        displayValueBox1 = str(savedinitial[0])
-                        displayValueBox2 = str(savedinitial[1])
+                    if not IJmode:
+                        if selected == 0:
+                            try:
+                                fakeinitial = ( int(displayWorkingValue), fakeinitial[1] ) 
+                            except:
+                                fakeinitial = ( float(displayWorkingValue), fakeinitial[1] )
+                        if selected == 1:
+                            try:
+                                fakeinitial = ( fakeinitial[0], int(displayWorkingValue) ) 
+                            except:
+                                fakeinitial = ( fakeinitial[0], float(displayWorkingValue) )   
+                        initial = ( round(fakeinitial[0]*math.cos(math.radians(fakeinitial[1])),2), round(fakeinitial[0]*math.sin(math.radians(fakeinitial[1])),2))
+                    savedinitial = initial
+                    initials = [savedinitial]
+                    boolListValues[selected] = 1
                     inputting = False
-            elif inputting and originstate and not IJmode:
-                pass
+                    if all(boolListValues): 
+                        originstate = True
                 
-            if inputtingE and originstate:                
-                if event.key >= 48 and event.key <= 57: #48-57 is the relative key for 0-9 
-                    if inputtinga:
-                        a = str(pygame.key.name(event.key)) # only takes single digit
-                    if inputtingb:
-                        b = str(pygame.key.name(event.key)) # ^
-                if event.key == pygame.K_SLASH: #slash for typing the fraction as restitution is usually in the range, 0 < e < 1
-                    if a != '': #only continues if input for a is entered, #then changes to take input for b
-                        inputtinga = False
-                        inputtingb = True
-                if b != '':
-                    inputReady = True
-                    
-                if event.key == pygame.K_RETURN and inputReady: 
-                    e = int(a)/int(b) #assigning value for e from user input
-                    displayRestitution = (f'{a}/{b}') #assigning value to a string with a pleasing way to visually show in the form a/b
+            if inputtingE:
+                if event.key >= 49 and event.key <= 57: #1-9
+                    workingRestitution = workingRestitution + str(pygame.key.name(event.key))
+                if event.key == pygame.K_SLASH:
+                    workingRestitution = workingRestitution + str(pygame.key.name(event.key))
+                if event.key == pygame.K_BACKSPACE:
+                    workingRestitution = workingRestitution[:-1] #deletes last value of str
+                if event.key == pygame.K_RETURN and len(workingRestitution.strip('/')) >= 3 and '/' in workingRestitution.strip('/') and workingRestitution.count('/') == 1:
                     inputtingE = False
-                    
+                    a = int(workingRestitution[:workingRestitution.find('/')])
+                    b = int(workingRestitution[workingRestitution.find('/')+1:])
+                    e = a/b
                     
             if event.key == pygame.K_ESCAPE:
                 running = False
@@ -386,9 +409,6 @@ while running:
             origins.insert(0,(width/8)) #inserts the True origin point in the list
             path = [[(scale*p[0][0],scale*p[0][1]),(p[1]), p[2]] for i,p in enumerate(rawpath)] #____________________
 
-
-            
-
         if event.type == landing and simulating:
             if not Bounce:
                 simulating = False
@@ -407,6 +427,8 @@ while running:
 #                 if bounceCount >= 1:
 #                     motions.append(Motion(initial, (0,0), xrange(initial), time(initial), g, bounceCount))
                 motions.append(Motion(initial, (0,0), xrange(initial), time(initial), g, bounceCount)) #for myself, the if statement seemed unnecasary, if any issues may arise investigate if its needed
+                
+                
                 totalT = 0 #resets the time to be used for new motion
                 if initial[1] < 0.05:
                     #caps the y-value. When the Y-velocity is uncapped because its being reduced by a fraction it can never reach 0. therefor infinite bounce.
@@ -416,7 +438,6 @@ while running:
                 else:
                     pygame.time.set_timer(landing, round(time(initial)*1000), 1) #starts a new timer of the time of the new motion with its new velocity
 
-
     screen.fill("black")
     
     ground = pygame.Rect(0 , (height*7/8) - yshift ,width,height/8)
@@ -425,12 +446,14 @@ while running:
     for x in range(100):
         pygame.draw.circle(screen, 'blue', (width/8 + x*scale -xshift, (height*7/8) - yshift), 3)#Blue points, (places exactly 10m apart)
         
+    mousepos = pygame.mouse.get_pos()    
+    if HelpButton_rect.collidepoint(mousepos):
+        NeedHelp = True
+    else:
+        NeedHelp = False
+    
+    
     if simulating:
-        mousepos = pygame.mouse.get_pos()
-        if FireButton_rect.collidepoint(mousepos): #Checking if hovering over the button,
-            FireButton = FireButtonStates[2] #changes the state of the button to visually diplay to user it cannot currently be pressed
-        else:
-            FireButton = FireButtonStates[1] 
         totalT += dT
         displayTimeValue += dT
         path.append(motions[bounceCount].getpoint(totalT))
@@ -438,10 +461,26 @@ while running:
         if totalT >= time(initial)*1000 and not Bounce:
             simulating = False
         
+    if not originstate:
+        if FireButton_rect.collidepoint(mousepos): #Checking if hovering over the button,
+            FireButton = FireButtonStates[2] #changes the state of the button to visually diplay to user it cannot currently be pressed
+        else:
+            FireButton = FireButtonStates[1]
+            
+    if inputting:
+        if selected == 0:
+            displayValueBox1 = displayWorkingValue
+        else:
+            displayValueBox2 = displayWorkingValue
+    
+    if inputtingE:
+#         print(workingRestitution)
+        displayRestitution = workingRestitution
+#         print(displayRestitution)
     
     if originstate:
         FireButton = FireButtonStates[0]
-    else:
+    elif all(boolListValues):
         #Y-value for coordinates of origin points will always be the same as the True Origin points y-value, allowing me to call origin[1]
         if showtrail:
             for p in path[:-1]: #Filtering out latest point in list as it cannot be scaled fast enough
@@ -494,17 +533,19 @@ while running:
     screen.blit(RestitutionButtonStates[inputtingE], RestitutionButton_rect)
     screen.blit(Restitution_text,Restitution_text_rect)
     
-    if inputting:
-        [displayValueBox1,displayValueBox2][selected] = displayWorkingValue
+
 
     screen.blit(displayI_Value, displayI_Value_rect)
     screen.blit(displayJ_Value, displayJ_Value_rect)        
     screen.blit(BounceButtonStates[Bounce],BounceButton_rect)
- 
+    screen.blit(HelpButton,HelpButton_rect)
+    if NeedHelp:
+        screen.blit(HelpMenu,(0,0))
     pygame.display.flip()
     clock.tick(144)  # fps limit
 
 pygame.quit()
+
 
 
 
