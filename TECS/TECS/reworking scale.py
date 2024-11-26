@@ -273,7 +273,7 @@ while running:
                 
             if RestitutionButton_rect.collidepoint(event.pos):
                 inputtingE = True
-                inputtinga = True
+                inputtinga = True #sets inputtinga to true as its the first value to be required to input
                 a = ''
                 b = ''                
                 
@@ -284,7 +284,7 @@ while running:
                 if event.key == pygame.K_PERIOD:
                     emptyvalue = emptyvalue + str(pygame.key.name(event.key))
                 if event.key == pygame.K_BACKSPACE:
-                    emptyvalue = emptyvalue[:-1]
+                    emptyvalue = emptyvalue[:-1] #deletes last value of str
                 if event.key == pygame.K_RETURN:
                     if not emptyvalue == '': #therefore if return is pressed when no input has been entered no change will take place and inputting will be cancelled
                         if selected == 'i':
@@ -307,7 +307,6 @@ while running:
                         savedinitial = initial #saving the confirmed initial for displaying when the initial may be affected by restitution
                         initials = [savedinitial] 
                     inputting = False
-
 
             if inputtingE and originstate:                
                 if event.key >= 48 and event.key <= 57: #48-57 is the relative key for 0-9 
@@ -333,25 +332,27 @@ while running:
                 
             if event.key == pygame.K_UP:
                 yshift -= 10
+                
             if event.key == pygame.K_DOWN: #limits the yshift so it cannot go more down then needed
                 if yshift != 0:
                     yshift += 10
+                    
             if event.key == pygame.K_RIGHT:
                 xshift += 10
+                
             if event.key == pygame.K_LEFT:#limits the xshift so it cannot go more left then needed
                 if xshift != 0:
                     xshift -= 10
                 
             if event.key == pygame.K_i:
                 scale += 0.25
+                
             if event.key == pygame.K_o:
                 scale -= 0.25
                 
             if event.key == pygame.K_r: #resets offset and scale
                 xshift, yshift = 0,0
                 scale = 20            
-
-
 
         if event.type == scaleshift: #event called to adjust the coordinate points to the requried scale
             ranges = [scale*xrange(init) for init in initials]
@@ -433,15 +434,12 @@ while running:
                 pygame.draw.circle(screen, 'white', (origins[p[2]] + p[0][0] - xshift,origin[1] - p[0][1] - yshift), 3)
                 
         if not showtrail and totalT < (time(initial)*1000):
+            '''
+            if not showing trail, the entire path does not need to be kept track of, so I can just calculate the point at the exact current time,
+            indexing origins with the bounceCount as the bounceCount cannot go down but I wouldnt need to render any past motions.
+            '''
             currentpos = currentpoint(initial, totalT, g)
             pygame.draw.circle(screen, 'white', (origins[bounceCount] +  currentpos[0]*scale - xshift,origin[1] - currentpos[1]*scale - yshift), 3)
-#             for i,p in enumerate(path[:-1]): #FILTERING OUT LATEST POINT AS IT CANT BE SCALED CORRECTLY IN TIME FOR DISPLAY.FLIP
-#                 if bounceCount >= 1:
-#                     pass
-#                     pygame.draw.circle(screen, 'white', (origin[0] + p[0][0] - xshift ,origin[1] - p[0][1] - yshift), 3)
-#                 else:
-#                     pass
-#                     pygame.draw.circle(screen, 'pink', (origin[0] + p[0][0] - xshift ,origin[1] - p[0][1] - yshift), 3)
 #             if totalT > (time(initial)*1000)/2:
 #                 pygame.draw.circle(screen, 'red', (origin[0] + (xrange(initial))/2 - xshift,  origin[1] - maxheight(initial) - yshift), 5)
 #             if totalT >= (time(initial)*1000):
@@ -451,8 +449,7 @@ while running:
 #             pygame.draw.circle(screen, 'purple',(origin[0] + currentpos[0] - xshift,origin[1] - currentpos[1] - yshift) , 3)
     pygame.event.post(scaleshiftevent)
 
-
-    pygame.draw.circle(screen, 'red', (origin[0]-xshift,origin[1]-yshift), 5) # origin
+    pygame.draw.circle(screen, 'red', (origin[0]-xshift,origin[1]-yshift), 5) # True Origin
     
     #information boxes in top right
     screen.blit(BlankBox,baseBlankBox_rect)
