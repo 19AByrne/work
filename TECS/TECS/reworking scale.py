@@ -51,7 +51,7 @@ running = True
 scale = 20
 g = 9.8
 
-initial = (5,10) #default initial value
+initial = (5,5) #default initial value
 savedinitial = initial #saving the initial so as it changes due to impact it reverts back to the user selected input when reset put is clicked
 
 xshift = 0 # offset in the x-axis used with left and arrow keys
@@ -111,12 +111,13 @@ SwitchButton_rect = SwitchButton.get_rect()
 SwitchButton_rect.center = (Inputter_rect.center[0]+110,Inputter_rect.center[1])
 
 
-
-displayI_Value = font.render(str(initial[0]), True, (255,255,255))
+displayValueBox1 = str(initial[0])
+displayI_Value = font.render(displayValueBox1, True, (255,255,255))
 displayI_Value_rect = displayI_Value.get_rect()
 displayI_Value_rect.center = I_rect.center
 
-displayJ_Value = font.render(str(initial[1]), True, (255,255,255))
+displayValueBox2 = str(initial[1])
+displayJ_Value = font.render(displayValueBox2, True, (255,255,255))
 displayJ_Value_rect = displayJ_Value.get_rect()
 displayJ_Value_rect.center = J_rect.center
 
@@ -205,14 +206,19 @@ displayBounceCount_rect = displayBounceCount.get_rect()
 displayBounceCount_rect.center = (baseBlankBox_rect.center[0],baseBlankBox_rect.center[1]+154)
 
 while running:
-#     if not IJmode:
-#         initial = [
+    if IJmode:
+        displayValueBox1 = str(savedinitial[0])
+        displayValueBox2 = str(savedinitial[1])
+    else:
+        displayValueBox1 = str(round(math.sqrt((savedinitial[0]**2)+(savedinitial[1]**2)),2))
+        displayValueBox2 = str(round(math.degrees(math.atan(savedinitial[1]/savedinitial[0])),1))
+        
     dT = clock.get_time() #deltaTime
     
-    displayI_Value = font.render(str(savedinitial[0]), True, (255,255,255))
+    displayI_Value = font.render(displayValueBox1, True, (255,255,255))
     displayI_Value_rect = displayI_Value.get_rect()
     displayI_Value_rect.center = I_rect.center
-    displayJ_Value = font.render(str(savedinitial[1]), True, (255,255,255))
+    displayJ_Value = font.render(displayValueBox2, True, (255,255,255))
     displayJ_Value_rect = displayJ_Value.get_rect()
     displayJ_Value_rect.center = J_rect.center
     
@@ -282,7 +288,7 @@ while running:
                 b = ''                
                 
         if event.type == pygame.KEYDOWN:
-            if inputting and originstate:
+            if inputting and originstate and IJmode:
                 if event.key >= 48 and event.key <= 57: #48-57 is the relative key for 0-9 
                     emptyvalue = emptyvalue + str(pygame.key.name(event.key))
                 if event.key == pygame.K_PERIOD:
@@ -307,11 +313,19 @@ while running:
                             initial = (savedinitial[0], initial[1])
                         if initial[1] == 0: # ~~^^^~~
                             initial = (initial[0], savedinitial[1])
-                            
-                        savedinitial = initial #saving the confirmed initial for displaying when the initial may be affected by restitution
-                        initials = [savedinitial] 
+                        
+                        displayValueBox1 = str(savedinitial[0])
+                        displayValueBox2 = str(savedinitial[1])
+                        if IJmode:
+                            savedinitial = initial #saving the confirmed initial for displaying when the initial may be affected by restitution
+                            initials = [savedinitial]
+                        else:
+                            savedinitial = (initial[0]*math.degrees(math.sin(initial[1])),initial[0]*math.degrees(math.cos(initial[1])))
+                        
                     inputting = False
-
+            elif inputting and originstate and not IJmode:
+                pass
+                
             if inputtingE and originstate:                
                 if event.key >= 48 and event.key <= 57: #48-57 is the relative key for 0-9 
                     if inputtinga:
