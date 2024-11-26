@@ -134,9 +134,12 @@ BounceButton_rect = BounceButton.get_rect(center=(width/12, height*8.09/17 + 77)
 BlankBox = pygame.image.load('images/BlankBox.png').convert_alpha()
 baseBlankBox_rect = BlankBox.get_rect(center=(width-105,45))
 
-landing = pygame.event.custom_type() 
+landing = pygame.event.custom_type()
+
+#custom event for when zoomed in or out, to multiply coordinates by the variable scale
 scaleshift = pygame.event.custom_type()
-scaleshiftevent = pygame.event.Event(scaleshift) #custom event for when zoomed in or out, to multiply coordinates by the variable scale
+scaleshiftevent = pygame.event.Event(scaleshift) 
+
 simulating = False
 landed = False
 originstate = True #origin state is basically a ready to fire state, its to differentiate if the projectile is not in motion but its still active and not ready to fire to the projectile not being in motion and being in a ready to fire state
@@ -183,9 +186,8 @@ class Motion:
     
     
 origins = []
-
 motions = []
-origin = (width/8, height*7/8)
+origin = (width/8, height*7/8) #True Origin point
 originlist = [origin]
 
 displayTime = font.render(f'{round(displayTimeValue/1000,1)}s', True, (255,255,255)) #here twice to be initialised
@@ -394,8 +396,6 @@ while running:
                 else:
                     pygame.time.set_timer(landing, round(time(initial)*1000), 1) #starts a new timer of the time of the new motion with its new velocity
 
-                
-
 
     screen.fill("black")
     
@@ -422,8 +422,14 @@ while running:
     if originstate:
         FireButton = FireButtonStates[0]
     else:
+        #Y-value for coordinates of origin points will always be the same as the True Origin points y-value, allowing me to call origin[1]
         if showtrail:
-            for p in path[:-1]:
+            for p in path[:-1]: #Filtering out latest point in list as it cannot be scaled fast enough
+                '''
+                p[2] is taken form the motion.getpoint(...) function, it is the motion Number.
+                It is used so I can index the origins list and it will correctly use the correct offset when iterating through the path,
+                as each point in the path has a origin assigned it it
+                '''
                 pygame.draw.circle(screen, 'white', (origins[p[2]] + p[0][0] - xshift,origin[1] - p[0][1] - yshift), 3)
                 
         if not showtrail and totalT < (time(initial)*1000):
