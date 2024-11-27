@@ -7,6 +7,7 @@ Keys:
 	i - zoom in
 	o - zoom out
 	r - resets view changes
+	Escape - Quit
 	
 To inputting new values for projectile (I & J, or magnitude and angle):
 	Click On either box and begin typing your preferred value,

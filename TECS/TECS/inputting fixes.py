@@ -26,6 +26,14 @@ i kinda did mag angle switching but its buggy with number 13 so probably a lot m
 
 the firebutton cross state can only change during the motion and cannot be changed when landed and not in originstate
 perhaps move the lines of code
+
+when entering 0 in inputter it causes zerodiv error
+
+other box can be selected before finished editing other box
+
+BLUE DOTS ARE NOT 10M APART
+
+TIMES NOT ACCURATE IN TOP RIGHT 
 '''
 
 
@@ -142,6 +150,12 @@ HelpButton = pygame.image.load('Images/Help.png').convert_alpha()
 HelpButton_rect = HelpButton.get_rect(center=(width-60,height-60))
 HelpMenu = pygame.image.load('Images/HelpMenu.png').convert_alpha()
 
+
+######
+HideButton = pygame.image.load('Images/EYEPICTUREDOBETTER.png').convert_alpha()
+HideButton_rect = HideButton.get_rect(topleft=(0,0))
+HideUI = False
+
 landing = pygame.event.custom_type()
 
 #custom event for when zoomed in or out, to multiply coordinates by the variable scale
@@ -195,8 +209,14 @@ class Motion:
         y = (self.initialy*deltaTime) - (self.gravity/2)*(deltaTime**2)
         return [(x,y), self.range, self.motionNo]
     
-# class Point:
-#     def __init__(self, displayCoordinate, realCoordinate):
+Points = []
+class Point:
+    def __init__(self, displayCoordinate, realCoordinate):
+        self.displayCoordinate = displayCoordinate
+        self.realCoordinate = realCoordinate
+    
+    def update(self):
+        pygame.draw.circle(screen, 'purple', displayCoordinate, 5)
     
 origins = []
 motions = []
@@ -216,14 +236,6 @@ displayBounceCount_rect = displayBounceCount.get_rect()
 displayBounceCount_rect.center = (baseBlankBox_rect.center[0],baseBlankBox_rect.center[1]+154)
 
 while running:
-#     if not inputting 
-#         if IJmode:
-#             displayValueBox1 = str(savedinitial[0])
-#             displayValueBox2 = str(savedinitial[1])
-#         else:
-#             displayValueBox1 = str(round(math.sqrt((savedinitial[0]**2)+(savedinitial[1]**2)),2))
-#             displayValueBox2 = str(round(math.degrees(math.atan(savedinitial[1]/savedinitial[0])),1))
- 
     if not inputting:
         if IJmode:
             if boolListValues[0] == 1:
@@ -253,8 +265,10 @@ while running:
     Restitution_text_rect = Restitution_text.get_rect()
     Restitution_text_rect.center = (RestitutionButton_rect.center[0]+55,RestitutionButton_rect.center[1]+2)
     
+    
+    MOUSECOORDS = font.render(str(pygame.mouse.get_pos()), True, (255,255,255))
     for event in pygame.event.get():
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEBUTTONDOWN and not HideUI:
             if FireButton_rect.collidepoint(event.pos):
                 if not simulating and originstate: #only fires when in a ready to fire state
                     pygame.time.set_timer(landing, round(time(initial)*1000), 1)
@@ -291,6 +305,7 @@ while running:
                     inputting = True
                     selected = 0
                     displayWorkingValue = ''
+                    
             if J_rect.collidepoint(event.pos):
                 if originstate or not all(boolListValues):
                     Inputter = InputterStates[2]
@@ -315,6 +330,10 @@ while running:
                 if originstate or not all(boolListValues):
                     inputtingE = True
                     workingRestitution = ''
+                    
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if HideButton_rect.collidepoint(event.pos):
+                HideUI = not HideUI
                 
         if event.type == pygame.KEYDOWN:
             if inputting:
@@ -357,13 +376,13 @@ while running:
                         originstate = True
                 
             if inputtingE:
-                if event.key >= 49 and event.key <= 57: #1-9
+                if event.key >= 48 and event.key <= 57: #1-9
                     workingRestitution = workingRestitution + str(pygame.key.name(event.key))
                 if event.key == pygame.K_SLASH:
                     workingRestitution = workingRestitution + str(pygame.key.name(event.key))
                 if event.key == pygame.K_BACKSPACE:
                     workingRestitution = workingRestitution[:-1] #deletes last value of str
-                if event.key == pygame.K_RETURN and len(workingRestitution.strip('/')) >= 3 and '/' in workingRestitution.strip('/') and workingRestitution.count('/') == 1:
+                if event.key == pygame.K_RETURN and len(workingRestitution.strip('/')) >= 3 and '/' in workingRestitution.strip('/') and workingRestitution.count('/') == 1 and len(workingRestitution.strip('0')) >= 3:
                     inputtingE = False
                     a = int(workingRestitution[:workingRestitution.find('/')])
                     b = int(workingRestitution[workingRestitution.find('/')+1:])
@@ -390,7 +409,8 @@ while running:
                 scale += 0.25
                 
             if event.key == pygame.K_o:
-                scale -= 0.25
+                if scale != 0.25: #limiting scale
+                    scale -= 0.25
                 
             if event.key == pygame.K_r: #resets offset and scale
                 xshift, yshift = 0,0
@@ -509,38 +529,51 @@ while running:
 
     pygame.draw.circle(screen, 'red', (origin[0]-xshift,origin[1]-yshift), 5) # True Origin
     
-    #information boxes in top right
-    screen.blit(BlankBox,baseBlankBox_rect)
-    screen.blit(BlankBox,(baseBlankBox_rect[0],baseBlankBox_rect[1]+77))
-    screen.blit(BlankBox,(baseBlankBox_rect[0],baseBlankBox_rect[1]+154))
+    ##testing classes
+#     for o in origins:
+#         print(o)
     
-    #information values in top right
-    screen.blit(displayTime,displayTime_rect) 
-    screen.blit(displayXrange,displayXrange_rect)
-    screen.blit(displayBounceCount,displayBounceCount_rect)
     
-    #buttons for user and their values
-    screen.blit(FireButton,FireButton_rect)
-    screen.blit(ResetButton, ResetButton_rect)
-    screen.blit(ShowTrailButton, ShowTrailButton_rect)
     
-    if not inputting:
-        Inputter = InputterStates[0]
-    screen.blit(Inputter,Inputter_rect)
-    screen.blit(Overlay,Inputter_rect)
-    
-    screen.blit(SwitchButton,SwitchButton_rect)
-    screen.blit(RestitutionButtonStates[inputtingE], RestitutionButton_rect)
-    screen.blit(Restitution_text,Restitution_text_rect)
-    
+    if not HideUI:
+        #information boxes in top right
+        screen.blit(BlankBox,baseBlankBox_rect)
+        screen.blit(BlankBox,(baseBlankBox_rect[0],baseBlankBox_rect[1]+77))
+        screen.blit(BlankBox,(baseBlankBox_rect[0],baseBlankBox_rect[1]+154))
+        
+        #information values in top right
+        screen.blit(displayTime,displayTime_rect) 
+        screen.blit(displayXrange,displayXrange_rect)
+        screen.blit(displayBounceCount,displayBounceCount_rect)
+        
+        #buttons for user and their values
+        screen.blit(FireButton,FireButton_rect)
+        screen.blit(ResetButton, ResetButton_rect)
+        screen.blit(ShowTrailButton, ShowTrailButton_rect)
+        
+        if not inputting:
+            Inputter = InputterStates[0]
+        screen.blit(Inputter,Inputter_rect)
+        screen.blit(Overlay,Inputter_rect)
+        
+        screen.blit(SwitchButton,SwitchButton_rect)
+        screen.blit(RestitutionButtonStates[inputtingE], RestitutionButton_rect)
+        screen.blit(Restitution_text,Restitution_text_rect)
+        
 
 
-    screen.blit(displayI_Value, displayI_Value_rect)
-    screen.blit(displayJ_Value, displayJ_Value_rect)        
-    screen.blit(BounceButtonStates[Bounce],BounceButton_rect)
-    screen.blit(HelpButton,HelpButton_rect)
-    if NeedHelp:
-        screen.blit(HelpMenu,(0,0))
+        screen.blit(displayI_Value, displayI_Value_rect)
+        screen.blit(displayJ_Value, displayJ_Value_rect)        
+        screen.blit(BounceButtonStates[Bounce],BounceButton_rect)
+        screen.blit(HelpButton,HelpButton_rect)
+        if NeedHelp:
+            screen.blit(HelpMenu,(0,0))
+
+
+
+    screen.blit(HideButton,HideButton_rect)
+    screen.blit(MOUSECOORDS, mousepos)
+
     pygame.display.flip()
     clock.tick(144)  # fps limit
 
