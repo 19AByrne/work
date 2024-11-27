@@ -5,19 +5,6 @@ import math
 All images were created by me
 All code was written by me, concept of deltaTime was introduced to me by mentor but applied to code with my own interpretation of its use
 Formulas such as max height,time, and range are formulas derived in the applied maths LC course
-
-Keyboard inputs are:
-    i - zoom in
-    o - zoom out
-    [arrow keys] - move screen in respective direction
-    r - resets any changes to the screen view (offset or zoom)
-    Escape - Closes the window
-
-    inputting restition is single digit number followed by '/' and single digit number
-    return key is then pressed to confirm the value
-
-    I J values can be any positive number followed by return key to confirm the value
-
 '''
 
 ##errors / to-do
@@ -31,9 +18,6 @@ when entering 0 in inputter it causes zerodiv error
 
 other box can be selected before finished editing other box
 
-BLUE DOTS ARE NOT 10M APART
-
-TIMES NOT ACCURATE IN TOP RIGHT 
 '''
 
 
@@ -80,7 +64,8 @@ def xrange(init): #horizontal distance covered in a motion
     return ( (mag**2) * (math.sin(2*math.radians(theta))) ) / g
 
 def maxheight(init):
-    
+    mag = math.sqrt((init[0])**2+(init[1])**2) #magnitude of velocity
+    theta = math.degrees(math.atan(init[1]/init[0])) #angle particle is projected at
     return ( (mag**2) * (math.sin(math.radians(theta)))*(math.sin(math.radians(theta))) ) / (2*g)
 
 
@@ -150,8 +135,6 @@ HelpButton = pygame.image.load('Images/Help.png').convert_alpha()
 HelpButton_rect = HelpButton.get_rect(center=(width-60,height-60))
 HelpMenu = pygame.image.load('Images/HelpMenu.png').convert_alpha()
 
-
-######
 HideButton = pygame.image.load('Images/EYEPICTUREDOBETTER.png').convert_alpha()
 HideButton_rect = HideButton.get_rect(topleft=(0,0))
 HideUI = False
@@ -161,6 +144,8 @@ landing = pygame.event.custom_type()
 #custom event for when zoomed in or out, to multiply coordinates by the variable scale
 scaleshift = pygame.event.custom_type()
 scaleshiftevent = pygame.event.Event(scaleshift) 
+
+hovering = False
 
 simulating = False
 landed = False
@@ -177,9 +162,9 @@ inputting = False
 
 bounceCount = 0
 
-inputtinga = False
-inputtingb = False
-inputReady = False
+# inputtinga = False
+# inputtingb = False
+# inputReady = False
 
 
 ########################################################################################
@@ -192,7 +177,7 @@ def currentpoint(initial, deltaTime, gravity): #function to give any coordinate 
     return (x,y)
 
 class Motion:
-    def __init__(self, initial, origin, range, totaltime, gravity, motionNo):
+    def __init__(self, initial, origin, range, maxh, totaltime, gravity, motionNo):
         self.initial = initial
         self.initialx = self.initial[0]
         self.initialy = self.initial[1]
@@ -202,22 +187,24 @@ class Motion:
         self.totalT = totaltime
         self.gravity = gravity
         self.motionNo = motionNo
+        self.maxheight = maxh
         
     def getpoint(self, deltaTime):
         deltaTime = deltaTime/1000
         x = (self.initialx*deltaTime)
         y = (self.initialy*deltaTime) - (self.gravity/2)*(deltaTime**2)
         return [(x,y), self.range, self.motionNo]
-    
-Points = []
-class Point:
-    def __init__(self, displayCoordinate, realCoordinate):
-        self.displayCoordinate = displayCoordinate
-        self.realCoordinate = realCoordinate
-    
-    def update(self):
-        pygame.draw.circle(screen, 'purple', displayCoordinate, 5)
-    
+
+def distance(p1,p2):
+    return math.sqrt( (p2[0]-p1[0])**2 + (p2[1]-p1[1])**2 )
+
+maxCount = 0
+
+def hover(p, dp):
+    return (font.render(str((round(dp[0]/scale,2),round(dp[1]/scale,2)))+'m', True,(68,71,187)), p)
+            
+points_rects = []
+originpoints_rects = []
 origins = []
 motions = []
 origin = (width/8, height*7/8) #True Origin point
@@ -266,13 +253,14 @@ while running:
     Restitution_text_rect.center = (RestitutionButton_rect.center[0]+55,RestitutionButton_rect.center[1]+2)
     
     
-    MOUSECOORDS = font.render(str(pygame.mouse.get_pos()), True, (255,255,255))
+    MOUSECOORDS = font.render(str( ((pygame.mouse.get_pos()[0] - origin[0] + xshift)/scale )), True, (255,255,255))
+    
     for event in pygame.event.get():
         if event.type == pygame.MOUSEBUTTONDOWN and not HideUI:
             if FireButton_rect.collidepoint(event.pos):
                 if not simulating and originstate: #only fires when in a ready to fire state
                     pygame.time.set_timer(landing, round(time(initial)*1000), 1)
-                    motions.append(Motion(initial, origin, xrange(initial), time(initial), g, 0))
+                    motions.append(Motion(initial, origin, xrange(initial),maxheight(initial), time(initial), g, 0))
                     simulating = True
                     originstate = False
                     
@@ -294,6 +282,11 @@ while running:
                 bounceCount = 0
                 initial = savedinitial
                 motions = []
+                maxpoints = []
+                maxCount = 0
+                hovering = False
+                points_rects = []
+                originpoints_rects = []
                 
             if ShowTrailButton_rect.collidepoint(event.pos):
                 showtrail = not showtrail
@@ -392,18 +385,18 @@ while running:
                 running = False
                 
             if event.key == pygame.K_UP:
-                yshift -= 10
+                yshift -= 20
                 
             if event.key == pygame.K_DOWN: #limits the yshift so it cannot go more down then needed
                 if yshift != 0:
-                    yshift += 10
+                    yshift += 20
                     
             if event.key == pygame.K_RIGHT:
-                xshift += 10
+                xshift += 20
                 
             if event.key == pygame.K_LEFT:#limits the xshift so it cannot go more left then needed
                 if xshift != 0:
-                    xshift -= 10
+                    xshift -= 20
                 
             if event.key == pygame.K_i:
                 scale += 0.25
@@ -416,8 +409,9 @@ while running:
                 xshift, yshift = 0,0
                 scale = 20            
 
-        if event.type == scaleshift: #event called to adjust the coordinate points to the requried scale
+        if event.type == scaleshift: #event called to adjust the coordinate points to the required scale
             ranges = [scale*xrange(init) for init in initials]
+            maxheights = [scale*maxheight(init) for init in initials]
             
             origins = [] #resets the origin list as it needs to be updated according to the range of each motion to adjust for scale
             for i,r in enumerate(ranges):
@@ -425,8 +419,29 @@ while running:
                     origins.append(r) #____________________
                 else:
                     origins.append(origins[i-1]+r) #____________________
+            maxpointsx = []
+            for i,r in enumerate(ranges):
+                if i == 0:
+                    maxpointsx.append(origins[i]/2)
+                else:
+                    maxpointsx.append(sum(ranges[:i])+ranges[i]/2)
+            
             origins = [o+(width/8) for o in origins] #accounting for offset of the True origin point
             origins.insert(0,(width/8)) #inserts the True origin point in the list
+            
+            points_rects = []
+            for i in range(len(maxpointsx)):
+                temprect = pygame.Rect(0,0,10,10)
+                temprect.center = (width/8 + maxpointsx[i] - xshift,height*7/8 - maxheights[i] - yshift)
+#                 print((width/8 + maxpointsx[i] - xshift,height*7/8 - maxheights[i] -yshift))
+                points_rects.append(temprect)
+                
+            originpoints_rects = []
+            for i in range(len(origins)):
+                temprect = pygame.Rect(0,0,10,10)
+                temprect.center = (origins[i],height*7/8)
+                originpoints_rects.append(temprect)
+       
             path = [[(scale*p[0][0],scale*p[0][1]),(p[1]), p[2]] for i,p in enumerate(rawpath)] #____________________
 
         if event.type == landing and simulating:
@@ -446,12 +461,12 @@ while running:
                 initials.append(initial)
 #                 if bounceCount >= 1:
 #                     motions.append(Motion(initial, (0,0), xrange(initial), time(initial), g, bounceCount))
-                motions.append(Motion(initial, (0,0), xrange(initial), time(initial), g, bounceCount)) #for myself, the if statement seemed unnecasary, if any issues may arise investigate if its needed
+                motions.append(Motion(initial, (0,0), xrange(initial),maxheight(initial), time(initial), g, bounceCount)) #for myself, the if statement seemed unnecasary, if any issues may arise investigate if its needed
                 
                 
                 totalT = 0 #resets the time to be used for new motion
-                if initial[1] < 0.05:
-                    #caps the y-value. When the Y-velocity is uncapped because its being reduced by a fraction it can never reach 0. therefor infinite bounce.
+                if initial[1] < 0.2:
+                    #caps the y-value. When the Y-velocity is uncapped because its being reduced by a fraction therefore it can never reach 0. therefore infinite bounces.
                     #this only happens in this simulation as it cannot truly account for eveyr acting force on the particle
                     simulating = False
                     landed = True
@@ -464,7 +479,7 @@ while running:
     pygame.draw.rect(screen, 'dark green', ground) #ground
     
     for x in range(100):
-        pygame.draw.circle(screen, 'blue', (width/8 + x*scale -xshift, (height*7/8) - yshift), 3)#Blue points, (places exactly 10m apart)
+        pygame.draw.circle(screen, 'blue', (width/8 + x*scale -xshift, (height*7/8) - yshift), 3)#Blue points, (placed exactly 1m apart)
         
     mousepos = pygame.mouse.get_pos()    
     if HelpButton_rect.collidepoint(mousepos):
@@ -472,12 +487,13 @@ while running:
     else:
         NeedHelp = False
     
-    
     if simulating:
         totalT += dT
         displayTimeValue += dT
         path.append(motions[bounceCount].getpoint(totalT))
         rawpath.append(motions[bounceCount].getpoint(totalT))
+        if totalT >= (time(initial)*1000/2) and maxCount == bounceCount:
+            maxCount += 1
         if totalT >= time(initial)*1000 and not Bounce:
             simulating = False
         
@@ -510,7 +526,16 @@ while running:
                 as each point in the path has a origin assigned it it
                 '''
                 pygame.draw.circle(screen, 'white', (origins[p[2]] + p[0][0] - xshift,origin[1] - p[0][1] - yshift), 3)
+            for i in range(len(maxpointsx)):
+                if i < maxCount:
+                    pygame.draw.circle(screen, 'red', (width/8+maxpointsx[i]-xshift,height*7/8 - maxheights[i] - yshift) , 5)
+
+            
+            
+
+
                 
+                 
         if not showtrail and totalT < (time(initial)*1000):
             '''
             if not showing trail, the entire path does not need to be kept track of, so I can just calculate the point at the exact current time,
@@ -528,12 +553,7 @@ while running:
     pygame.event.post(scaleshiftevent)
 
     pygame.draw.circle(screen, 'red', (origin[0]-xshift,origin[1]-yshift), 5) # True Origin
-    
-    ##testing classes
-#     for o in origins:
-#         print(o)
-    
-    
+
     
     if not HideUI:
         #information boxes in top right
@@ -568,12 +588,25 @@ while running:
         screen.blit(HelpButton,HelpButton_rect)
         if NeedHelp:
             screen.blit(HelpMenu,(0,0))
-
-
+        
+        for i,rect in enumerate(points_rects):
+            if rect.collidepoint(pygame.mouse.get_pos()) and hovering == False:
+                hovering = True
+                hoverpostext = hover(rect.center,(maxpointsx[i],maxheights[i]))
+                screen.blit(hoverpostext[0],(hoverpostext[1][0], hoverpostext[1][1]-45))
+                hovering = False
+        for i,rect in enumerate(originpoints_rects):
+            if rect.collidepoint(pygame.mouse.get_pos()) and hovering == False:
+                originadjust = origin[i]-240
+                hovering = True
+                print(origins)
+                print(i)
+                hoverpostext = hover(rect.center,(originadjust,0))
+                screen.blit(hoverpostext[0],(hoverpostext[1][0], hoverpostext[1][1]-45))
+                hovering = False
 
     screen.blit(HideButton,HideButton_rect)
-    screen.blit(MOUSECOORDS, mousepos)
-
+#     screen.blit(MOUSECOORDS, mousepos)
     pygame.display.flip()
     clock.tick(144)  # fps limit
 
