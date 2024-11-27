@@ -9,7 +9,6 @@ Formulas such as max height,time, and range are formulas derived in the applied 
 
 ##errors / to-do
 '''
-i kinda did mag angle switching but its buggy with number 13 so probably a lot more. honestly i could just make the value clear when switching if neccasary
 
 the firebutton cross state can only change during the motion and cannot be changed when landed and not in originstate
 perhaps move the lines of code
@@ -18,6 +17,7 @@ when entering 0 in inputter it causes zerodiv error
 
 other box can be selected before finished editing other box
 
+hovering origins is not accurate
 '''
 
 
