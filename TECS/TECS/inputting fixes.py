@@ -17,7 +17,7 @@ when entering 0 in inputter it causes zerodiv error
 
 other box can be selected before finished editing other box
 
-hovering origins is not accurate
+the final origin does not draw nor have rect
 '''
 
 
@@ -433,14 +433,15 @@ while running:
             for i in range(len(maxpointsx)):
                 temprect = pygame.Rect(0,0,10,10)
                 temprect.center = (width/8 + maxpointsx[i] - xshift,height*7/8 - maxheights[i] - yshift)
-#                 print((width/8 + maxpointsx[i] - xshift,height*7/8 - maxheights[i] -yshift))
                 points_rects.append(temprect)
                 
             originpoints_rects = []
             for i in range(len(origins)):
                 temprect = pygame.Rect(0,0,10,10)
-                temprect.center = (origins[i],height*7/8)
+                temprect.center = (origins[i]-xshift,height*7/8-yshift)
                 originpoints_rects.append(temprect)
+                
+            
        
             path = [[(scale*p[0][0],scale*p[0][1]),(p[1]), p[2]] for i,p in enumerate(rawpath)] #____________________
 
@@ -462,7 +463,6 @@ while running:
 #                 if bounceCount >= 1:
 #                     motions.append(Motion(initial, (0,0), xrange(initial), time(initial), g, bounceCount))
                 motions.append(Motion(initial, (0,0), xrange(initial),maxheight(initial), time(initial), g, bounceCount)) #for myself, the if statement seemed unnecasary, if any issues may arise investigate if its needed
-                
                 
                 totalT = 0 #resets the time to be used for new motion
                 if initial[1] < 0.2:
@@ -513,7 +513,10 @@ while running:
 #         print(workingRestitution)
         displayRestitution = workingRestitution
 #         print(displayRestitution)
-    
+
+    if landed:
+        origins.append(sum(ranges)/scale)
+        
     if originstate:
         FireButton = FireButtonStates[0]
     elif all(boolListValues):
@@ -529,6 +532,8 @@ while running:
             for i in range(len(maxpointsx)):
                 if i < maxCount:
                     pygame.draw.circle(screen, 'red', (width/8+maxpointsx[i]-xshift,height*7/8 - maxheights[i] - yshift) , 5)
+                if i <= bounceCount:
+                    pygame.draw.circle(screen, 'red', (origins[i]-xshift,height*7/8-yshift), 5)                    
 
             
             
@@ -590,23 +595,21 @@ while running:
             screen.blit(HelpMenu,(0,0))
         
         for i,rect in enumerate(points_rects):
-            if rect.collidepoint(pygame.mouse.get_pos()) and hovering == False:
-                hovering = True
-                hoverpostext = hover(rect.center,(maxpointsx[i],maxheights[i]))
-                screen.blit(hoverpostext[0],(hoverpostext[1][0], hoverpostext[1][1]-45))
-                hovering = False
+            if i < maxCount: #so it only displays what the projectile has passed through
+                if rect.collidepoint(pygame.mouse.get_pos()):
+                    hoverpostext = hover(rect.center,(maxpointsx[i],maxheights[i]))
+                    screen.blit(hoverpostext[0],(hoverpostext[1][0], hoverpostext[1][1]-45))
+                    
         for i,rect in enumerate(originpoints_rects):
-            if rect.collidepoint(pygame.mouse.get_pos()) and hovering == False:
-                originadjust = origin[i]-240
-                hovering = True
-                print(origins)
-                print(i)
-                hoverpostext = hover(rect.center,(originadjust,0))
-                screen.blit(hoverpostext[0],(hoverpostext[1][0], hoverpostext[1][1]-45))
-                hovering = False
+            if i <= bounceCount: #so it only displays what the projectile has passed through
+                if rect.collidepoint(pygame.mouse.get_pos()):
+                    originadjust = origins[i]-240
+                    hoverpostext = hover(rect.center,(originadjust,0))
+                    screen.blit(hoverpostext[0],(hoverpostext[1][0], hoverpostext[1][1]-45))
 
     screen.blit(HideButton,HideButton_rect)
 #     screen.blit(MOUSECOORDS, mousepos)
+    print(sum(ranges)/scale)
     pygame.display.flip()
     clock.tick(144)  # fps limit
 
