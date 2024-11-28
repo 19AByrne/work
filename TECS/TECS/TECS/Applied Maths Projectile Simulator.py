@@ -26,14 +26,6 @@ screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
 clock = pygame.time.Clock()
 running = True
 
-'''debugging mode'''
-# pygame.init()
-# height = 1026
-# width = 1824
-# screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN, depth=0, display=1)
-# clock = pygame.time.Clock()
-# running = True
-
 scale = 20 #default scale value
 g = 9.8 #gravity
 
