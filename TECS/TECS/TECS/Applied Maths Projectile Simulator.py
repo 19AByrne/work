@@ -382,7 +382,8 @@ while running:
                     e = a/b #declaring restitution value
                     
             if event.key == pygame.K_ESCAPE:
-                running = False #ends game loop
+                pass
+#                 running = False #ends game loop
                 
             if event.key == pygame.K_UP:
                 yshift -= 20
@@ -630,11 +631,3 @@ while running:
     clock.tick(144)  # fps limit
 
 pygame.quit()
-
-
-
-
-
-
-
-
