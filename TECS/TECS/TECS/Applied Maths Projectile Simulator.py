@@ -14,6 +14,8 @@ Countless tests on paper of the motions were performed by myself while coding th
 display info values for range do not exactly match the final point coordinates when displayed, possibly deltaTime issue.
 
 may only run correctly with 1920x1080 display
+
+on mac the coordinate thing is wrong, the true origin is off
 '''
 
 
@@ -22,7 +24,7 @@ pygame.init()
 wh = pygame.display.get_desktop_sizes()[0]
 height = wh[1]
 width = wh[0]
-screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
+screen = pygame.display.set_mode((width, height))
 clock = pygame.time.Clock()
 running = True
 
@@ -255,6 +257,8 @@ while running:
     
     
     for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
         if event.type == pygame.MOUSEBUTTONDOWN and not HideUI and not inputting and not inputtingE: #will not attempt to detect input on rects if UI is hidden or if already inputting
             if FireButton_rect.collidepoint(event.pos):
                 if not simulating and originstate: #only fires when in a ready to fire state
@@ -382,8 +386,7 @@ while running:
                     e = a/b #declaring restitution value
                     
             if event.key == pygame.K_ESCAPE:
-                pass
-#                 running = False #ends game loop
+                running = False #ends game loop
                 
             if event.key == pygame.K_UP:
                 yshift -= 20
@@ -631,3 +634,4 @@ while running:
     clock.tick(144)  # fps limit
 
 pygame.quit()
+exit()
