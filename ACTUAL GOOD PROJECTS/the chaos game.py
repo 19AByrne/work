@@ -25,7 +25,7 @@ p3 = t.pos()
 
 points = [p1,p2,p3]
 ranpos = point_on_triangle(p1,p2,p3)
-while 1==1:
+while 1:
     selected = random.choice(points)
     midx = (selected[0]+ranpos[0])/2
     midy = (selected[1]+ranpos[1])/2
