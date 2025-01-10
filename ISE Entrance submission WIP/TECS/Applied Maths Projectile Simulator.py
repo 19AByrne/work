@@ -24,7 +24,7 @@ pygame.init()
 wh = pygame.display.get_desktop_sizes()[0]
 height = wh[1]
 width = wh[0]
-screen = pygame.display.set_mode((width, height))
+screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
 clock = pygame.time.Clock()
 running = True
 
@@ -251,9 +251,6 @@ while running:
     Restitution_text = font.render(displayRestitution, True, (255,255,255))
     Restitution_text_rect = Restitution_text.get_rect()
     Restitution_text_rect.center = (RestitutionButton_rect.center[0]+55,RestitutionButton_rect.center[1]+2)
-    
-    
-    
     
     
     for event in pygame.event.get():
