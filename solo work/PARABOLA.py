@@ -2,10 +2,10 @@ import turtle as t
 import math
 import time
 
-points = 100
+points = 10
 length = 200
 height = 350
-t.speed(10)
+t.speed(0)
 t.color('white')
 t.Screen().bgcolor('black')
 t.hideturtle()
@@ -65,9 +65,9 @@ for x in range(points):
 xlines=xlines[::-1]
 
 """UNCOMMENT THIS FOR LOOP TO SEE CONSTRUCTION LINES"""
-# for i in range(points):
-#     drawline(xlines[i])
-#     drawline(ylines[i])
+for i in range(points):
+    drawline(xlines[i])
+    drawline(ylines[i])
 
 intersections = []
 for x in range(points):

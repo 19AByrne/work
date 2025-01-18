@@ -5,6 +5,7 @@ r=random
 t=turtle
 t.speed(10)
 lines = r.randint(3,6)
+lines = 3
 angle = (360/lines)
 length = r.randint(50,100)
 difference = (length/4)
