@@ -591,7 +591,7 @@ while running:
         screen.blit(HelpButton,HelpButton_rect)
         
         if NeedHelp:
-            screen.blit(HelpMenu,(0,0))
+            screen.blit(HelpMenu,((width/5),height/12))
             
         if showtrail:
             for i,rect in enumerate(points_rects):
@@ -609,7 +609,7 @@ while running:
                 if i <= bounceCount: #so it only displays what the projectile has passed through
                     if rect.collidepoint(pygame.mouse.get_pos()):
                         hoveringOrigin = True
-                        originadjust = origins[i]-240
+                        originadjust = origins[i]-width/8
                         if not hoveringMax:
                             hoverpostext = hover(rect.center,(originadjust,0))
                             screen.blit(hoverpostext[0],(hoverpostext[1][0], hoverpostext[1][1]-45))
