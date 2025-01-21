@@ -232,7 +232,7 @@ while running and not runningProjectile and not runningOther:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     runningOther = False
-        screen.fill('grey')
+        screen.fill('black')
         pygame.display.flip()
         clock.tick(144)
     while runningProjectile:
