@@ -28,6 +28,7 @@ screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
 clock = pygame.time.Clock()
 running = True
 runningProjectile = False
+runningOther = False
 
 scale = 20 #default scale value
 g = 9.8 #gravity
@@ -210,7 +211,7 @@ displayfinal = False #bool value to show the final point
 hoveringMax = False #if hovering over a maximum point
 hoveringOrigin = False #if hovering over an origin point
 
-while running and not runningProjectile:
+while running and not runningProjectile and not runningOther:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
            running = False
@@ -219,10 +220,21 @@ while running and not runningProjectile:
                 running = False
             if event.key == pygame.K_c:
                 runningProjectile = True
+            if event.key == pygame.K_x:
+                runningOther = True
     screen.fill('green')
     pygame.display.flip()
     clock.tick(144)
-
+    while runningOther:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                runningOther = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    runningOther = False
+        screen.fill('grey')
+        pygame.display.flip()
+        clock.tick(144)
     while runningProjectile:
         pygame.event.post(scaleshiftevent) #calls the event that shifts all coordinates to the current scale
         if not inputting:
