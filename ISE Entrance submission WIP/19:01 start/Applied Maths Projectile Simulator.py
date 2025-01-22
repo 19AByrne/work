@@ -14,8 +14,6 @@ Countless tests on paper of the motions were performed by myself while coding th
 display info values for range do not exactly match the final point coordinates when displayed, possibly deltaTime issue.
 
 may only run correctly with 1920x1080 display
-
-on mac the coordinate thing is wrong, the true origin is off
 '''
 
 
