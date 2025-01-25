@@ -209,6 +209,20 @@ displayfinal = False #bool value to show the final point
 hoveringMax = False #if hovering over a maximum point
 hoveringOrigin = False #if hovering over an origin point
 
+
+
+DrawMode = True
+drawing = False
+pointa = (0,0)
+pointb = (0,0)
+
+linesList = []
+class Line:
+    def __init__(self, pointA, pointB):
+        self.pointA = pointA
+        self.pointB = pointB
+        linesList.append(self)
+
 while running and not runningProjectile and not runningOther:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -279,6 +293,7 @@ while running and not runningProjectile and not runningOther:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 runningProjectile = False
+            
             if event.type == pygame.MOUSEBUTTONDOWN and not HideUI and not inputting and not inputtingE: #will not attempt to detect input on rects if UI is hidden or if already inputting
                 if FireButton_rect.collidepoint(event.pos):
                     if not simulating and originstate: #only fires when in a ready to fire state
@@ -345,14 +360,23 @@ while running and not runningProjectile and not runningOther:
                     if originstate or not all(boolListValues):
                         inputtingE = True
                         workingRestitution = '' #when inputting displays nothing as nothing has been typed
-                        
+                
+                if drawing:
+                    drawingPointA = event.pos
+            
+            if event.type == pygame.MOUSEBUTTONUP and not HideUI and not inputting and not inputtingE:
+                if drawing:
+                    drawingPointB = event.pos
+                    Line(drawingPointA, drawingPointB)
+                    drawing = False
+                    
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if HideButton_rect.collidepoint(event.pos):
                     HideUI = not HideUI #swaps bool
                     
             if event.type == pygame.KEYDOWN:
                 if inputting: 
-                    if event.key >= 48 and event.key <= 57: #48-57 is the relative key for 0-9, if inputting it detects if a key from 0-9 has been inputted and it adds it to emptystring, backspace and period is also allowed
+                    if event.key >= 48 and event.key <= 57: #48-57 is the relative key for digits 0-9, if inputting it detects if a key from 0-9 has been inputted and it adds it to emptystring, backspace and period is also allowed
                         displayWorkingValue = displayWorkingValue + str(pygame.key.name(event.key))
                     if event.key == pygame.K_PERIOD:
                         displayWorkingValue = displayWorkingValue + str(pygame.key.name(event.key))
@@ -411,15 +435,15 @@ while running and not runningProjectile and not runningOther:
                 if event.key == pygame.K_UP:
                     yshift -= 20
                     
-                if event.key == pygame.K_DOWN: #limits the yshift so it cannot go more down then needed
-                    if yshift != 0:
+                if event.key == pygame.K_DOWN:
+                    if yshift != 0: #limits the yshift so it cannot go more down then needed
                         yshift += 20
                         
                 if event.key == pygame.K_RIGHT:
                     xshift += 20
                     
-                if event.key == pygame.K_LEFT:#limits the xshift so it cannot go more left then needed
-                    if xshift != 0:
+                if event.key == pygame.K_LEFT:
+                    if xshift != 0: #limits the xshift so it cannot go more left then needed
                         xshift -= 20
                     
                 if event.key == pygame.K_i:
@@ -434,7 +458,12 @@ while running and not runningProjectile and not runningOther:
                     
                 if event.key == pygame.K_r: #resets offset and scale
                     xshift, yshift = 0,0
-                    scale = 20            
+                    scale = 20
+                #inputs to be turned into buttons
+                if event.key == pygame.K_d:
+                    drawing = True
+                if event.key == pygame.K_f:
+                    DrawMode = not DrawMode
 
             if event.type == scaleshift: #event called to adjust the coordinate points to the required scale
                 ranges = [scale*xrange(init) for init in initials] #updates list of ranges for every initial
@@ -476,7 +505,9 @@ while running and not runningProjectile and not runningOther:
 
                 
                 path = [[(scale*p[0][0],scale*p[0][1]),(p[1]), p[2]] for i,p in enumerate(rawpath)] #this is taken from the getpoint function in the motion class,the points are multiplied by the scale as it can be constantly changed index 1 is unused can be ignored. index 2 is the motion number label. not scale dependant but used so when drawing each circle it knows what origin it is relative to as there is a list of origins
-
+                
+               
+                    
             if event.type == landing and simulating:
                 if not Bounce: #if bounce is disabled and the time has elapsed then simulating must become False.
                     simulating = False
@@ -504,6 +535,9 @@ while running and not runningProjectile and not runningOther:
                     totalT = 0 #resets the time to be used for new motion
 
         screen.fill("black") #background
+        if DrawMode:
+            for line in linesList:
+                pygame.draw.aaline(screen, 'white', (line.pointA[0] - xshift, line.pointA[1] - yshift), (line.pointB[0] - xshift, line.pointB[1] - yshift))
         
         ground = pygame.Rect(0 , (height*7/8) - yshift ,width,height/8)
         pygame.draw.rect(screen, 'dark green', ground) #ground
@@ -576,6 +610,8 @@ while running and not runningProjectile and not runningOther:
 
         pygame.draw.circle(screen, 'red', (origin[0]-xshift,origin[1]-yshift), 5) # True Origin
 
+            
+            
         
         if not HideUI:
             #information boxes in top right
