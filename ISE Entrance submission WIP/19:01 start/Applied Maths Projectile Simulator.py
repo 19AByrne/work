@@ -219,7 +219,24 @@ class Line:
         self.pointA = pointA
         self.pointB = pointB
         linesList.append(self)
+        
 
+def threepointparabola(x1,y1,x2,y2,x3,y3):
+    #they should all be cartesian form
+    #function will return coeffs of quadratic equation in the form of ax2+bx+c
+    print(x1,y1,x2,y2,x3,y3)
+    a = ( ((x3-x2)*(y2-y1)) - ((x2-x1)*(y3-y2)) ) / ( ((x3-x2)*(x2**2-x1**2)) - ((x2-x1)*(x3**2-x2**2)) )
+    
+    b = ( (y2-y1)-a*(x2**2-x1**2) ) / (x2-x1)
+    
+    c = y1 - a * x1**2-b*x1
+    
+    return [a,b,c]
+
+def pixelToCart(p, CurrentXshift, CurrentYshift, CurrentScale):
+    p = ( (p[0] - origin[0] + CurrentXshift)/CurrentScale, (origin[1] - p[1] - CurrentYshift)/CurrentScale )
+    return p
+    
 while running and not runningProjectile and not runningOther:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -296,6 +313,10 @@ while running and not runningProjectile and not runningOther:
                         motions.append(Motion(initial, origin, xrange(initial),maxheight(initial), time(initial), g, 0))
                         simulating = True
                         originstate = False
+                        
+                        #initial is in cart form, xrange/maxheight functions take-in/return cart form
+                        Coeffs = threepointparabola(0,0,xrange(initial)/2, maxheight(initial), xrange(initial), 0)
+
                         
                 if ResetButton_rect.collidepoint(event.pos):
                     #resets all values to default value
@@ -533,6 +554,9 @@ while running and not runningProjectile and not runningOther:
                     
                     motions.append(Motion(initial, (0,0), xrange(initial),maxheight(initial), time(initial), g, bounceCount))                 
                     totalT = 0 #resets the time to be used for new motion
+                    
+                    originCartForm = pixelToCart((origins[bounceCount],0), xshift, yshift, scale) 
+                    Coeffs = threepointparabola(originCartForm[0], 0, xrange(initial)/2,maxheight(initial), xrange(initial), 0)
 
         screen.fill("black") #background
         if DrawMode:
@@ -683,10 +707,13 @@ while running and not runningProjectile and not runningOther:
                         
                 if hoveringMax or hoveringOrigin:
                     screen.blit(hoverpostext[0],(hoverpostext[1][0], hoverpostext[1][1]-45))
-                    
+        try:
+            print(maxheights)
+            print(ranges)
+        except:
+            pass
         screen.blit(HideButton,HideButton_rect)
         pygame.display.flip()
         clock.tick(144)  # fps limit
-
 pygame.quit()
 exit()

@@ -5,4 +5,134 @@
 \paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
 
-\f0\fs24 \cf0 I need to make the projectile motion a function of x displacement and y displacement, f(x) being the y height, x being the x distance, if that\'92s possible I get the intersection of that function and the user drawn line to get the x coordinate of intersection. That can be put into sx = uxt and solve for time, when that t is reached using delta time the motion can be stopped.}
+\f0\fs24 \cf0 I need to make the projectile motion a function of x displacement and y displacement, f(x) being the y height, x being the x distance, if that\'92s possible I get the intersection of that function and the user drawn line to get the x coordinate of intersection. That can be put into sx = uxt and solve for time, when that t is reached using delta time the motion can be stopped.\
+\
+\
+Since it might be bouncing off a lot of weird angles, the origins will no longer be a list comprehension of a sum of ranges, it will be a combo of + and - ranges, the sign can be discovered by if the initial for that indexed motion was positive or not (going left or right)\
+\
+\
+\
+\
+How chat got gave me genera; equation for thee point parabola\
+Ah, I see what you're asking! You want the general solution to the system with \\( x_1, x_2, x_3 \\) and \\( y_1, y_2, y_3 \\) instead of specific numerical values.\
+\
+Let\'92s solve the system for the general case using the points \\((x_1, y_1)\\), \\((x_2, y_2)\\), and \\((x_3, y_3)\\). We start with the system of equations derived from the general quadratic equation:\
+\
+### The system of equations:\
+\
+1. \\( y_1 = a x_1^2 + b x_1 + c \\)\
+2. \\( y_2 = a x_2^2 + b x_2 + c \\)\
+3. \\( y_3 = a x_3^2 + b x_3 + c \\)\
+\
+We want to solve for \\( a \\), \\( b \\), and \\( c \\) in terms of \\( x_1, x_2, x_3 \\) and \\( y_1, y_2, y_3 \\).\
+\
+### Step 1: Subtract the equations to eliminate \\( c \\)\
+\
+- Subtract equation (1) from equation (2):\
+\
+\\[\
+(y_2 - y_1) = a (x_2^2 - x_1^2) + b (x_2 - x_1)\
+\\]\
+\
+This simplifies to:\
+\
+\\[\
+y_2 - y_1 = a (x_2^2 - x_1^2) + b (x_2 - x_1) \\quad \\text\{(Equation 4)\}\
+\\]\
+\
+- Subtract equation (2) from equation (3):\
+\
+\\[\
+(y_3 - y_2) = a (x_3^2 - x_2^2) + b (x_3 - x_2)\
+\\]\
+\
+This simplifies to:\
+\
+\\[\
+y_3 - y_2 = a (x_3^2 - x_2^2) + b (x_3 - x_2) \\quad \\text\{(Equation 5)\}\
+\\]\
+\
+Now we have two equations with two unknowns \\(a\\) and \\(b\\):\
+\
+\\[\
+\\begin\{aligned\}\
+y_2 - y_1 &= a (x_2^2 - x_1^2) + b (x_2 - x_1) \\\\\
+y_3 - y_2 &= a (x_3^2 - x_2^2) + b (x_3 - x_2)\
+\\end\{aligned\}\
+\\]\
+\
+### Step 2: Solve for \\( a \\) and \\( b \\)\
+\
+We can solve this system of equations for \\( a \\) and \\( b \\) by elimination or substitution. Let\'92s use elimination to eliminate \\( b \\):\
+\
+- Multiply Equation (4) by \\( (x_3 - x_2) \\) and Equation (5) by \\( (x_2 - x_1) \\) to eliminate \\( b \\).\
+\
+The goal is to multiply these equations so that the terms with \\( b \\) cancel out. So, multiplying Equation (4) by \\( (x_3 - x_2) \\):\
+\
+\\[\
+(x_3 - x_2)(y_2 - y_1) = a (x_3 - x_2)(x_2^2 - x_1^2) + b (x_3 - x_2)(x_2 - x_1)\
+\\]\
+\
+Multiplying Equation (5) by \\( (x_2 - x_1) \\):\
+\
+\\[\
+(x_2 - x_1)(y_3 - y_2) = a (x_2 - x_1)(x_3^2 - x_2^2) + b (x_2 - x_1)(x_3 - x_2)\
+\\]\
+\
+Now subtract these two resulting equations to eliminate \\( b \\).\
+\
+### Step 3: Solve for \\( a \\)\
+\
+After subtracting, we\'92re left with an equation in terms of \\( a \\):\
+\
+\\[\
+a \\left[ (x_3 - x_2)(x_2^2 - x_1^2) - (x_2 - x_1)(x_3^2 - x_2^2) \\right] = (x_3 - x_2)(y_2 - y_1) - (x_2 - x_1)(y_3 - y_2)\
+\\]\
+\
+Now solve for \\( a \\):\
+\
+\\[\
+a = \\frac\{(x_3 - x_2)(y_2 - y_1) - (x_2 - x_1)(y_3 - y_2)\}\{(x_3 - x_2)(x_2^2 - x_1^2) - (x_2 - x_1)(x_3^2 - x_2^2)\}\
+\\]\
+\
+### Step 4: Solve for \\( b \\)\
+\
+Once \\( a \\) is found, substitute it back into either Equation (4) or Equation (5) to solve for \\( b \\). For example, using Equation (4):\
+\
+\\[\
+y_2 - y_1 = a (x_2^2 - x_1^2) + b (x_2 - x_1)\
+\\]\
+\
+Substitute the expression for \\( a \\) into this and solve for \\( b \\):\
+\
+\\[\
+b = \\frac\{(y_2 - y_1) - a (x_2^2 - x_1^2)\}\{x_2 - x_1\}\
+\\]\
+\
+### Step 5: Solve for \\( c \\)\
+\
+Finally, substitute the values of \\( a \\) and \\( b \\) into one of the original equations (e.g., Equation 1) to solve for \\( c \\):\
+\
+\\[\
+y_1 = a x_1^2 + b x_1 + c\
+\\]\
+\
+Rearrange this equation to solve for \\( c \\):\
+\
+\\[\
+c = y_1 - a x_1^2 - b x_1\
+\\]\
+\
+### Final Result:\
+\
+You now have the values for \\( a \\), \\( b \\), and \\( c \\) in terms of \\( x_1, x_2, x_3 \\) and \\( y_1, y_2, y_3 \\).\
+\
+To summarize, the equation of the parabola that passes through the three points \\((x_1, y_1)\\), \\((x_2, y_2)\\), and \\((x_3, y_3)\\) is:\
+\
+\\[\
+y = a x^2 + b x + c\
+\\]\
+\
+where \\( a \\), \\( b \\), and \\( c \\) are given by the formulas derived above.\
+\
+If you need any part of the solution worked out further, feel free to ask!}
