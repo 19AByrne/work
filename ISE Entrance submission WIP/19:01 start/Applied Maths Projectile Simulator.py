@@ -58,10 +58,6 @@ def maxheight(init): #maximum height reached in a single motion
     theta = math.degrees(math.atan(init[1]/init[0])) #angle particle is projected at
     return ( (mag**2) * (math.sin(math.radians(theta)))*(math.sin(math.radians(theta))) ) / (2*g)
 
-
-
-
-
 ###declaring all the images and their required states/rects
 FireButtonStates = [pygame.image.load('Images/Fire!.png').convert_alpha(),
                     pygame.image.load('Images/Fire! italic.png').convert_alpha(),
@@ -219,6 +215,7 @@ pointb = (0,0)
 linesList = []
 class Line:
     def __init__(self, pointA, pointB):
+        #pointA and B are in cartesian form,
         self.pointA = pointA
         self.pointB = pointB
         linesList.append(self)
@@ -265,8 +262,6 @@ while running and not runningProjectile and not runningOther:
         so if the values are entered and im in IJMode it can display the savedinitial fine, but if im in the other mode, it needs to convert them into magnitude and angle form before displaying.
         I keep the initial variable in the form I & J the entire time to make calculations simple. I only need to adjust if in angle & mag mode and displaying it to user
         '''
-        
-        
         
         dT = clock.get_time() #deltaTime
         
@@ -367,6 +362,11 @@ while running and not runningProjectile and not runningOther:
             if event.type == pygame.MOUSEBUTTONUP and not HideUI and not inputting and not inputtingE:
                 if drawing:
                     drawingPointB = event.pos
+                    
+                    #converting from raw pixel coordinate to cartesian form (scaled coordinate system the projectile uses)
+                    drawingPointA = ( (drawingPointA[0] - origin[0] + xshift)/scale, (origin[1] - drawingPointA[1] - yshift)/scale )
+                    drawingPointB = ( (drawingPointB[0] - origin[0] + xshift)/scale, (origin[1] - drawingPointB[1] - yshift)/scale )
+                    
                     Line(drawingPointA, drawingPointB)
                     drawing = False
                     
@@ -506,8 +506,8 @@ while running and not runningProjectile and not runningOther:
                 
                 path = [[(scale*p[0][0],scale*p[0][1]),(p[1]), p[2]] for i,p in enumerate(rawpath)] #this is taken from the getpoint function in the motion class,the points are multiplied by the scale as it can be constantly changed index 1 is unused can be ignored. index 2 is the motion number label. not scale dependant but used so when drawing each circle it knows what origin it is relative to as there is a list of origins
                 
-               
-                    
+        
+        
             if event.type == landing and simulating:
                 if not Bounce: #if bounce is disabled and the time has elapsed then simulating must become False.
                     simulating = False
@@ -537,8 +537,7 @@ while running and not runningProjectile and not runningOther:
         screen.fill("black") #background
         if DrawMode:
             for line in linesList:
-                pygame.draw.aaline(screen, 'white', (line.pointA[0] - xshift, line.pointA[1] - yshift), (line.pointB[0] - xshift, line.pointB[1] - yshift))
-        
+                pygame.draw.aaline(screen, 'white', (width/8 + scale*line.pointA[0] - xshift, height*7/8 - scale*line.pointA[1] - yshift), (width/8 + scale*line.pointB[0] - xshift, height*7/8 - scale*line.pointB[1] - yshift))
         ground = pygame.Rect(0 , (height*7/8) - yshift ,width,height/8)
         pygame.draw.rect(screen, 'dark green', ground) #ground
         
