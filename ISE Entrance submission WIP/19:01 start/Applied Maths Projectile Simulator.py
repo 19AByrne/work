@@ -558,8 +558,8 @@ while running and not runningProjectile and not runningOther:
                     print(ranges)
                     print(bounceCount)
                     
-                    originCartForm = pixelToCart((origins[bounceCount],0), xshift, yshift, scale) 
-                    Coeffs = threepointparabola(originCartForm[0], 0, sum(ranges[:bounceCount])+(ranges[bounceCount]/2),maxheight(initial), xrange(initial), 0)
+#                     originCartForm = pixelToCart((origins[bounceCount],0), xshift, yshift, scale) 
+#                     Coeffs = threepointparabola(originCartForm[0], 0, sum(ranges[:bounceCount])+(ranges[bounceCount]/2),maxheight(initial), xrange(initial), 0)
 
         screen.fill("black") #background
         if DrawMode:
