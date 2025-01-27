@@ -555,8 +555,11 @@ while running and not runningProjectile and not runningOther:
                     motions.append(Motion(initial, (0,0), xrange(initial),maxheight(initial), time(initial), g, bounceCount))                 
                     totalT = 0 #resets the time to be used for new motion
                     
+                    print(ranges)
+                    print(bounceCount)
+                    
                     originCartForm = pixelToCart((origins[bounceCount],0), xshift, yshift, scale) 
-                    Coeffs = threepointparabola(originCartForm[0], 0, xrange(initial)/2,maxheight(initial), xrange(initial), 0)
+                    Coeffs = threepointparabola(originCartForm[0], 0, sum(ranges[:bounceCount])+(ranges[bounceCount]/2),maxheight(initial), xrange(initial), 0)
 
         screen.fill("black") #background
         if DrawMode:
@@ -707,11 +710,7 @@ while running and not runningProjectile and not runningOther:
                         
                 if hoveringMax or hoveringOrigin:
                     screen.blit(hoverpostext[0],(hoverpostext[1][0], hoverpostext[1][1]-45))
-        try:
-            print(maxheights)
-            print(ranges)
-        except:
-            pass
+
         screen.blit(HideButton,HideButton_rect)
         pygame.display.flip()
         clock.tick(144)  # fps limit
