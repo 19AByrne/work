@@ -236,7 +236,8 @@ def threepointparabola(x1,y1,x2,y2,x3,y3):
 def pixelToCart(p, CurrentXshift, CurrentYshift, CurrentScale):
     p = ( (p[0] - origin[0] + CurrentXshift)/CurrentScale, (origin[1] - p[1] - CurrentYshift)/CurrentScale )
     return p
-    
+
+
 while running and not runningProjectile and not runningOther:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -711,6 +712,7 @@ while running and not runningProjectile and not runningOther:
                 if hoveringMax or hoveringOrigin:
                     screen.blit(hoverpostext[0],(hoverpostext[1][0], hoverpostext[1][1]-45))
 
+        
         screen.blit(HideButton,HideButton_rect)
         pygame.display.flip()
         clock.tick(144)  # fps limit
