@@ -224,7 +224,7 @@ class Line:
 def threepointparabola(x1,y1,x2,y2,x3,y3):
     #they should all be cartesian form
     #function will return coeffs of quadratic equation in the form of ax2+bx+c
-    print(x1,y1,x2,y2,x3,y3)
+#     print(x1,y1,x2,y2,x3,y3)
     a = ( ((x3-x2)*(y2-y1)) - ((x2-x1)*(y3-y2)) ) / ( ((x3-x2)*(x2**2-x1**2)) - ((x2-x1)*(x3**2-x2**2)) )
     
     b = ( (y2-y1)-a*(x2**2-x1**2) ) / (x2-x1)
@@ -317,6 +317,7 @@ while running and not runningProjectile and not runningOther:
                         
                         #initial is in cart form, xrange/maxheight functions take-in/return cart form
                         Coeffs = threepointparabola(0,0,xrange(initial)/2, maxheight(initial), xrange(initial), 0)
+                        print(Coeffs)
 
                         
                 if ResetButton_rect.collidepoint(event.pos):
@@ -528,6 +529,10 @@ while running and not runningProjectile and not runningOther:
                 
                 path = [[(scale*p[0][0],scale*p[0][1]),(p[1]), p[2]] for i,p in enumerate(rawpath)] #this is taken from the getpoint function in the motion class,the points are multiplied by the scale as it can be constantly changed index 1 is unused can be ignored. index 2 is the motion number label. not scale dependant but used so when drawing each circle it knows what origin it is relative to as there is a list of origins
                 
+                
+                if DrawMode:
+                    originCartForm = pixelToCart((origins[bounceCount],origin[1]), xshift, yshift, scale)
+                    Coeffs = threepointparabola(originCartForm[0], originCartForm[1], sum(ranges[:bounceCount])+(ranges[bounceCount]/2), maxheight(initial), xrange(initial), originCartForm[1])
         
         
             if event.type == landing and simulating:
@@ -556,8 +561,9 @@ while running and not runningProjectile and not runningOther:
                     motions.append(Motion(initial, (0,0), xrange(initial),maxheight(initial), time(initial), g, bounceCount))                 
                     totalT = 0 #resets the time to be used for new motion
                     
-                    print(ranges)
-                    print(bounceCount)
+#                     print(initials)
+#                     print(ranges)
+#                     print(bounceCount)
                     
 #                     originCartForm = pixelToCart((origins[bounceCount],0), xshift, yshift, scale) 
 #                     Coeffs = threepointparabola(originCartForm[0], 0, sum(ranges[:bounceCount])+(ranges[bounceCount]/2),maxheight(initial), xrange(initial), 0)
@@ -716,5 +722,8 @@ while running and not runningProjectile and not runningOther:
         screen.blit(HideButton,HideButton_rect)
         pygame.display.flip()
         clock.tick(144)  # fps limit
+        print(ranges)
+        print(origins)
+        
 pygame.quit()
 exit()
