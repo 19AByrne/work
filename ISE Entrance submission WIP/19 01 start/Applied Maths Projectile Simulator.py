@@ -1,5 +1,7 @@
 import pygame
 import math
+
+from decimal import Decimal
 #what to know
 '''
 All images were created by me, Aaron Byrne.
@@ -182,7 +184,7 @@ def hover(p, dp): #function to take in the real position of a point and its posi
             
 points_rects = [] #list of rects of maximum points
 originpoints_rects = [] #list of rects of originpoints
-origins = [] #x values for origin points in real coordinate form
+origins = [] #x values for origin points in real coordinate form ....... attempting to change it to point  values
 motions = [] #list of classes of motions
 origin = (width/8, height*7/8) #True Origin point
 
@@ -231,12 +233,14 @@ def threepointparabola(x1,y1,x2,y2,x3,y3):
     
     c = y1 - a * x1**2-b*x1
     
-    return [a,b,c]
+    print(x1,y1,x2,y2,x3,y3)
+    #Decimal function removes scientific notation
+    
+    return [Decimal(a),b,c]
 
 def pixelToCart(p, CurrentXshift, CurrentYshift, CurrentScale):
     p = ( (p[0] - origin[0] + CurrentXshift)/CurrentScale, (origin[1] - p[1] - CurrentYshift)/CurrentScale )
     return p
-
 
 while running and not runningProjectile and not runningOther:
     for event in pygame.event.get():
@@ -369,7 +373,6 @@ while running and not runningProjectile and not runningOther:
                         originstate = False #not in a ready to fire state as the values have just been emptied
                         displayValueBox1 = '' #when inputting displays nothing as nothing has been typed
                         displayValueBox2 = ''
-                    
                     
                 if BounceButton_rect.collidepoint(event.pos):
                     Bounce = not Bounce #reverses bool value
@@ -531,9 +534,12 @@ while running and not runningProjectile and not runningOther:
                 
                 
                 if DrawMode:
-                    originCartForm = pixelToCart((origins[bounceCount],origin[1]), xshift, yshift, scale)
-                    Coeffs = threepointparabola(originCartForm[0], originCartForm[1], sum(ranges[:bounceCount])+(ranges[bounceCount]/2), maxheight(initial), xrange(initial), originCartForm[1])
-        
+                    originCartForm = pixelToCart((origin[0],origin[1]), xshift, yshift, scale)
+                    print(originCartForm)
+                    maxpointCartForm = pixelToCart((maxpointsx[bounceCount], 0), xshift, yshift, scale)
+                    Coeffs = threepointparabola(originCartForm[0], originCartForm[1], maxpointCartForm[0], maxheight(initial), xrange(initial), originCartForm[1])
+                    print(Coeffs)
+                    print()
         
             if event.type == landing and simulating:
                 if not Bounce: #if bounce is disabled and the time has elapsed then simulating must become False.
@@ -722,8 +728,6 @@ while running and not runningProjectile and not runningOther:
         screen.blit(HideButton,HideButton_rect)
         pygame.display.flip()
         clock.tick(144)  # fps limit
-        print(ranges)
-        print(origins)
         
 pygame.quit()
 exit()
