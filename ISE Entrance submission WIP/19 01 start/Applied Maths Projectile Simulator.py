@@ -135,7 +135,12 @@ landing = pygame.event.custom_type()
 
 #custom event for when zoomed in or out, to multiply coordinates by the scale variable
 scaleshift = pygame.event.custom_type()
-scaleshiftevent = pygame.event.Event(scaleshift) 
+scaleshiftevent = pygame.event.Event(scaleshift)
+
+#custom event for if drawmode is enabled and three point parabola needs to run.
+GetParabola = pygame.event.custom_type()
+GetParabolaEvent = pygame.event.Event(GetParabola)
+
 
 showMousePos = False
 simulating = False #projectile not in motion
@@ -321,8 +326,11 @@ while running and not runningProjectile and not runningOther:
                         
                         #initial is in cart form, xrange/maxheight functions take-in/return cart form
                         Coeffs = threepointparabola(0,0,xrange(initial)/2, maxheight(initial), xrange(initial), 0)
-                        print(Coeffs)
-
+                        
+#                         originCartForm = pixelToCart((origin[0],origin[1]), xshift, yshift, scale)
+#                         maxpointCartForm = pixelToCart((origin[0] + maxpointsx[bounceCount], 0), xshift, yshift, scale)
+#                         Coeffs = threepointparabola(originCartForm[0], originCartForm[1], maxpointCartForm[0], maxheight(initial), xrange(initial), originCartForm[1])
+                    
                         
                 if ResetButton_rect.collidepoint(event.pos):
                     #resets all values to default value
@@ -533,14 +541,22 @@ while running and not runningProjectile and not runningOther:
                 path = [[(scale*p[0][0],scale*p[0][1]),(p[1]), p[2]] for i,p in enumerate(rawpath)] #this is taken from the getpoint function in the motion class,the points are multiplied by the scale as it can be constantly changed index 1 is unused can be ignored. index 2 is the motion number label. not scale dependant but used so when drawing each circle it knows what origin it is relative to as there is a list of origins
                 
                 
-                if DrawMode:
-                    originCartForm = pixelToCart((origin[0],origin[1]), xshift, yshift, scale)
-                    print(originCartForm)
-                    maxpointCartForm = pixelToCart((maxpointsx[bounceCount], 0), xshift, yshift, scale)
-                    Coeffs = threepointparabola(originCartForm[0], originCartForm[1], maxpointCartForm[0], maxheight(initial), xrange(initial), originCartForm[1])
-                    print(Coeffs)
-                    print()
-        
+#                 if DrawMode:
+#                     originCartForm = pixelToCart((origin[0],origin[1]), xshift, yshift, scale)
+#                     maxpointCartForm = pixelToCart((origin[0] + maxpointsx[bounceCount], 0), xshift, yshift, scale)
+#                     Coeffs = threepointparabola(originCartForm[0], originCartForm[1], maxpointCartForm[0], maxheight(initial), xrange(initial), originCartForm[1])
+#                     print(Coeffs)
+
+            if event.type == GetParabola:
+                print(bounceCount)
+
+                originCartForm = pixelToCart((origin[0],origin[1]), xshift, yshift, scale)
+                maxpointCartForm = pixelToCart((origin[0] + maxpointsx[bounceCount], 0), xshift, yshift, scale)
+                Coeffs = threepointparabola(originCartForm[0], originCartForm[1], maxpointCartForm[0], maxheight(initial), xrange(initial), originCartForm[1])
+                print(Coeffs)
+            
+            
+            
             if event.type == landing and simulating:
                 if not Bounce: #if bounce is disabled and the time has elapsed then simulating must become False.
                     simulating = False
@@ -567,12 +583,14 @@ while running and not runningProjectile and not runningOther:
                     motions.append(Motion(initial, (0,0), xrange(initial),maxheight(initial), time(initial), g, bounceCount))                 
                     totalT = 0 #resets the time to be used for new motion
                     
-#                     print(initials)
+                    if DrawMode:
+                        pygame.event.post(GetParabolaEvent)
+                    #print(initials)
 #                     print(ranges)
 #                     print(bounceCount)
-                    
-#                     originCartForm = pixelToCart((origins[bounceCount],0), xshift, yshift, scale) 
-#                     Coeffs = threepointparabola(originCartForm[0], 0, sum(ranges[:bounceCount])+(ranges[bounceCount]/2),maxheight(initial), xrange(initial), 0)
+#                     if DrawMode:
+#                         originCartForm = pixelToCart((origins[bounceCount],0), xshift, yshift, scale) 
+#                         Coeffs = threepointparabola(originCartForm[0], 0, sum(ranges[:bounceCount])+(ranges[bounceCount]/2),maxheight(initial), xrange(initial), 0)
 
         screen.fill("black") #background
         if DrawMode:
