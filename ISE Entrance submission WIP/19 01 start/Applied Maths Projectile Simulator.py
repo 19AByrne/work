@@ -42,6 +42,7 @@ yshift = 0 # offset in the y-axis used with up and down arrow keys
 
 fontsize = 32
 font = pygame.font.Font('freesansbold.ttf', fontsize)
+debugfont = pygame.font.Font('freesansbold.ttf', 16)
 
 
 e = 1/2 #value for restitution, denoted with e in applied maths
@@ -270,7 +271,7 @@ class Line:
 def timeToReachX(initial, X):
     # print(initial,X)
     return X / (initial[0])
-
+Line( (20,2), (30,10) )
 # def YValueFromX(initial): 
 #     return ((initial[1]*X)/initial[0]) + (-g/2)*((X**2)/(initial[0]**2))
 
@@ -292,8 +293,7 @@ def threepointparabola(x1,y1,x2,y2,x3,y3):
 def pixelToCart(p, CurrentXshift, CurrentYshift, CurrentScale):
     p = ( (p[0] - origin[0] + CurrentXshift)/CurrentScale, (origin[1] - p[1] - CurrentYshift)/CurrentScale )
     return p
-NextCollisionYPoint = 'a'
-NextCollisionXPoint = 'b'
+maxpointsx = ''
 while running and not runningProjectile and not runningOther:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -358,7 +358,7 @@ while running and not runningProjectile and not runningOther:
         Restitution_text_rect.center = (RestitutionButton_rect.center[0]+55,RestitutionButton_rect.center[1]+2)
         
         testText = font.render(str([round(x) for x in rawranges]), True, (255,255,255))
-        testText = font.render(str(incomingCollision,NextCollisionXPoint,NextCollisionYPoint), True, (255,255,255))
+        testText = debugfont.render((f'{Neworigins}'), True, (255,255,255))
 
 
         for event in pygame.event.get():
@@ -445,17 +445,22 @@ while running and not runningProjectile and not runningOther:
                         workingRestitution = '' #when inputting displays nothing as nothing has been typed
                 
                 if drawing:
-                    drawingPointA = event.pos
+                    if event.pos[1] > (height*7/8):
+                        drawing = False
+                    else:
+                        drawingPointA = event.pos
             
             if event.type == pygame.MOUSEBUTTONUP and not HideUI and not inputting and not inputtingE:
                 if drawing:
-                    drawingPointB = event.pos
-                    
-                    #converting from raw pixel coordinate to cartesian form (scaled coordinate system the projectile uses)
-                    drawingPointA = ( (drawingPointA[0] - origin[0] + xshift)/scale, (origin[1] - drawingPointA[1] - yshift)/scale )
-                    drawingPointB = ( (drawingPointB[0] - origin[0] + xshift)/scale, (origin[1] - drawingPointB[1] - yshift)/scale )
-                    
-                    Line(drawingPointA, drawingPointB)
+                    if event.pos[1] < (height*7/8):
+                        print(event.pos, height*7/8)
+                        drawingPointB = event.pos
+                        
+                        #converting from raw pixel coordinate to cartesian form (scaled coordinate system the projectile uses)
+                        drawingPointA = ( (drawingPointA[0] - origin[0] + xshift)/scale, (origin[1] - drawingPointA[1] - yshift)/scale )
+                        drawingPointB = ( (drawingPointB[0] - origin[0] + xshift)/scale, (origin[1] - drawingPointB[1] - yshift)/scale )
+                        
+                        Line(drawingPointA, drawingPointB)
                     drawing = False
                     
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -573,21 +578,23 @@ while running and not runningProjectile and not runningOther:
                 Neworigins = []
                 for i,r in enumerate(ranges):
                     if i == 0:
-                        Neworigins.append((r,0))
+                        Neworigins.append((r,height*7/8))
                     else:
-                        Neworigins.append((Neworigins[i-1][0]+r,0))
+                        Neworigins.append((Neworigins[i-1][0]+r,height*7/8))
 
                 if incomingCollision:
                     ranges[bounceCount] = scale*NextCollisionXPoint
+                    print(f'New Origins before adjust{Neworigins}')
+                    print(pixelToCart(Neworigins[-1], xshift, yshift, scale))
                     Neworigins[bounceCount] = (scale*NextCollisionXPoint, scale*NextCollisionYPoint)
-
-                maxpointsx = []
-                for i,r in enumerate(ranges):
+                    print(f'New origins after replacing with collision point {Neworigins}')
+                rawmaxpointsx = []
+                for i,r in enumerate(rawranges):
                     if i == 0:
-                        maxpointsx.append(Neworigins[i][0]/2) #first maxpoint will be half the first range. therefore half the first origin (before the true origin is inserted into the list)
+                        rawmaxpointsx.append(rawranges[i]/2) #first maxpoint will be half the first range
                     else:
-                        maxpointsx.append(sum(ranges[:i])+ranges[i]/2) #any maxheight after this will be the sum of the ranges up to the origin just before this maximum point. then adding half of the current range/2 to get in the middle.
-                
+                        rawmaxpointsx.append(sum(ranges[:i])+ranges[i]/2) #any maxheight after this will be the sum of the ranges up to the origin just before this maximum point. then adding half of the current range/2 to get in the middle.
+                maxpointsx = [scale*xdistance for xdistance in rawmaxpointsx]
                 # origins = [o+(width/8) for o in origins] #accounting for offset of the True origin point
                 # origins.insert(0,(width/8)) #inserts the True origin point in the list
 
@@ -651,7 +658,11 @@ while running and not runningProjectile and not runningOther:
                     landed = True
                 else:
                     bounceCount += 1
-                    initial = (initial[0], (e)*initial[1])
+                    if incomingCollision:
+                        theta = math.tan(linesList[NextLineIndex].slope)
+                        initial = (initial[0]*math.sin(theta)*(-e), initial[1]*math.cos(theta)*(e))
+                    else:
+                        initial = (initial[0], (e)*initial[1])
                     '''
                     applies restituion to the velocity when particle hits the floor,
                     it can be applied to the initial as the motion is on a horizontal plane,
@@ -674,8 +685,8 @@ while running and not runningProjectile and not runningOther:
                 
                     totalT = 0 #resets the time to be used for new motion
                     
-                    if DrawMode:
-                        pygame.event.post(GetParabolaEvent)
+                    # if DrawMode:
+                    #     pygame.event.post(GetParabolaEvent)
 
         screen.fill("black") #background
         if DrawMode:
@@ -741,7 +752,7 @@ while running and not runningProjectile and not runningOther:
 
                 for i in range(len(ranges)): #iterates through ranges calculated. if the index is below the maxcount display all maxpoints. same for bounceCount and origins
                     if i < maxCount:
-                        pygame.draw.circle(screen, 'red', (width/8 + maxpointsx[i] - xshift, height*7/8 - maxheights[i] - yshift) , 5)
+                        pygame.draw.circle(screen, 'green', (width/8 + maxpointsx[i] - xshift, height*7/8 - maxheights[i] - yshift) , 5)
                     if i <= bounceCount:
                         # print(Neworigins)
                         # print(Neworigins[i][1])
@@ -842,6 +853,7 @@ while running and not runningProjectile and not runningOther:
 
         screen.blit(testText,(width/2, height/2))
         screen.blit(HideButton,HideButton_rect)
+        print(initials)
         pygame.display.flip()
         clock.tick(144)  # fps limit
 pygame.quit()
