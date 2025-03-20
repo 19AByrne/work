@@ -51,6 +51,10 @@ displayRestitution = ('1/2') #string of value for e for
 def time(init): #gets the time of a single motion
     return ((init[1])) / (4.9)
 
+#going to remake the time function to see if it changes anything
+# def time(init):
+#     pass
+
 def xrange(init): #horizontal distance covered in a motion
     mag = math.sqrt((init[0])**2+(init[1])**2) #magnitude of velocity
     theta = math.degrees(math.atan(init[1]/init[0])) #angle particle is projected at
@@ -198,6 +202,7 @@ origins = [] #x values for origin points in real coordinate form ....... attempt
 Neworigins = []
 motions = [] #list of classes of motions
 origin = (width/8, height*7/8) #True Origin point
+raworigins = [origin]
 
 #initialising values for top right
 displayTime = font.render(f'{round(displayTimeValue/1000,1)}s', True, (255,255,255)) #here twice to be initialised
@@ -225,6 +230,7 @@ drawing = False
 incomingCollision = False
 pointa = (0,0)
 pointb = (0,0)
+CollidingPoints = []
 
 def QuadraticSolver(a,b,c):
     discriminant = (b**2) - (4*a*c)
@@ -278,7 +284,7 @@ Line( (20,2), (30,10) )
 def threepointparabola(x1,y1,x2,y2,x3,y3):
     #they should all be cartesian form
     #function will return coeffs of quadratic equation in the form of ax2+bx+c
-#     print(x1,y1,x2,y2,x3,y3)
+    print(x1,y1,x2,y2,x3,y3)
     a = ( ((x3-x2)*(y2-y1)) - ((x2-x1)*(y3-y2)) ) / ( ((x3-x2)*(x2**2-x1**2)) - ((x2-x1)*(x3**2-x2**2)) )
     
     b = ( (y2-y1)-a*(x2**2-x1**2) ) / (x2-x1)
@@ -293,6 +299,9 @@ def threepointparabola(x1,y1,x2,y2,x3,y3):
 def pixelToCart(p, CurrentXshift, CurrentYshift, CurrentScale):
     p = ( (p[0] - origin[0] + CurrentXshift)/CurrentScale, (origin[1] - p[1] - CurrentYshift)/CurrentScale )
     return p
+
+CollisionOriginPoints = {}
+debugdots = []
 maxpointsx = ''
 while running and not runningProjectile and not runningOther:
     for event in pygame.event.get():
@@ -358,7 +367,7 @@ while running and not runningProjectile and not runningOther:
         Restitution_text_rect.center = (RestitutionButton_rect.center[0]+55,RestitutionButton_rect.center[1]+2)
         
         testText = font.render(str([round(x) for x in rawranges]), True, (255,255,255))
-        testText = debugfont.render((f'{Neworigins}'), True, (255,255,255))
+        testText = debugfont.render((f'{incomingCollision}'), True, (255,255,255))
 
 
         for event in pygame.event.get():
@@ -408,6 +417,7 @@ while running and not runningProjectile and not runningOther:
                     originpoints_rects = []
                     displayfinal = False
                     rawranges = []
+                    CollisionOriginPoints = {}
                     
                 if ShowTrailButton_rect.collidepoint(event.pos):
                     showtrail = not showtrail #swaps bool value
@@ -453,7 +463,6 @@ while running and not runningProjectile and not runningOther:
             if event.type == pygame.MOUSEBUTTONUP and not HideUI and not inputting and not inputtingE:
                 if drawing:
                     if event.pos[1] < (height*7/8):
-                        print(event.pos, height*7/8)
                         drawingPointB = event.pos
                         
                         #converting from raw pixel coordinate to cartesian form (scaled coordinate system the projectile uses)
@@ -567,7 +576,6 @@ while running and not runningProjectile and not runningOther:
                 # print(f'FUCKING RANGES {ranges}')
                 # print(f'FUCK RAW RANGES {rawranges}') #the fucking rawranges does exactly what i want but not what computer wants, it cant wait a singl efucking ms to update rawranges it just tweaks immediately cos its empty so maxdpointsx is empty
                 maxheights = [scale*maxheight(init) for init in initials] #updates list of maxheights for every initial
-           
                 # origins = [] #resets the origin list as it needs to be updated according to the range of each motion to adjust for scale
                 # for i,r in enumerate(ranges):
                 #     if i == 0: 
@@ -578,25 +586,32 @@ while running and not runningProjectile and not runningOther:
                 Neworigins = []
                 for i,r in enumerate(ranges):
                     if i == 0:
-                        Neworigins.append((r,height*7/8))
+                        Neworigins.append((r,0))
                     else:
-                        Neworigins.append((Neworigins[i-1][0]+r,height*7/8))
+                        Neworigins.append((Neworigins[i-1][0]+r,0))
 
                 if incomingCollision:
-                    ranges[bounceCount] = scale*NextCollisionXPoint
-                    print(f'New Origins before adjust{Neworigins}')
-                    print(pixelToCart(Neworigins[-1], xshift, yshift, scale))
+                    # print(rawranges,bounceCount)
+                    rawranges[bounceCount] = NextCollisionXPoint
+                    # print(bounceCount);print(Neworigins)
                     Neworigins[bounceCount] = (scale*NextCollisionXPoint, scale*NextCollisionYPoint)
-                    print(f'New origins after replacing with collision point {Neworigins}')
+                    CollisionOriginPoints[bounceCount] = (scale*NextCollisionXPoint, scale*NextCollisionYPoint)
+
                 rawmaxpointsx = []
                 for i,r in enumerate(rawranges):
                     if i == 0:
                         rawmaxpointsx.append(rawranges[i]/2) #first maxpoint will be half the first range
                     else:
-                        rawmaxpointsx.append(sum(ranges[:i])+ranges[i]/2) #any maxheight after this will be the sum of the ranges up to the origin just before this maximum point. then adding half of the current range/2 to get in the middle.
+                        rawmaxpointsx.append(sum(rawranges[:i])+rawranges[i]/2) #any maxheight after this will be the sum of the ranges up to the origin just before this maximum point. then adding half of the current range/2 to get in the middle.
                 maxpointsx = [scale*xdistance for xdistance in rawmaxpointsx]
                 # origins = [o+(width/8) for o in origins] #accounting for offset of the True origin point
                 # origins.insert(0,(width/8)) #inserts the True origin point in the list
+
+                if CollisionOriginPoints:
+                    for i, o in CollisionOriginPoints.items():
+                        print(CollisionOriginPoints)
+                        print('changing origins to collision', bounceCount)
+                        Neworigins[i] = o
 
                 Neworigins = [ ( (o[0]+(width/8), (height*7/8)-o[1]) ) for o in Neworigins]
                 Neworigins.insert(0,(width/8,height*7/8))
@@ -628,39 +643,48 @@ while running and not runningProjectile and not runningOther:
                     temprect.center = (origin[0] + sum(ranges) - xshift, origin[1] - yshift)#im too lazy to correct this rn so do it pretty please 🥺
                 finalpoint_rect = temprect
 
-                
+              
                 path = [[(scale*p[0][0],scale*p[0][1]),(p[1]), p[2]] for i,p in enumerate(rawpath)] #this is taken from the getpoint function in the motion class,the points are multiplied by the scale as it can be constantly changed index 1 is unused can be ignored. index 2 is the motion number label. not scale dependant but used so when drawing each circle it knows what origin it is relative to as there is a list of origins
                 
-
-            if event.type == GetParabola and simulating and len(rawranges) != 0:
-                # print(maxpointsx)
-                # print(rawranges)
+#and simulating was in this
+            if event.type == GetParabola and len(rawranges) != 0:
+                print('getting parabola🥺')
                 originCartForm = pixelToCart((Neworigins[bounceCount][0],Neworigins[bounceCount][1]), xshift, yshift, scale)
-                maxpointCartForm = pixelToCart((origin[0] + maxpointsx[bounceCount], 0), xshift, yshift, scale)
-                Coeffs = threepointparabola(sum(rawranges[:bounceCount]), originCartForm[1], maxpointCartForm[0], maxheight(initial), sum(rawranges), originCartForm[1])
+                finalxPointCoeff = (originCartForm[0] + xrange(initial))
+                maxpointxCoeff = ( (originCartForm[0] + finalxPointCoeff) / 2)
+                Coeffs = threepointparabola(originCartForm[0], originCartForm[1], maxpointxCoeff, originCartForm[1] + maxheight(initial), finalxPointCoeff, originCartForm[1])
                 CollidingPoints = []
                 for i,line in enumerate(linesList):
                     lineCollisionPoint = line.collisionCheck(Coeffs)
-                    if lineCollisionPoint != '':
+                    Tolerance = 0.005
+                    difference = abs(originCartForm[0] - lineCollisionPoint)
+                    print('difference', difference)
+                    print(originCartForm[0], lineCollisionPoint)
+                    if lineCollisionPoint != '' and difference > Tolerance:
+                        print('collision detected')
                         CollidingPoints.append(lineCollisionPoint)
                         NextLineIndex = i
                 CollidingPoints = sorted(CollidingPoints)
-                if len(CollidingPoints) != 0 and CollidingPoints[0]:
+                if len(CollidingPoints) != 0:
+                    print('collision')
                     incomingCollision = True
                     NextCollisionXPoint = CollidingPoints[0]
                     pygame.time.set_timer(landing, round(timeToReachX(initial,NextCollisionXPoint)*1000), 1)
                     NextCollisionYPoint = linesList[NextLineIndex].YValueFromXValue(NextCollisionXPoint)
-
+                    print('Hit Point', NextCollisionXPoint, NextCollisionYPoint)
+                else:
+                    incomingCollision = False
 
             if event.type == landing and simulating:
+                print('landing')
+                CollidingPoints = [] #clearing list for new motion to calc new ones
                 if not Bounce: #if bounce is disabled and the time has elapsed then simulating must become False.
                     simulating = False
                     landed = True
                 else:
-                    bounceCount += 1
                     if incomingCollision:
                         theta = math.tan(linesList[NextLineIndex].slope)
-                        initial = (initial[0]*math.sin(theta)*(-e), initial[1]*math.cos(theta)*(e))
+                        initial = ((-e) * (math.sin(theta)) * initial[0], (-e) * (math.cos(theta)) * (initial[1] - (g * timeToReachX(initial, NextCollisionXPoint))))
                     else:
                         initial = (initial[0], (e)*initial[1])
                     '''
@@ -670,13 +694,22 @@ while running and not runningProjectile and not runningOther:
                     knowing this lets me not use the formula '-e = v/u' and the need to go through the trouble of solving for final velocity
                     allowing me to simply multiply the (initial[1] * e)
                     '''
-                    if initial[1] < 1:
+                    if initial[1] < 0.5:
                         #caps the y-value. When the Y-velocity is uncapped because its being reduced by a fraction therefore it can never reach 0. therefore infinite bounces.
                         #this only happens in this simulation as it cannot truly account for every acting force on the particle
                         simulating = False
                         landed = True
                     else:
-                        pygame.time.set_timer(landing, round(time(initial)*1000), 1) #starts a new timer of the time of the new motion with its new velocity
+                        bounceCount += 1
+                        CartFormOrigin = pixelToCart(Neworigins[bounceCount], xshift, yshift, scale)
+                        tValues = QuadraticSolver( ((-1/2)*g), (initial[1]), (CartFormOrigin[1]))
+                        if tValues[0] > 0:
+                            posTVal = tValues[0]
+                        else:
+                            posTVal = tValues[1]
+
+                        pygame.time.set_timer(landing, round(posTVal*1000),1)
+                        # pygame.time.set_timer(landing, round(time(initial)*1000), 1) #starts a new timer of the time of the new motion with its new velocity
                         initials.append(initial) #appends the new initial velocity to the list
                         rawranges.append(xrange(initial))
                     
@@ -685,8 +718,8 @@ while running and not runningProjectile and not runningOther:
                 
                     totalT = 0 #resets the time to be used for new motion
                     
-                    # if DrawMode:
-                    #     pygame.event.post(GetParabolaEvent)
+                    if DrawMode:
+                        pygame.event.post(GetParabolaEvent)
 
         screen.fill("black") #background
         if DrawMode:
@@ -746,7 +779,6 @@ while running and not runningProjectile and not runningOther:
                     It is used so I can index the origins list and it will correctly use the correct offset when iterating through the path,
                     as each point in the path has a origin assigned it it
                     '''
-            
                     pygame.draw.circle(screen, 'white', (Neworigins[p[2]][0] + p[0][0] - xshift,Neworigins[p[2]][1] - p[0][1] - yshift), 3)
                     # pygame.draw.circle(screen, 'white', (Neworigins[p[2]][0] + p[0][0] - xshift,Neworigins[p[2]][1] - p[0][1] - yshift), 3)
 
@@ -853,7 +885,8 @@ while running and not runningProjectile and not runningOther:
 
         screen.blit(testText,(width/2, height/2))
         screen.blit(HideButton,HideButton_rect)
-        print(initials)
+        for dot in Neworigins:
+            pygame.draw.circle(screen, 'white', dot, 3)
         pygame.display.flip()
         clock.tick(144)  # fps limit
 pygame.quit()
