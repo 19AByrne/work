@@ -275,7 +275,6 @@ class Line:
         return (self.slope*(X-self.pointA[0]) + self.pointA[1])
 
 def timeToReachX(initial, X):
-    # print(initial,X)
     return X / (initial[0])
 Line( (20,2), (30,10) )
 # def YValueFromX(initial): 
@@ -291,7 +290,7 @@ def threepointparabola(x1,y1,x2,y2,x3,y3):
     
     c = y1 - a * x1**2-b*x1
     
-#     print(x1,y1,x2,y2,x3,y3)
+    # print(x1,y1,x2,y2,x3,y3)
     print('coeffs= ',a,b,c)
     
     return [a,b,c]
@@ -367,7 +366,7 @@ while running and not runningProjectile and not runningOther:
         Restitution_text_rect.center = (RestitutionButton_rect.center[0]+55,RestitutionButton_rect.center[1]+2)
         
         testText = font.render(str([round(x) for x in rawranges]), True, (255,255,255))
-        testText = debugfont.render((f'{incomingCollision}'), True, (255,255,255))
+        testText = debugfont.render((f'{CollidingPoints}, {incomingCollision}'), True, (255,255,255))
 
 
         for event in pygame.event.get():
@@ -572,6 +571,7 @@ while running and not runningProjectile and not runningOther:
             if event.type == scaleshift: #event called to adjust the coordinate points to the required scale
                 # ranges = [scale*xrange(init) for init in initials] #updates list of ranges for every initial
                 rawranges = [xrange(init) for init in initials]
+                print(f'{rawranges} initials {initials}')
                 ranges = [scale*r for r in rawranges]
                 # print(f'FUCKING RANGES {ranges}')
                 # print(f'FUCK RAW RANGES {rawranges}') #the fucking rawranges does exactly what i want but not what computer wants, it cant wait a singl efucking ms to update rawranges it just tweaks immediately cos its empty so maxdpointsx is empty
@@ -587,15 +587,11 @@ while running and not runningProjectile and not runningOther:
                 for i,r in enumerate(ranges):
                     if i == 0:
                         Neworigins.append((r,0))
+                        print(r,scale*xrange(initials[i]))
                     else:
                         Neworigins.append((Neworigins[i-1][0]+r,0))
 
-                if incomingCollision:
-                    # print(rawranges,bounceCount)
-                    rawranges[bounceCount] = NextCollisionXPoint
-                    # print(bounceCount);print(Neworigins)
-                    Neworigins[bounceCount] = (scale*NextCollisionXPoint, scale*NextCollisionYPoint)
-                    CollisionOriginPoints[bounceCount] = (scale*NextCollisionXPoint, scale*NextCollisionYPoint)
+                ####
 
                 rawmaxpointsx = []
                 for i,r in enumerate(rawranges):
@@ -604,18 +600,27 @@ while running and not runningProjectile and not runningOther:
                     else:
                         rawmaxpointsx.append(sum(rawranges[:i])+rawranges[i]/2) #any maxheight after this will be the sum of the ranges up to the origin just before this maximum point. then adding half of the current range/2 to get in the middle.
                 maxpointsx = [scale*xdistance for xdistance in rawmaxpointsx]
+
+                
                 # origins = [o+(width/8) for o in origins] #accounting for offset of the True origin point
                 # origins.insert(0,(width/8)) #inserts the True origin point in the list
 
+
+                Neworigins.insert(0,(0,0))
                 if CollisionOriginPoints:
                     for i, o in CollisionOriginPoints.items():
-                        print(CollisionOriginPoints)
-                        print('changing origins to collision', bounceCount)
+                        # print(CollisionOriginPoints)
+                        # print('changing origins to collision', i)
+                        # print(Neworigins)
                         Neworigins[i] = o
+                
+                if incomingCollision:
+                    print(f'Changing rawrange{bounceCount} to {NextCollisionXPoint}, btw {incomingCollision}')
+                    rawranges[bounceCount] = NextCollisionXPoint
+                    CollisionOriginPoints[bounceCount+1] = (scale*NextCollisionXPoint, scale*NextCollisionYPoint)
 
                 Neworigins = [ ( (o[0]+(width/8), (height*7/8)-o[1]) ) for o in Neworigins]
-                Neworigins.insert(0,(width/8,height*7/8))
-                
+
                 #Creating rects for all of these vital points so they can have hover detection to know if their coordinates should be displayed or not
                 points_rects = []
                 for i in range(len(maxpointsx)):
@@ -660,10 +665,11 @@ while running and not runningProjectile and not runningOther:
                     difference = abs(originCartForm[0] - lineCollisionPoint)
                     print('difference', difference)
                     print(originCartForm[0], lineCollisionPoint)
-                    if lineCollisionPoint != '' and difference > Tolerance:
+                    if lineCollisionPoint and difference > Tolerance:
                         print('collision detected')
                         CollidingPoints.append(lineCollisionPoint)
                         NextLineIndex = i
+                print(f'bounceCount {bounceCount}, {CollidingPoints}')
                 CollidingPoints = sorted(CollidingPoints)
                 if len(CollidingPoints) != 0:
                     print('collision')
@@ -694,9 +700,12 @@ while running and not runningProjectile and not runningOther:
                     knowing this lets me not use the formula '-e = v/u' and the need to go through the trouble of solving for final velocity
                     allowing me to simply multiply the (initial[1] * e)
                     '''
+
+                    incomingCollision = False
+
                     if initial[1] < 0.5:
                         #caps the y-value. When the Y-velocity is uncapped because its being reduced by a fraction therefore it can never reach 0. therefore infinite bounces.
-                        #this only happens in this simulation as it cannot truly account for every acting force on the particle
+                        #this only happens in this simulation as it cannot truly account for every acting force on a real particle
                         simulating = False
                         landed = True
                     else:
@@ -743,10 +752,6 @@ while running and not runningProjectile and not runningOther:
             rawpath.append(motions[bounceCount].getpoint(totalT)) #rawpath exists as it is unscaled and when the scale event is called. it does not repeadetly rescale the path as that would not work. it needs to multiply the scale by the raw value
             if totalT >= (time(initial)*1000/2) and maxCount == bounceCount: #if half of the time of the current motion elapses, the maxcount should go up.
                 maxCount += 1
-#             if totalT >= time(initial)*1000 and not Bounce: #if the time elapses and not bouncind the final point should be displayed and simulating needs to stop
-#                 simulating = False
-#                 displayfinal = True
-#                 testTextValue = 1
             
         if not originstate: 
             if FireButton_rect.collidepoint(pygame.mouse.get_pos()): #Checking if hovering over the button,
@@ -786,8 +791,6 @@ while running and not runningProjectile and not runningOther:
                     if i < maxCount:
                         pygame.draw.circle(screen, 'green', (width/8 + maxpointsx[i] - xshift, height*7/8 - maxheights[i] - yshift) , 5)
                     if i <= bounceCount:
-                        # print(Neworigins)
-                        # print(Neworigins[i][1])
                         pygame.draw.circle(screen, 'blue', (Neworigins[i][0]-xshift,Neworigins[i][1]-yshift), 5)
                         # pygame.draw.circle(screen, 'red', (Neworigins[i][0]-xshift,Neworigins[i][1]-yshift), 5)
 
@@ -883,10 +886,8 @@ while running and not runningProjectile and not runningOther:
                 if hoveringMax or hoveringOrigin:
                     screen.blit(hoverpostext[0],(hoverpostext[1][0], hoverpostext[1][1]-45))
 
-        screen.blit(testText,(width/2, height/2))
+        screen.blit(testText,(width/4, height/2))
         screen.blit(HideButton,HideButton_rect)
-        for dot in Neworigins:
-            pygame.draw.circle(screen, 'white', dot, 3)
         pygame.display.flip()
         clock.tick(144)  # fps limit
 pygame.quit()
