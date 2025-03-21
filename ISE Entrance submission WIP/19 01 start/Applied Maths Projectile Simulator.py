@@ -283,7 +283,7 @@ Line( (20,2), (30,10) )
 def threepointparabola(x1,y1,x2,y2,x3,y3):
     #they should all be cartesian form
     #function will return coeffs of quadratic equation in the form of ax2+bx+c
-    print(x1,y1,x2,y2,x3,y3)
+    # print(x1,y1,x2,y2,x3,y3)
     a = ( ((x3-x2)*(y2-y1)) - ((x2-x1)*(y3-y2)) ) / ( ((x3-x2)*(x2**2-x1**2)) - ((x2-x1)*(x3**2-x2**2)) )
     
     b = ( (y2-y1)-a*(x2**2-x1**2) ) / (x2-x1)
@@ -291,7 +291,7 @@ def threepointparabola(x1,y1,x2,y2,x3,y3):
     c = y1 - a * x1**2-b*x1
     
     # print(x1,y1,x2,y2,x3,y3)
-    print('coeffs= ',a,b,c)
+    # print('coeffs= ',a,b,c)
     
     return [a,b,c]
 
@@ -299,7 +299,20 @@ def pixelToCart(p, CurrentXshift, CurrentYshift, CurrentScale):
     p = ( (p[0] - origin[0] + CurrentXshift)/CurrentScale, (origin[1] - p[1] - CurrentYshift)/CurrentScale )
     return p
 
+def xrangeGivenOrigin(init, currentOrigin):
+    timeValues = QuadraticSolver( ((-1/2)*g), (init[1]), (currentOrigin[1]))
+    if timeValues[0] > 0:
+        posTVal = timeValues[0]
+    else:
+        posTVal = timeValues[1]
+    return (init[0]*posTVal)
+
+
+
+
+
 CollisionOriginPoints = {}
+CollisionRawRanges = {}
 debugdots = []
 maxpointsx = ''
 while running and not runningProjectile and not runningOther:
@@ -366,7 +379,7 @@ while running and not runningProjectile and not runningOther:
         Restitution_text_rect.center = (RestitutionButton_rect.center[0]+55,RestitutionButton_rect.center[1]+2)
         
         testText = font.render(str([round(x) for x in rawranges]), True, (255,255,255))
-        testText = debugfont.render((f'{CollidingPoints}, {incomingCollision}'), True, (255,255,255))
+        testText = debugfont.render((f'{Neworigins}, {initials}'), True, (255,255,255))
 
 
         for event in pygame.event.get():
@@ -571,7 +584,7 @@ while running and not runningProjectile and not runningOther:
             if event.type == scaleshift: #event called to adjust the coordinate points to the required scale
                 # ranges = [scale*xrange(init) for init in initials] #updates list of ranges for every initial
                 rawranges = [xrange(init) for init in initials]
-                print(f'{rawranges} initials {initials}')
+                # print(f'{rawranges} initials {initials}')
                 ranges = [scale*r for r in rawranges]
                 # print(f'FUCKING RANGES {ranges}')
                 # print(f'FUCK RAW RANGES {rawranges}') #the fucking rawranges does exactly what i want but not what computer wants, it cant wait a singl efucking ms to update rawranges it just tweaks immediately cos its empty so maxdpointsx is empty
@@ -583,13 +596,22 @@ while running and not runningProjectile and not runningOther:
                 #     else:
                 #         origins.append(origins[i-1]+r) #any origin after that is the origin before it + the range because the origin befaur is the sum of the ranges, so I take the sum of ranges and add on the current range
 
+
+                # if CollisionRawRanges:
+                #     for i,r in CollisionRawRanges.items():
+                #         rawranges[i] = r
+
                 Neworigins = []
                 for i,r in enumerate(ranges):
                     if i == 0:
                         Neworigins.append((r,0))
-                        print(r,scale*xrange(initials[i]))
                     else:
-                        Neworigins.append((Neworigins[i-1][0]+r,0))
+                        CurrentCartOrigin = pixelToCart(Neworigins[i-1],xshift,yshift,scale)
+                        Neworigins.append((Neworigins[i-1][0] + xrangeGivenOrigin(initials[i-1],CurrentCartOrigin),0))
+                        print(f'the origin is {CurrentCartOrigin} from {Neworigins[i-1]}')
+                        print(f'the initial is {initials[i-1]}')
+                        print(f'the range is {xrangeGivenOrigin(initials[i-1],CurrentCartOrigin)}')
+
 
                 ####
 
@@ -601,10 +623,6 @@ while running and not runningProjectile and not runningOther:
                         rawmaxpointsx.append(sum(rawranges[:i])+rawranges[i]/2) #any maxheight after this will be the sum of the ranges up to the origin just before this maximum point. then adding half of the current range/2 to get in the middle.
                 maxpointsx = [scale*xdistance for xdistance in rawmaxpointsx]
 
-                
-                # origins = [o+(width/8) for o in origins] #accounting for offset of the True origin point
-                # origins.insert(0,(width/8)) #inserts the True origin point in the list
-
 
                 Neworigins.insert(0,(0,0))
                 if CollisionOriginPoints:
@@ -615,11 +633,13 @@ while running and not runningProjectile and not runningOther:
                         Neworigins[i] = o
                 
                 if incomingCollision:
-                    print(f'Changing rawrange{bounceCount} to {NextCollisionXPoint}, btw {incomingCollision}')
-                    rawranges[bounceCount] = NextCollisionXPoint
+                    # print(f'Changing rawrange{bounceCount} to {NextCollisionXPoint}, btw {incomingCollision}')
+                    # rawranges[bounceCount] = NextCollisionXPoint
+                    CollisionRawRanges[bounceCount]= NextCollisionXPoint
                     CollisionOriginPoints[bounceCount+1] = (scale*NextCollisionXPoint, scale*NextCollisionYPoint)
-
+                # print('before', Neworigins)
                 Neworigins = [ ( (o[0]+(width/8), (height*7/8)-o[1]) ) for o in Neworigins]
+                # print('after', Neworigins)
 
                 #Creating rects for all of these vital points so they can have hover detection to know if their coordinates should be displayed or not
                 points_rects = []
@@ -661,15 +681,16 @@ while running and not runningProjectile and not runningOther:
                 CollidingPoints = []
                 for i,line in enumerate(linesList):
                     lineCollisionPoint = line.collisionCheck(Coeffs)
-                    Tolerance = 0.005
-                    difference = abs(originCartForm[0] - lineCollisionPoint)
-                    print('difference', difference)
-                    print(originCartForm[0], lineCollisionPoint)
-                    if lineCollisionPoint and difference > Tolerance:
-                        print('collision detected')
-                        CollidingPoints.append(lineCollisionPoint)
-                        NextLineIndex = i
-                print(f'bounceCount {bounceCount}, {CollidingPoints}')
+                    if lineCollisionPoint:
+                        Tolerance = 0.005
+                        difference = abs(originCartForm[0] - lineCollisionPoint)
+                        # print('difference', difference)
+                        print(originCartForm[0], lineCollisionPoint)
+                        if difference > Tolerance:
+                            print('collision detected')
+                            CollidingPoints.append(lineCollisionPoint)
+                            NextLineIndex = i
+                # print(f'bounceCount {bounceCount}, {CollidingPoints}')
                 CollidingPoints = sorted(CollidingPoints)
                 if len(CollidingPoints) != 0:
                     print('collision')
@@ -840,7 +861,7 @@ while running and not runningProjectile and not runningOther:
             
             
             if showMousePos:
-                MouseCoords = font.render( (f'({ round( (pygame.mouse.get_pos()[0] - origin[0] + xshift)/scale,2  ) },{ round((origin[1] - pygame.mouse.get_pos()[1]-yshift)/scale,2)})m'), True, (255,255,255))
+                MouseCoords = font.render( (f'({ round( (pygame.mouse.get_pos()[0] - origin[0] + xshift)/scale,2  ) },{ round((origin[1] - pygame.mouse.get_pos()[1]-yshift)/scale,2)})m or {pygame.mouse.get_pos()}'), True, (255,255,255))
                 screen.blit(MouseCoords, (pygame.mouse.get_pos()[0],pygame.mouse.get_pos()[1]-32))
 
             screen.blit(displayBox1Text, displayBox1Text_rect)
