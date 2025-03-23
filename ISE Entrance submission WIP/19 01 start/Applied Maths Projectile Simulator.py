@@ -269,9 +269,12 @@ class Line:
     def YValueFromXValue(self, X):
         return (self.slope*(X-self.pointA[0]) + self.pointA[1])
 
-def timeToReachX(initial, X):
-    return X / (initial[0])
-# Line( (20,2), (30,10) )
+
+#Origin should be in cart form
+def timeToReachX(initial, X, currentOrigin):
+    return (X-currentOrigin[0]) / (initial[0])
+
+Line( (20,4), (30,8) )
 # def YValueFromX(initial): 
 #     return ((initial[1]*X)/initial[0]) + (-g/2)*((X**2)/(initial[0]**2))
 
@@ -309,7 +312,7 @@ def xrangeGivenOrigin(init, currentOrigin):
 CollisionOriginPoints = {}
 CollisionRawRanges = {}
 debugdots = []
-maxpointsx = ''
+NextCollisionXPoint = ''
 while running:
     pygame.event.post(scaleshiftevent) #calls the event that shifts all coordinates to the current scale
     if not inputting:
@@ -350,7 +353,7 @@ while running:
     Restitution_text_rect.center = (RestitutionButton_rect.center[0]+55,RestitutionButton_rect.center[1]+2)
     
     testText = font.render(str([round(x) for x in rawranges]), True, (255,255,255))
-    testText = debugfont.render((f'{Neworigins}'), True, (255,255,255))
+    testText = debugfont.render((f'{incomingCollision,initials}'), True, (255,255,255))
 
 
     for event in pygame.event.get():
@@ -579,11 +582,6 @@ while running:
                 if i == 0:
                     Neworigins.append((r,0))
                 else:
-                    # CurrentCartOrigin = pixelToCart(Neworigins[i-1],xshift,yshift,scale)
-                    # Neworigins.append((Neworigins[i-1][0] +xrangeGivenOrigin(initials[i-1],CurrentCartOrigin),0))
-                    # print(f'the origin is {CurrentCartOrigin} from {Neworigins[i-1]}')
-                    # print(f'the initial is {initials[i-1]}')
-                    # print(f'the range is {xrangeGivenOrigin(initials[i-1],CurrentCartOrigin)}')
                     Neworigins.append((Neworigins[i-1][0]+r,0))
 
 
@@ -601,21 +599,16 @@ while running:
             Neworigins.insert(0,(0,0))
             if CollisionOriginPoints:
                 for i, o in CollisionOriginPoints.items():
-            #         # print(CollisionOriginPoints)
-            #         # print('changing origins to collision', i)
-            #         # print(Neworigins)
                     Neworigins[i] = (scale*o[0],scale*o[1])
             
             
 
-            # print('before', Neworigins)
             Neworigins = [ ( (o[0]+(width/8), (height*7/8)-o[1]) ) for o in Neworigins]
-            # print('after', Neworigins)
 
             if incomingCollision:
                 currentOriginCartForm = pixelToCart(Neworigins[bounceCount],xshift,yshift,scale)
                 RawRangeOutliers[bounceCount]= NextCollisionXPoint - currentOriginCartForm[0]
-                print(f'RawRangeOutliers[{bounceCount}] = {RawRangeOutliers[bounceCount]}, because {NextCollisionXPoint} - {currentOriginCartForm[0]}, {Neworigins[bounceCount+1]}')
+                # print(f'RawRangeOutliers[{bounceCount}] = {RawRangeOutliers[bounceCount]}, because {NextCollisionXPoint} - {currentOriginCartForm[0]}, {Neworigins[bounceCount+1]}')
                 CollisionOriginPoints[bounceCount+1] = (NextCollisionXPoint, NextCollisionYPoint)
             
 
@@ -639,12 +632,6 @@ while running:
                 temprect = pygame.Rect(0,0,10,10)
                 temprect.center = (Neworigins[i][0]-xshift,Neworigins[i][1]-yshift)
                 originpoints_rects.append(temprect)
-            
-            # originpoints_rects = []
-            # for i in range(len(Neworigins)):
-            #     temprect = pygame.Rect(0,0,10,10)
-            #     temprect.center = (Neworigins[0][i]-xshift,height*7/8-yshift)
-            #     originpoints_rects.append(temprect)
 
             temprect = pygame.Rect(0,0,10,10)
             if incomingCollision:
@@ -671,7 +658,7 @@ while running:
                     Tolerance = 0.005
                     difference = abs(originCartForm[0] - lineCollisionPoint)
                     # print('difference', difference)
-                    print(originCartForm[0], lineCollisionPoint)
+                    # print(originCartForm[0], lineCollisionPoint)
                     if difference > Tolerance:
                         print('collision detected')
                         CollidingPoints.append(lineCollisionPoint)
@@ -682,7 +669,8 @@ while running:
                 print('collision')
                 incomingCollision = True
                 NextCollisionXPoint = CollidingPoints[0]
-                pygame.time.set_timer(landing, round(timeToReachX(initial,NextCollisionXPoint)*1000), 1)
+                pygame.time.set_timer(landing, round(timeToReachX(initial,NextCollisionXPoint,originCartForm)*1000), 1)
+                print(f'timer for {round(timeToReachX(initial,NextCollisionXPoint,originCartForm)*1000)} ms has begun, {initial} and {NextCollisionXPoint}')
                 NextCollisionYPoint = linesList[NextLineIndex].YValueFromXValue(NextCollisionXPoint)
                 print('Hit Point', NextCollisionXPoint, NextCollisionYPoint)
             else:
@@ -703,7 +691,8 @@ while running:
             else:
                 if incomingCollision:
                     theta = math.tan(linesList[NextLineIndex].slope)
-                    initial = ((-e) * (math.sin(theta)) * initial[0], (-e) * (math.cos(theta)) * (initial[1] - (g * timeToReachX(initial, NextCollisionXPoint))))
+                    originCartForm = pixelToCart(Neworigins[bounceCount],xshift,yshift,scale)
+                    initial = ((-e) * (math.sin(theta)) * initial[0], (-e) * (math.cos(theta)) * (initial[1] - (g * timeToReachX(initial, NextCollisionXPoint, originCartForm))))
                 else:
                     initial = (initial[0], (e)*initial[1])
                 '''
