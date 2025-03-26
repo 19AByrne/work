@@ -249,10 +249,15 @@ class Line:
         #the identities of a line should only exist for the best way to check intersection of parabola and a line, remove accordingly
         try:
             self.slope = (self.pointB[1]-self.pointA[1]) / (self.pointB[0]-self.pointA[0])
+            if self.slope < 0:
+                print(self.slope)
+                self.slope = 180 + self.slope
+                print(f'now its {self.slope}')
         except ZeroDivisionError:
             self.slope = float('inf')
         self.yIntercept = self.pointA[1] - (self.slope * self.pointA[0])
         
+
     def collisionCheck(self, Coefficients): #coefficients of current motion.
         intersectionXValues = QuadraticSolver(Coefficients[0], Coefficients[1] - self.slope, Coefficients[2] - self.yIntercept)
         Restriction = sorted([self.pointA[0],self.pointB[0]])
@@ -274,7 +279,7 @@ class Line:
 def timeToReachX(initial, X, currentOrigin):
     return (X-currentOrigin[0]) / (initial[0])
 
-Line( (20,4), (30,8) )
+Line( (38,1), (44,2.5) )
 # def YValueFromX(initial): 
 #     return ((initial[1]*X)/initial[0]) + (-g/2)*((X**2)/(initial[0]**2))
 
@@ -308,7 +313,7 @@ def xrangeGivenOrigin(init, currentOrigin):
 
 
 
-
+NextLineIndex = False
 CollisionOriginPoints = {}
 CollisionRawRanges = {}
 debugdots = []
@@ -353,7 +358,8 @@ while running:
     Restitution_text_rect.center = (RestitutionButton_rect.center[0]+55,RestitutionButton_rect.center[1]+2)
     
     testText = font.render(str([round(x) for x in rawranges]), True, (255,255,255))
-    testText = debugfont.render((f'{incomingCollision,initials}'), True, (255,255,255))
+    ListOfSlopes = [math.degrees(math.atan(X.slope)) for X in linesList]
+    testText = debugfont.render((f'{ListOfSlopes}'), True, (255,255,255))
 
 
     for event in pygame.event.get():
@@ -690,9 +696,14 @@ while running:
                 landed = True
             else:
                 if incomingCollision:
-                    theta = math.tan(linesList[NextLineIndex].slope)
+                    theta = math.atan(linesList[NextLineIndex].slope)
                     originCartForm = pixelToCart(Neworigins[bounceCount],xshift,yshift,scale)
-                    initial = ((-e) * (math.sin(theta)) * initial[0], (-e) * (math.cos(theta)) * (initial[1] - (g * timeToReachX(initial, NextCollisionXPoint, originCartForm))))
+                    print(f'theta is {theta}, e={e}, initial={initial}, slope = {linesList[NextLineIndex].slope}')
+                    if (initial[1] - (g * timeToReachX(initial, NextCollisionXPoint, originCartForm))) < 0: #before maxpoint does not reflect in x axis, after maxpoint it does
+                        initial = ((-e) * (math.sin(theta)) * initial[0], (-e) * (math.cos(theta)) * (initial[1] - (g * timeToReachX(initial, NextCollisionXPoint, originCartForm))))
+                    else:
+                        initial = ((e) * (math.sin(theta)) * initial[0], (-e) * (math.cos(theta)) * (initial[1] - (g * timeToReachX(initial, NextCollisionXPoint, originCartForm))))
+
                 else:
                     initial = (initial[0], (e)*initial[1])
                 '''
