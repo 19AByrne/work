@@ -249,14 +249,12 @@ class Line:
         #the identities of a line should only exist for the best way to check intersection of parabola and a line, remove accordingly
         try:
             self.slope = (self.pointB[1]-self.pointA[1]) / (self.pointB[0]-self.pointA[0])
-            if self.slope < 0:
-                print(self.slope)
-                self.slope = 180 + self.slope
-                print(f'now its {self.slope}')
         except ZeroDivisionError:
             self.slope = float('inf')
         self.yIntercept = self.pointA[1] - (self.slope * self.pointA[0])
         
+        self.angle = (math.atan(self.slope))
+
 
     def collisionCheck(self, Coefficients): #coefficients of current motion.
         intersectionXValues = QuadraticSolver(Coefficients[0], Coefficients[1] - self.slope, Coefficients[2] - self.yIntercept)
@@ -279,7 +277,9 @@ class Line:
 def timeToReachX(initial, X, currentOrigin):
     return (X-currentOrigin[0]) / (initial[0])
 
-Line( (38,1), (44,2.5) )
+# Line( (38,1), (44,2.5) )
+# Line( (20,2), (30,8))
+Line( (-2,2), (8,4))
 # def YValueFromX(initial): 
 #     return ((initial[1]*X)/initial[0]) + (-g/2)*((X**2)/(initial[0]**2))
 
@@ -311,7 +311,7 @@ def xrangeGivenOrigin(init, currentOrigin):
     return (init[0]*posTVal)
 
 
-
+teststring = ''
 
 NextLineIndex = False
 CollisionOriginPoints = {}
@@ -358,8 +358,8 @@ while running:
     Restitution_text_rect.center = (RestitutionButton_rect.center[0]+55,RestitutionButton_rect.center[1]+2)
     
     testText = font.render(str([round(x) for x in rawranges]), True, (255,255,255))
-    ListOfSlopes = [math.degrees(math.atan(X.slope)) for X in linesList]
-    testText = debugfont.render((f'{ListOfSlopes}'), True, (255,255,255))
+    slopeslist = [math.degrees(x.angle) for x in linesList]
+    testText = debugfont.render((f'{teststring} {initials}'), True, (255,255,255))
 
 
     for event in pygame.event.get():
@@ -695,17 +695,101 @@ while running:
                 simulating = False
                 landed = True
             else:
-                if incomingCollision:
-                    theta = math.atan(linesList[NextLineIndex].slope)
-                    originCartForm = pixelToCart(Neworigins[bounceCount],xshift,yshift,scale)
-                    print(f'theta is {theta}, e={e}, initial={initial}, slope = {linesList[NextLineIndex].slope}')
-                    if (initial[1] - (g * timeToReachX(initial, NextCollisionXPoint, originCartForm))) < 0: #before maxpoint does not reflect in x axis, after maxpoint it does
-                        initial = ((-e) * (math.sin(theta)) * initial[0], (-e) * (math.cos(theta)) * (initial[1] - (g * timeToReachX(initial, NextCollisionXPoint, originCartForm))))
-                    else:
-                        initial = ((e) * (math.sin(theta)) * initial[0], (-e) * (math.cos(theta)) * (initial[1] - (g * timeToReachX(initial, NextCollisionXPoint, originCartForm))))
+                # if incomingCollision:
+                #     theta = math.atan(linesList[NextLineIndex].slope)
+                #     originCartForm = pixelToCart(Neworigins[bounceCount],xshift,yshift,scale)
+                #     print(f'theta is {theta}, e={e}, initial={initial}, slope = {linesList[NextLineIndex].slope}')
+                #     if (initial[1] - (g * timeToReachX(initial, NextCollisionXPoint, originCartForm))) < 0: #before maxpoint does not reflect in x axis, after maxpoint it does
+                #         initial = ((-e) * (math.sin(theta)) * initial[0], (-e) * (math.cos(theta)) * (initial[1] - (g * timeToReachX(initial, NextCollisionXPoint, originCartForm))))
+                #     else:
+                #         initial = ((e) * (math.sin(theta)) * initial[0], (-e) * (math.cos(theta)) * (initial[1] - (g * timeToReachX(initial, NextCollisionXPoint, originCartForm))))
+                reversesign = False
+                # if incomingCollision:
+                #     SlopeOfSurface = linesList[NextLineIndex].angle
+                #     originCartForm = pixelToCart(Neworigins[bounceCount],xshift,yshift,scale)
 
+                #     FinalVelocity = (initial[0], initial[1] - (g * timeToReachX(initial, NextCollisionXPoint, originCartForm)))
+                #     FinalVelocity_direction = math.atan2(FinalVelocity[1],FinalVelocity[0])
+                #     if FinalVelocity_direction < 0:
+                #         FinalVelocity_direction = math.pi + FinalVelocity_direction
+                    
+                #     AngleIncidence = FinalVelocity_direction - SlopeOfSurface
+                #     AngleReflect = AngleIncidence
+                    
+                #     FinalVelocity_magnitude = math.sqrt(FinalVelocity[0]**2 + FinalVelocity[1]**2)
+
+                #     # if NextCollisionXPoint < originCartForm[0] + xrange(initial)/2 and math.degrees(SlopeOfSurface) < 90:
+                #     #     NewVelocity_magnitude = (-e*FinalVelocity_magnitude)
+                #     #     print('reflecting')
+                #     # elif not NextCollisionXPoint < originCartForm[0] + xrange(initial)/2 and math.degrees(SlopeOfSurface) > 90:
+                #     # else:
+                #     #     NewVelocity_magnitude = (e*FinalVelocity_magnitude)
+                #     #     print('not reflecting')
+                #     ReverseYVelSign = False
+                #     ReverseXVelSign = False
+                #     a = Coeffs[0]
+                #     b = Coeffs[1]
+                #     TangentSlope = (2*a*NextCollisionXPoint+b)
+
+                #     if NextCollisionXPoint < originCartForm[0] + xrange(initial)/2:
+                #         if math.degrees(SlopeOfSurface) < 90:
+                #             NewVelocity_magnitude = (-e*FinalVelocity_magnitude) #should be - if it hits the topside, bottom of it causes errors i think if it hits the bottom it should not have the minus there and the y vel should be reversed post. i dont think so anymore i think it should be reverse x direction if it hits underside
+                #             if linesList[NextLineIndex].slope < TangentSlope:
+                #                 ReverseXVelSign = True
+                #         else:
+                #             NewVelocity_magnitude = (e*FinalVelocity_magnitude) #DEFINTELY THIS
+                #     else: # if it hits in second half of motion
+                #         if math.degrees(SlopeOfSurface) < 90:
+                #             # NewVelocity_magnitude = (e*FinalVelocity_magnitude) #DEFINTELY THIS
+                #             NewVelocity_magnitude = (-e*FinalVelocity_magnitude) #should be - if it hits the topside, bottom of it causes errors i think if it hits the bottom it should not have the minus there and the y vel should be reversed post. i dont think so anymore i think it should be reverse x direction if it hits underside
+                #             if linesList[NextLineIndex].slope < TangentSlope:
+                #                 ReverseXVelSign = True
+                #         else:
+                #             NewVelocity_magnitude = (e*FinalVelocity_magnitude) # should not have - and y vel should be flipped post, 
+                #             ReverseYVelSign = True
+                #             if linesList[NextLineIndex].slope < TangentSlope:
+                #                 ReverseXVelSign = True
+                #     NewVelocity_direction = AngleReflect
+
+                #     if ReverseYVelSign and ReverseXVelSign:
+                #         initial = (-NewVelocity_magnitude*math.cos((NewVelocity_direction)),-NewVelocity_magnitude*math.sin((NewVelocity_direction)))
+                #         # initial = (NewVelocity_magnitude*math.cos((FinalVelocity_direction)),-NewVelocity_magnitude*math.sin((FinalVelocity_direction)))
+                #     elif ReverseXVelSign:
+                #         initial = (-NewVelocity_magnitude*math.cos((NewVelocity_direction)),NewVelocity_magnitude*math.sin((NewVelocity_direction)))
+                #     elif ReverseYVelSign:
+                #         initial = (NewVelocity_magnitude*math.cos((NewVelocity_direction)),-NewVelocity_magnitude*math.sin((NewVelocity_direction)))
+                #     else:
+                #         initial = (NewVelocity_magnitude*math.cos((NewVelocity_direction)),NewVelocity_magnitude*math.sin((NewVelocity_direction)))
+
+                #     print(initial)
+                #     print(f'{math.degrees(AngleIncidence)} is the angle of incidence, {math.degrees(FinalVelocity_direction)}, {math.degrees(SlopeOfSurface)}')
+                if incomingCollision:
+                    SlopeOfSurface = math.degrees(linesList[NextLineIndex].angle)
+                    originCartForm = pixelToCart(Neworigins[bounceCount],xshift,yshift,scale)
+                    FinalVelocity = (initial[0], initial[1] - (g * timeToReachX(initial, NextCollisionXPoint, originCartForm)))
+                    initial = (e*FinalVelocity[0],e*FinalVelocity[1])
+                    magnitude = math.sqrt(initial[0]**2 + initial[1]**2)
+                    direction = abs(math.degrees(math.atan2(initial[1],initial[0])))
+                    teststring = f'{SlopeOfSurface}'
+                    
+                    a = Coeffs[0]
+                    b = Coeffs[1]
+                    TangentSlope = (2*a*NextCollisionXPoint+b)
+
+                    if linesList[NextLineIndex].slope < TangentSlope:
+                        newdirection = direction - (direction - SlopeOfSurface) - (direction - SlopeOfSurface)
+                    else:
+                        newdirection = direction + 2*SlopeOfSurface
+                    initial = (magnitude*math.cos(math.radians(newdirection)),magnitude*math.sin(math.radians(newdirection)))
                 else:
-                    initial = (initial[0], (e)*initial[1])
+                    CartFormOrigin = pixelToCart(Neworigins[bounceCount], xshift, yshift, scale)
+                    tValues = QuadraticSolver( ((-1/2)*g), (initial[1]), (CartFormOrigin[1]))
+                    if tValues[0] > 0:
+                        posTVal = tValues[0]
+                    else:
+                        posTVal = tValues[1]
+                    FinalYVel = initial[1] - (g * posTVal)
+                    initial = (initial[0], (-e)*FinalYVel)
                 '''
                 applies restituion to the velocity when particle hits the floor,
                 it can be applied to the initial as the motion is on a horizontal plane,
@@ -716,7 +800,7 @@ while running:
 
                 incomingCollision = False
 
-                if initial[1] < 0.5:
+                if abs(initial[1]) < 1:
                     #caps the y-value. When the Y-velocity is uncapped because its being reduced by a fraction therefore it can never reach 0. therefore infinite bounces.
                     #this only happens in this simulation as it cannot truly account for every acting force on a real particle
                     simulating = False
