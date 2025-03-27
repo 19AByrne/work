@@ -279,7 +279,8 @@ def timeToReachX(initial, X, currentOrigin):
 
 # Line( (38,1), (44,2.5) )
 # Line( (20,2), (30,8))
-Line( (-2,2), (8,4))
+# Line( (-2,2), (8,4))
+Line( (10,2), (50,16))
 # def YValueFromX(initial): 
 #     return ((initial[1]*X)/initial[0]) + (-g/2)*((X**2)/(initial[0]**2))
 
@@ -294,7 +295,7 @@ def threepointparabola(x1,y1,x2,y2,x3,y3):
     c = y1 - a * x1**2-b*x1
     
     # print(x1,y1,x2,y2,x3,y3)
-    # print('coeffs= ',a,b,c)
+    print('coeffs= ',a,b,c)
     
     return [a,b,c]
 
@@ -318,6 +319,7 @@ CollisionOriginPoints = {}
 CollisionRawRanges = {}
 debugdots = []
 NextCollisionXPoint = ''
+CollidingPoints = []
 while running:
     pygame.event.post(scaleshiftevent) #calls the event that shifts all coordinates to the current scale
     if not inputting:
@@ -359,7 +361,7 @@ while running:
     
     testText = font.render(str([round(x) for x in rawranges]), True, (255,255,255))
     slopeslist = [math.degrees(x.angle) for x in linesList]
-    testText = debugfont.render((f'{teststring} {initials}'), True, (255,255,255))
+    testText = debugfont.render((f'{incomingCollision} {CollidingPoints}'), True, (255,255,255))
 
 
     for event in pygame.event.get():
@@ -665,6 +667,7 @@ while running:
                     difference = abs(originCartForm[0] - lineCollisionPoint)
                     # print('difference', difference)
                     # print(originCartForm[0], lineCollisionPoint)
+                    print(f'difference = {difference}, tolerance = {Tolerance}, collision = {lineCollisionPoint}, origin x point = {originCartForm[0]}')
                     if difference > Tolerance:
                         print('collision detected')
                         CollidingPoints.append(lineCollisionPoint)
@@ -672,7 +675,7 @@ while running:
             # print(f'bounceCount {bounceCount}, {CollidingPoints}')
             CollidingPoints = sorted(CollidingPoints)
             if len(CollidingPoints) != 0:
-                print('collision')
+                # print('collision')
                 incomingCollision = True
                 NextCollisionXPoint = CollidingPoints[0]
                 pygame.time.set_timer(landing, round(timeToReachX(initial,NextCollisionXPoint,originCartForm)*1000), 1)
@@ -776,11 +779,13 @@ while running:
                     b = Coeffs[1]
                     TangentSlope = (2*a*NextCollisionXPoint+b)
 
-                    if linesList[NextLineIndex].slope < TangentSlope:
+                    if linesList[NextLineIndex].slope < TangentSlope and initial[0] > 0:
                         newdirection = direction - (direction - SlopeOfSurface) - (direction - SlopeOfSurface)
+                        print('using the other formula 😡', bounceCount)
                     else:
                         newdirection = direction + 2*SlopeOfSurface
                     initial = (magnitude*math.cos(math.radians(newdirection)),magnitude*math.sin(math.radians(newdirection)))
+                    print(f'the new direction is {newdirection} because ')
                 else:
                     CartFormOrigin = pixelToCart(Neworigins[bounceCount], xshift, yshift, scale)
                     tValues = QuadraticSolver( ((-1/2)*g), (initial[1]), (CartFormOrigin[1]))
