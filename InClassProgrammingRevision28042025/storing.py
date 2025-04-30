@@ -1,16 +1,27 @@
 f = open('Data.csv', 'r')
 headers = f.readline()
 headers = headers.strip('\n')
-headers = headers.split(',')
+headerslist = headers.split(',')
 
 dictionary = {}
-for line in f:
+for index,line in enumerate(f):
+    tempdic = {}
     line = line.strip('\n')
     line = line.split(',')
     for i,x in enumerate(line):
-        dictionary[ headers[i] ] = x
-    
+        tempdic[ headers[i] ] = x.strip(' ')
+    dictionary[index] = tempdic
+
+f.close()
+
 print(dictionary)
-# for x in headers:
-#     print(f'Enter your {x}')
-#     user_inputs.append(input())
+
+f = open('NewData.csv', 'w')
+f.write(f'{headers}\n')
+for i, v in dictionary.items():
+    for h, x in v.items():
+        f.write(f'{x}')
+        
+f.close()
+
+
